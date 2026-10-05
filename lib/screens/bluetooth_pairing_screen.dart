@@ -28,6 +28,8 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
   void initState() {
     super.initState();
 
+    _connService.addListener(_onConnectionChanged);
+
     // Pulsing radar animation for "Waiting Connection" state
     _pulseController = AnimationController(
       vsync: this,
@@ -43,8 +45,13 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
 
   @override
   void dispose() {
+    _connService.removeListener(_onConnectionChanged);
     _pulseController.dispose();
     super.dispose();
+  }
+
+  void _onConnectionChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -178,11 +185,52 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                 const SizedBox(height: 16),
               ],
 
+              // Connection Failed Alert Card
+              if (status == ConnectionStateStatus.failed && !isConnecting) ...[
+                Card(
+                  color: AppColors.error.withAlpha(25),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: AppColors.error.withAlpha(120), width: 1.5),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: AppColors.error, size: 24),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Connection Failed',
+                                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.error),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _connService.statusMessage ?? 'Could not connect. Please make sure Bluetooth is ON on your computer.',
+                                style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
               // Dynamic Main Card (Connecting Loading vs Waiting Radar)
               if (isConnecting) ...[
                 // Loading State Card
                 Card(
                   color: AppColors.surfaceElevated,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: AppColors.primaryLight, width: 1.5),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Column(
@@ -191,21 +239,35 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                           width: 48,
                           height: 48,
                           child: CircularProgressIndicator(
-                            strokeWidth: 3,
+                            strokeWidth: 3.5,
                             color: AppColors.primaryLight,
                           ),
                         ),
                         const SizedBox(height: 20),
-                        const Text(
-                          'Pairing with Desktop...',
+                        Text(
+                          'Connecting to ${_settings.lastDeviceName.isNotEmpty ? _settings.lastDeviceName : "Desktop"}...',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Please confirm the Bluetooth pairing prompt on your screen to complete setup.',
+                        Text(
+                          _connService.statusMessage ?? 'Establishing Bluetooth HID connection...',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                          style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+                        ),
+                        const SizedBox(height: 16),
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            HapticHelper.selectionClick();
+                            _connService.disconnect();
+                          },
+                          icon: const Icon(Icons.close, size: 16),
+                          label: const Text('Cancel Connection', style: TextStyle(fontSize: 12)),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.textMuted,
+                            side: const BorderSide(color: AppColors.border),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
                         ),
                       ],
                     ),

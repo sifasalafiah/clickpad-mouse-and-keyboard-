@@ -40,9 +40,12 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
         _accumulatedDx = 0.0;
         _accumulatedDy = 0.0;
       }
-      if (_accumulatedScrollY != 0.0) {
-        _connService.sendCommand(InputCommand.scroll(0, _accumulatedScrollY));
-        _accumulatedScrollY = 0.0;
+      if (_accumulatedScrollY.abs() >= 0.8) {
+        final ticks = _accumulatedScrollY.truncateToDouble();
+        if (ticks != 0.0) {
+          _connService.sendCommand(InputCommand.scroll(0, ticks));
+          _accumulatedScrollY -= ticks;
+        }
       }
     });
   }
@@ -102,9 +105,9 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
       _accumulatedDx += delta.dx * sensitivity;
       _accumulatedDy += delta.dy * sensitivity;
     } else if (_activePointers >= 2) {
-      // Two fingers: Accumulate scroll
-      final scrollSens = _settings.scrollSensitivity;
-      _accumulatedScrollY += delta.dy * scrollSens;
+      // Two fingers: Smooth scroll with proper pixel-to-notch scaling & settings tuning
+      final scrollFactor = 0.08 * _settings.scrollSensitivity;
+      _accumulatedScrollY += delta.dy * scrollFactor;
     }
   }
 
