@@ -58,7 +58,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 color: AppColors.primary.withAlpha(30),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.bluetooth, color: AppColors.primary, size: 20),
+              child: const Icon(
+                Icons.bluetooth,
+                color: AppColors.primary,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 10),
             const Expanded(
@@ -72,7 +76,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    'Bluetooth Remote',
+                    'PC Mouse & Keyboard',
                     style: TextStyle(fontSize: 10, color: AppColors.textMuted),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -92,9 +96,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               },
               borderRadius: BorderRadius.circular(20),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
-                  color: isConnected ? AppColors.success.withAlpha(30) : AppColors.surfaceElevated,
+                  color: isConnected
+                      ? AppColors.success.withAlpha(30)
+                      : AppColors.surfaceElevated,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isConnected ? AppColors.success : AppColors.border,
@@ -109,24 +118,32 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                       height: 6,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: isConnected ? AppColors.success : AppColors.textMuted,
+                        color: isConnected
+                            ? AppColors.success
+                            : AppColors.textMuted,
                       ),
                     ),
                     const SizedBox(width: 6),
                     Icon(
                       Icons.bluetooth,
                       size: 14,
-                      color: isConnected ? AppColors.success : AppColors.textMuted,
+                      color: isConnected
+                          ? AppColors.success
+                          : AppColors.textMuted,
                     ),
                     const SizedBox(width: 4),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 95),
                       child: Text(
-                        isConnected ? (device?.name ?? 'Connected') : 'Connected',
+                        isConnected
+                            ? (device?.name ?? 'Connected')
+                            : 'Connected',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: isConnected ? AppColors.success : AppColors.textSecondary,
+                          color: isConnected
+                              ? AppColors.success
+                              : AppColors.textSecondary,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -138,10 +155,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
         ],
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
