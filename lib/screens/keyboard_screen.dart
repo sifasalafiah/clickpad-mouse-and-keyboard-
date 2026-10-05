@@ -217,7 +217,7 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                         _PebbleKey(isUppercase ? 'R' : 'r', 0x15, flex: 1),
                         _PebbleKey(isUppercase ? 'T' : 't', 0x17, flex: 1),
                         _PebbleKey(isUppercase ? 'Y' : 'y', 0x1C, flex: 1),
-                        _PebbleKey(isUppercase ? 'U' : 'u', 0x15, flex: 1),
+                        _PebbleKey(isUppercase ? 'U' : 'u', 0x18, flex: 1),
                         _PebbleKey(isUppercase ? 'I' : 'i', 0x0C, flex: 1),
                         _PebbleKey(isUppercase ? 'O' : 'o', 0x12, flex: 1),
                         _PebbleKey(isUppercase ? 'P' : 'p', 0x13, flex: 1),
