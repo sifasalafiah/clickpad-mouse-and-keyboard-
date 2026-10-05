@@ -5,6 +5,7 @@ import '../services/connection_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
+import '../widgets/banner_ad_widget.dart';
 
 class TouchpadScreen extends StatefulWidget {
   const TouchpadScreen({super.key});
@@ -119,6 +120,9 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Collapsible AdMob Banner Ad at Top of Touchpad Screen
+        const CollapsibleBannerAdWidget(collapsiblePosition: 'top'),
+
         // Top Info & Quick Bar
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

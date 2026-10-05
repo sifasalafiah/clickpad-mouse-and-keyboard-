@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/bluetooth_pairing_screen.dart';
 import 'screens/main_navigation_screen.dart';
+import 'services/ad_service.dart';
 import 'services/connection_service.dart';
 import 'services/settings_service.dart';
 import 'theme/app_theme.dart';
@@ -8,9 +9,10 @@ import 'theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize persistent settings and connection services
+  // Initialize persistent settings, connection, and AdMob services
   await SettingsService.instance.init();
   ConnectionService.instance.init();
+  await AdService.instance.init();
 
   runApp(const ClickPadApp());
 }
@@ -43,6 +45,11 @@ class _AppRootWrapperState extends State<AppRootWrapper> {
   void initState() {
     super.initState();
     _connService.addListener(_onConnectionStatusChanged);
+    
+    // Show App Open Ad if loaded after initial rendering
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AdService.instance.showAppOpenAdIfAvailable();
+    });
   }
 
   @override
