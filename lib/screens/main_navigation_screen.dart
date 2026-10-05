@@ -4,7 +4,6 @@ import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
 import 'connection_modal.dart';
 import 'keyboard_screen.dart';
-import 'media_presentation_screen.dart';
 import 'settings_screen.dart';
 import 'touchpad_screen.dart';
 
@@ -22,7 +21,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   final List<Widget> _screens = const [
     TouchpadScreen(),
     KeyboardScreen(),
-    MediaPresentationScreen(),
     SettingsScreen(),
   ];
 
@@ -172,11 +170,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             icon: Icon(Icons.keyboard_outlined),
             activeIcon: Icon(Icons.keyboard),
             label: 'Keyboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.music_note_outlined),
-            activeIcon: Icon(Icons.music_note),
-            label: 'Media',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
