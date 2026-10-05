@@ -54,31 +54,39 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
   }
 
   void _onPointerDown(PointerDownEvent event) {
-    setState(() => _activePointers++);
-    _lastPanPosition = event.localPosition;
-    
-    // Show touch ripple visual feedback
     setState(() {
+      _activePointers++;
+      _lastPanPosition = event.localPosition;
       _touchRipplePosition = event.localPosition;
       _showTouchRipple = true;
-    });
-
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) setState(() => _showTouchRipple = false);
     });
   }
 
   void _onPointerUp(PointerUpEvent event) {
-    setState(() => _activePointers = (_activePointers - 1).clamp(0, 10));
+    setState(() {
+      _activePointers = (_activePointers - 1).clamp(0, 10);
+      if (_activePointers == 0) {
+        _showTouchRipple = false;
+        _touchRipplePosition = null;
+      }
+    });
     _lastPanPosition = null;
   }
 
   void _onPointerCancel(PointerCancelEvent event) {
-    setState(() => _activePointers = 0);
+    setState(() {
+      _activePointers = 0;
+      _showTouchRipple = false;
+      _touchRipplePosition = null;
+    });
     _lastPanPosition = null;
   }
 
   void _onPointerMove(PointerMoveEvent event) {
+    setState(() {
+      _touchRipplePosition = event.localPosition;
+    });
+
     if (_lastPanPosition == null) {
       _lastPanPosition = event.localPosition;
       return;
@@ -203,8 +211,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                         Positioned(
                           left: _touchRipplePosition!.dx - 24,
                           top: _touchRipplePosition!.dy - 24,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
+                          child: Container(
                             width: 48,
                             height: 48,
                             decoration: BoxDecoration(
