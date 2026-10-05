@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/bluetooth_service.dart';
-import '../services/connection_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
 import '../widgets/banner_ad_widget.dart';
@@ -14,7 +13,6 @@ class KeyboardScreen extends StatefulWidget {
 }
 
 class _KeyboardScreenState extends State<KeyboardScreen> {
-  final ConnectionService _connService = ConnectionService.instance;
   final BluetoothBleService _bleService = BluetoothBleService.instance;
 
   bool _isShiftActive = false;

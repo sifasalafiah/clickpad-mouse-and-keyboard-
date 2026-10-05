@@ -240,12 +240,12 @@ class BluetoothBleService {
         final res = await _nativeHidChannel.invokeMethod('pairDevice', {'address': device.id});
         debugPrint("Native pair result: $res");
         
-        if (res == 'bonded') {
+        if (res == 'connected') {
           onStatusChanged?.call(ConnectionStateStatus.connected, device, 'Connected to ${device.name}');
           return true;
-        } else if (res == 'bonding_started') {
-          onStatusChanged?.call(ConnectionStateStatus.connecting, device, 'Pairing dialog requested on OS screen...');
-          return true;
+        } else if (res == 'connecting_started' || res == 'bonding_started' || res == 'bonded') {
+          onStatusChanged?.call(ConnectionStateStatus.connecting, device, 'Connecting to ${device.name}...');
+          return false;
         }
       } catch (e) {
         debugPrint("Pairing error: $e");

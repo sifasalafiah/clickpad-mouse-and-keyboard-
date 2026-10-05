@@ -27,9 +27,14 @@ class ConnectionService extends ChangeNotifier {
 
   void init() {
     _bleService.onStatusChanged = (status, device, msg) {
-      _status = status;
+      if (status == ConnectionStateStatus.disconnected && _status == ConnectionStateStatus.connecting) {
+        _status = ConnectionStateStatus.failed;
+        _statusMessage = 'Could not connect to ${device?.name ?? "Desktop"}. Please make sure Bluetooth is ON on your computer.';
+      } else {
+        _status = status;
+        _statusMessage = msg;
+      }
       _connectedDevice = device;
-      _statusMessage = msg;
       if (status == ConnectionStateStatus.connected && device != null) {
         SettingsService.instance.saveLastConnectedDevice(device.name, device.id);
       }
@@ -61,7 +66,7 @@ class ConnectionService extends ChangeNotifier {
 
   Future<bool> connect(DiscoveredDevice device) async {
     _status = ConnectionStateStatus.connecting;
-    _statusMessage = 'Pairing Bluetooth HID with ${device.name}...';
+    _statusMessage = 'Connecting to ${device.name}...';
     notifyListeners();
 
     // If device.id is a placeholder or native host is already connected, check native status
@@ -86,25 +91,47 @@ class ConnectionService extends ChangeNotifier {
       _statusMessage = 'Connected as Hardware Mouse/Keyboard to ${device.name}';
       _pingMs = 3;
       SettingsService.instance.saveLastConnectedDevice(device.name, device.id);
-    } else {
-      // Check if native Bluetooth HID host is actually connected despite pair API return string
-      final currentHost = await _bleService.checkCurrentConnectedHost();
-      if (currentHost != null) {
-        _status = ConnectionStateStatus.connected;
-        _connectedDevice = currentHost;
-        _statusMessage = 'Connected as Hardware Mouse/Keyboard to ${currentHost.name}';
-        _pingMs = 3;
-        SettingsService.instance.saveLastConnectedDevice(currentHost.name, currentHost.id);
-        success = true;
-      } else {
+      notifyListeners();
+      return true;
+    }
+
+    // If async connection was initiated (status is connecting), wait for native callback or poll for up to 8 seconds
+    if (_status == ConnectionStateStatus.connecting) {
+      int secondsPassed = 0;
+      while (secondsPassed < 8 && _status == ConnectionStateStatus.connecting) {
+        await Future.delayed(const Duration(seconds: 1));
+        secondsPassed++;
+
+        final currentHost = await _bleService.checkCurrentConnectedHost();
+        if (currentHost != null) {
+          _status = ConnectionStateStatus.connected;
+          _connectedDevice = currentHost;
+          _statusMessage = 'Connected as Hardware Mouse/Keyboard to ${currentHost.name}';
+          _pingMs = 3;
+          SettingsService.instance.saveLastConnectedDevice(currentHost.name, currentHost.id);
+          notifyListeners();
+          return true;
+        }
+      }
+
+      // If state is still connecting or disconnected after polling/timeout, set to failed
+      if (_status == ConnectionStateStatus.connecting || _status == ConnectionStateStatus.disconnected) {
         _status = ConnectionStateStatus.failed;
         _connectedDevice = null;
-        _statusMessage = 'Failed to pair Bluetooth with ${device.name}';
+        _statusMessage = 'Could not connect to ${device.name}. Please make sure Bluetooth is ON on your computer.';
+        notifyListeners();
+        return false;
       }
+    } else if (_status != ConnectionStateStatus.connected) {
+      _status = ConnectionStateStatus.failed;
+      _connectedDevice = null;
+      _statusMessage = 'Failed to pair Bluetooth with ${device.name}';
+      notifyListeners();
+      return false;
     }
 
     notifyListeners();
-    return success;
+    return isConnected;
   }
 
   Future<void> disconnect() async {

@@ -70,8 +70,10 @@ class MainActivity : FlutterActivity() {
                         try {
                             bluetoothHidDevice?.connect(device)
                         } catch (e: Exception) {}
+                        // HID state callback onConnectionStateChanged will call notifyStateChange when connected
+                    } else {
+                        notifyStateChange(true, device.name ?: "Connected Device", device.address)
                     }
-                    notifyStateChange(true, device.name ?: "Connected Device", device.address)
                 }
             }
         }
@@ -219,12 +221,24 @@ class MainActivity : FlutterActivity() {
                             val device = bluetoothAdapter?.getRemoteDevice(address)
                             if (device != null) {
                                 if (device.bondState == BluetoothDevice.BOND_BONDED) {
-                                    connectedHost = device
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                                        bluetoothHidDevice?.connect(device)
+                                        val connectedDevices = bluetoothHidDevice?.getConnectedDevices()
+                                        val isAlreadyConnected = connectedDevices?.any { it.address == address } == true
+                                        if (isAlreadyConnected) {
+                                            connectedHost = device
+                                            notifyStateChange(true, device.name ?: "Connected Device", device.address)
+                                            result.success("connected")
+                                        } else {
+                                            try {
+                                                bluetoothHidDevice?.connect(device)
+                                            } catch (e: Exception) {}
+                                            result.success("connecting_started")
+                                        }
+                                    } else {
+                                        connectedHost = device
+                                        notifyStateChange(true, device.name ?: "Connected Device", device.address)
+                                        result.success("connected")
                                     }
-                                    notifyStateChange(true, device.name ?: "Connected Device", device.address)
-                                    result.success("bonded")
                                 } else {
                                     val bondingStarted = device.createBond()
                                     result.success(if (bondingStarted) "bonding_started" else "failed")
