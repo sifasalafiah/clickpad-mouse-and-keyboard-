@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'screens/bluetooth_pairing_screen.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/ad_service.dart';
@@ -8,6 +9,13 @@ import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Keep screen awake (prevent auto-lock/sleep while using touchpad/keyboard)
+  try {
+    await WakelockPlus.enable();
+  } catch (e) {
+    debugPrint('Wakelock error: $e');
+  }
 
   // Initialize persistent settings, connection, and AdMob services
   await SettingsService.instance.init();

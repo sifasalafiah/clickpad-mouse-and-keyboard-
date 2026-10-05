@@ -28,10 +28,12 @@ class BluetoothBleService {
       if (call.method == 'onConnectionChanged') {
         final isConnected = call.arguments['isConnected'] as bool? ?? false;
         final deviceName = call.arguments['deviceName'] as String? ?? 'Connected Desktop';
+        final deviceAddress = call.arguments['deviceAddress'] as String? ?? '';
+        final deviceId = deviceAddress.isNotEmpty ? deviceAddress : 'NATIVE-HID-CONNECTED';
 
         if (isConnected) {
           final device = DiscoveredDevice(
-            id: 'NATIVE-HID-CONNECTED',
+            id: deviceId,
             name: deviceName,
             type: ConnectionType.bluetoothHid,
           );
@@ -202,6 +204,33 @@ class BluetoothBleService {
     try {
       await _nativeHidChannel.invokeMethod('openBluetoothSettings');
     } catch (_) {}
+  }
+
+  // Check if native Bluetooth HID host is already connected on OS level
+  Future<DiscoveredDevice?> checkCurrentConnectedHost() async {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      try {
+        final res = await _nativeHidChannel.invokeMethod('getConnectedHost');
+        if (res != null && res is Map) {
+          final name = res['name'] as String? ?? 'Connected Desktop';
+          final address = res['address'] as String? ?? 'NATIVE-HID-CONNECTED';
+          final device = DiscoveredDevice(
+            id: address.isNotEmpty ? address : 'NATIVE-HID-CONNECTED',
+            name: name,
+            type: ConnectionType.bluetoothHid,
+          );
+          onStatusChanged?.call(
+            ConnectionStateStatus.connected,
+            device,
+            'Connected to $name via Bluetooth HID',
+          );
+          return device;
+        }
+      } catch (e) {
+        debugPrint('checkCurrentConnectedHost error: $e');
+      }
+    }
+    return null;
   }
 
   Future<bool> connect(DiscoveredDevice device) async {

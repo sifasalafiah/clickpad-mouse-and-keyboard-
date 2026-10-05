@@ -71,7 +71,7 @@ class MainActivity : FlutterActivity() {
                             bluetoothHidDevice?.connect(device)
                         } catch (e: Exception) {}
                     }
-                    notifyStateChange(true, device.name ?: "Connected Device")
+                    notifyStateChange(true, device.name ?: "Connected Device", device.address)
                 }
             }
         }
@@ -223,7 +223,7 @@ class MainActivity : FlutterActivity() {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                                         bluetoothHidDevice?.connect(device)
                                     }
-                                    notifyStateChange(true, device.name ?: "Connected Device")
+                                    notifyStateChange(true, device.name ?: "Connected Device", device.address)
                                     result.success("bonded")
                                 } else {
                                     val bondingStarted = device.createBond()
@@ -241,14 +241,22 @@ class MainActivity : FlutterActivity() {
                 }
                 "getConnectedHost" -> {
                     try {
-                        if (connectedHost != null && hasBluetoothPermission()) {
-                            result.success(mapOf(
-                                "name" to (connectedHost?.name ?: "Connected Device"),
-                                "address" to (connectedHost?.address ?: "")
-                            ))
-                        } else {
-                            result.success(null)
+                        if (hasBluetoothPermission()) {
+                            if (connectedHost == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                val connectedDevices = bluetoothHidDevice?.getConnectedDevices()
+                                if (!connectedDevices.isNullOrEmpty()) {
+                                    connectedHost = connectedDevices[0]
+                                }
+                            }
+                            if (connectedHost != null) {
+                                result.success(mapOf(
+                                    "name" to (connectedHost?.name ?: "Connected Desktop"),
+                                    "address" to (connectedHost?.address ?: "")
+                                ))
+                                return@setMethodCallHandler
+                            }
                         }
+                        result.success(null)
                     } catch (e: Exception) {
                         result.success(null)
                     }
@@ -402,11 +410,11 @@ class MainActivity : FlutterActivity() {
                                 connectedHost = device
                                 try {
                                     bluetoothAdapter?.cancelDiscovery()
-                                    notifyStateChange(true, device?.name ?: "Connected Device")
+                                    notifyStateChange(true, device?.name ?: "Connected Device", device?.address ?: "")
                                 } catch (e: Exception) {}
                             } else if (state == BluetoothProfile.STATE_DISCONNECTED) {
                                 connectedHost = null
-                                notifyStateChange(false, "")
+                                notifyStateChange(false, "", "")
                             }
                         }
                     }
@@ -415,11 +423,12 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    private fun notifyStateChange(isConnected: Boolean, deviceName: String) {
+    private fun notifyStateChange(isConnected: Boolean, deviceName: String, deviceAddress: String = "") {
         Handler(Looper.getMainLooper()).post {
             methodChannel?.invokeMethod("onConnectionChanged", mapOf(
                 "isConnected" to isConnected,
-                "deviceName" to deviceName
+                "deviceName" to deviceName,
+                "deviceAddress" to (if (deviceAddress.isNotEmpty()) deviceAddress else (connectedHost?.address ?: ""))
             ))
         }
     }

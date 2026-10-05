@@ -15,6 +15,7 @@ class SettingsService extends ChangeNotifier {
   String _lastServerIp = '192.168.1.100';
   int _lastServerPort = 8888;
   String _lastDeviceName = '';
+  String _lastDeviceId = '';
 
   double get mouseSensitivity => _mouseSensitivity;
   double get scrollSensitivity => _scrollSensitivity;
@@ -24,6 +25,8 @@ class SettingsService extends ChangeNotifier {
   String get lastServerIp => _lastServerIp;
   int get lastServerPort => _lastServerPort;
   String get lastDeviceName => _lastDeviceName;
+  String get lastDeviceId => _lastDeviceId;
+  bool get hasLastConnectedDevice => _lastDeviceName.isNotEmpty && _lastDeviceId.isNotEmpty;
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -34,6 +37,7 @@ class SettingsService extends ChangeNotifier {
     _lastServerIp = prefs.getString('lastServerIp') ?? '192.168.1.100';
     _lastServerPort = prefs.getInt('lastServerPort') ?? 8888;
     _lastDeviceName = prefs.getString('lastDeviceName') ?? '';
+    _lastDeviceId = prefs.getString('lastDeviceId') ?? '';
     
     final connStr = prefs.getString('preferredConnectionType');
     if (connStr != null) {
@@ -45,6 +49,15 @@ class SettingsService extends ChangeNotifier {
     
     HapticHelper.enabled = _enableHaptics;
     notifyListeners();
+  }
+
+  Future<void> saveLastConnectedDevice(String name, String id) async {
+    _lastDeviceName = name;
+    _lastDeviceId = id;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lastDeviceName', name);
+    await prefs.setString('lastDeviceId', id);
   }
 
   Future<void> setMouseSensitivity(double value) async {

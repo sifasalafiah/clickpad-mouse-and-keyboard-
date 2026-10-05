@@ -4,6 +4,7 @@ import '../models/connection_type.dart';
 import '../models/device_model.dart';
 import '../models/input_command.dart';
 import 'bluetooth_service.dart';
+import 'settings_service.dart';
 
 class ConnectionService extends ChangeNotifier {
   static final ConnectionService instance = ConnectionService._internal();
@@ -29,8 +30,25 @@ class ConnectionService extends ChangeNotifier {
       _status = status;
       _connectedDevice = device;
       _statusMessage = msg;
+      if (status == ConnectionStateStatus.connected && device != null) {
+        SettingsService.instance.saveLastConnectedDevice(device.name, device.id);
+      }
       notifyListeners();
     };
+
+    checkCurrentConnection();
+  }
+
+  Future<void> checkCurrentConnection() async {
+    final connectedDev = await _bleService.checkCurrentConnectedHost();
+    if (connectedDev != null) {
+      _status = ConnectionStateStatus.connected;
+      _connectedDevice = connectedDev;
+      _statusMessage = 'Connected as Hardware Mouse/Keyboard to ${connectedDev.name}';
+      _pingMs = 3;
+      SettingsService.instance.saveLastConnectedDevice(connectedDev.name, connectedDev.id);
+      notifyListeners();
+    }
   }
 
   Future<List<DiscoveredDevice>> startDiscovery() async {
@@ -46,6 +64,20 @@ class ConnectionService extends ChangeNotifier {
     _statusMessage = 'Pairing Bluetooth HID with ${device.name}...';
     notifyListeners();
 
+    // If device.id is a placeholder or native host is already connected, check native status
+    if (device.id == 'NATIVE-HID-CONNECTED' || device.id.isEmpty) {
+      final currentHost = await _bleService.checkCurrentConnectedHost();
+      if (currentHost != null) {
+        _status = ConnectionStateStatus.connected;
+        _connectedDevice = currentHost;
+        _statusMessage = 'Connected as Hardware Mouse/Keyboard to ${currentHost.name}';
+        _pingMs = 3;
+        SettingsService.instance.saveLastConnectedDevice(currentHost.name, currentHost.id);
+        notifyListeners();
+        return true;
+      }
+    }
+
     bool success = await _bleService.connect(device);
 
     if (success) {
@@ -53,10 +85,22 @@ class ConnectionService extends ChangeNotifier {
       _connectedDevice = device;
       _statusMessage = 'Connected as Hardware Mouse/Keyboard to ${device.name}';
       _pingMs = 3;
+      SettingsService.instance.saveLastConnectedDevice(device.name, device.id);
     } else {
-      _status = ConnectionStateStatus.failed;
-      _connectedDevice = null;
-      _statusMessage = 'Failed to pair Bluetooth with ${device.name}';
+      // Check if native Bluetooth HID host is actually connected despite pair API return string
+      final currentHost = await _bleService.checkCurrentConnectedHost();
+      if (currentHost != null) {
+        _status = ConnectionStateStatus.connected;
+        _connectedDevice = currentHost;
+        _statusMessage = 'Connected as Hardware Mouse/Keyboard to ${currentHost.name}';
+        _pingMs = 3;
+        SettingsService.instance.saveLastConnectedDevice(currentHost.name, currentHost.id);
+        success = true;
+      } else {
+        _status = ConnectionStateStatus.failed;
+        _connectedDevice = null;
+        _statusMessage = 'Failed to pair Bluetooth with ${device.name}';
+      }
     }
 
     notifyListeners();

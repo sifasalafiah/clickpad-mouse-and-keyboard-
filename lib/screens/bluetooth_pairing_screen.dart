@@ -3,6 +3,7 @@ import '../models/connection_type.dart';
 import '../models/device_model.dart';
 import '../services/bluetooth_service.dart';
 import '../services/connection_service.dart';
+import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
 
@@ -16,6 +17,7 @@ class BluetoothPairingScreen extends StatefulWidget {
 class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with SingleTickerProviderStateMixin {
   final ConnectionService _connService = ConnectionService.instance;
   final BluetoothBleService _bleService = BluetoothBleService.instance;
+  final SettingsService _settings = SettingsService.instance;
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
@@ -104,7 +106,77 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
+
+              // Last Connected Device Quick Reconnect Card
+              if (_settings.hasLastConnectedDevice && !isConnecting) ...[
+                Card(
+                  color: AppColors.surfaceElevated,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: const BorderSide(color: AppColors.primaryLight, width: 1.5),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withAlpha(40),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.history, color: AppColors.primaryLight, size: 22),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                               const Text(
+                                'LAST CONNECTED DEVICE',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: AppColors.primaryLight,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _settings.lastDeviceName,
+                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            HapticHelper.mediumImpact();
+                            _connService.connect(
+                              DiscoveredDevice(
+                                id: _settings.lastDeviceId,
+                                name: _settings.lastDeviceName,
+                                type: ConnectionType.bluetoothHid,
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.bolt, size: 16),
+                          label: const Text('Connect', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
 
               // Dynamic Main Card (Connecting Loading vs Waiting Radar)
               if (isConnecting) ...[
@@ -188,7 +260,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                               SizedBox(width: 6),
                               Flexible(
                                 child: Text(
-                                  'Memancarkan Otomatis: ClickPad Mouse',
+                                  'Auto Advertising: ClickPad Mouse',
                                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                                   overflow: TextOverflow.ellipsis,
                                 ),
