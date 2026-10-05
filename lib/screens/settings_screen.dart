@@ -166,7 +166,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('DeskRemote Bluetooth HID v1.0.0', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('ClickPad Bluetooth HID v1.0.0', style: TextStyle(fontWeight: FontWeight.bold)),
                         SizedBox(height: 4),
                         Text('Seamless Bluetooth Mouse & Keyboard controller for macOS, Windows, and Linux.', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                       ],

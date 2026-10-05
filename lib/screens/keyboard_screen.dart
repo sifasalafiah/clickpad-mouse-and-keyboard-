@@ -84,7 +84,7 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
       child: SafeArea(
         child: Column(
           children: [
-            // DeskRemote Keyboard Header Branding
+            // ClickPad Keyboard Header Branding
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               child: Row(
@@ -95,7 +95,7 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                       Icon(Icons.keyboard, color: Color(0xFF00E5FF), size: 18),
                       SizedBox(width: 8),
                       Text(
-                        'DeskRemote Keyboard',
+                        'ClickPad Keyboard',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,

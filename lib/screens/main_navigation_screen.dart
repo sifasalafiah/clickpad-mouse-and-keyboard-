@@ -67,7 +67,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'DeskRemote',
+                    'ClickPad',
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),

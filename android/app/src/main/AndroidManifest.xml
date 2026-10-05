@@ -13,7 +13,7 @@
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
 
     <application
-        android:label="mouse_and_keyboard_for_desktop"
+        android:label="ClickPad"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

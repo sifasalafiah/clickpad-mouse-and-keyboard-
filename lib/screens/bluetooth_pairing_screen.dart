@@ -78,7 +78,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'DeskRemote',
+                                'ClickPad',
                                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: -0.5),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -188,7 +188,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                               SizedBox(width: 6),
                               Flexible(
                                 child: Text(
-                                  'Memancarkan Otomatis: DeskRemote Mouse',
+                                  'Memancarkan Otomatis: ClickPad Mouse',
                                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -275,7 +275,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _StepRow(number: '1', title: 'Open macOS System Settings', desc: 'Click Apple Menu -> System Settings -> Bluetooth.'),
-            _StepRow(number: '2', title: 'Look Under "Nearby Devices"', desc: 'Wait for "DeskRemote Mouse" to appear.'),
+            _StepRow(number: '2', title: 'Look Under "Nearby Devices"', desc: 'Wait for "ClickPad Mouse" to appear.'),
             _StepRow(number: '3', title: 'Click Connect & Pair', desc: 'Accept the Bluetooth pairing prompt. App unlocks automatically!'),
           ],
         );
@@ -285,7 +285,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
           children: [
             _StepRow(number: '1', title: 'Open Windows Settings', desc: 'Press Win + I -> Bluetooth & Devices.'),
             _StepRow(number: '2', title: 'Click Add Device', desc: 'Choose "Bluetooth" (Mice, keyboards, pens, etc.).'),
-            _StepRow(number: '3', title: 'Select DeskRemote Mouse', desc: 'Click "DeskRemote Mouse" to pair & connect.'),
+            _StepRow(number: '3', title: 'Select ClickPad Mouse', desc: 'Click "ClickPad Mouse" to pair & connect.'),
           ],
         );
       case 2: // Linux
@@ -293,7 +293,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _StepRow(number: '1', title: 'Open Bluetooth Manager', desc: 'Open Settings -> Bluetooth or Blueman Manager.'),
-            _StepRow(number: '2', title: 'Scan Nearby Devices', desc: 'Search for "DeskRemote Mouse".'),
+            _StepRow(number: '2', title: 'Scan Nearby Devices', desc: 'Search for "ClickPad Mouse".'),
             _StepRow(number: '3', title: 'Click Pair & Connect', desc: 'Accept pairing request to start controlling Linux.'),
           ],
         );
@@ -303,7 +303,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _StepRow(number: '1', title: 'Open Settings', desc: 'Go to Settings -> Bluetooth on your iPad / Tablet.'),
-            _StepRow(number: '2', title: 'Other Devices', desc: 'Look for "DeskRemote Mouse" under Other Devices.'),
+            _StepRow(number: '2', title: 'Other Devices', desc: 'Look for "ClickPad Mouse" under Other Devices.'),
             _StepRow(number: '3', title: 'Tap to Pair', desc: 'Tap to pair. Touchpad & Keyboard will activate instantly!'),
           ],
         );

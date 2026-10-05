@@ -12,16 +12,16 @@ void main() async {
   await SettingsService.instance.init();
   ConnectionService.instance.init();
 
-  runApp(const DeskRemoteApp());
+  runApp(const ClickPadApp());
 }
 
-class DeskRemoteApp extends StatelessWidget {
-  const DeskRemoteApp({super.key});
+class ClickPadApp extends StatelessWidget {
+  const ClickPadApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'DeskRemote - Mouse & Keyboard Controller',
+      title: 'ClickPad - Mouse & Keyboard Controller',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       home: const AppRootWrapper(),

@@ -21,7 +21,7 @@ class BluetoothBleService {
   Function(DiscoveredDevice device)? onDeviceDiscovered;
 
   // Platform Channel for Native Android Bluetooth HID Device Registration
-  static const MethodChannel _nativeHidChannel = MethodChannel('com.example.mouse_and_keyboard/bluetooth_hid');
+  static const MethodChannel _nativeHidChannel = MethodChannel('com.nawalokatech.clickpad/bluetooth_hid');
 
   void _initChannelListener() {
     _nativeHidChannel.setMethodCallHandler((call) async {
@@ -186,7 +186,7 @@ class BluetoothBleService {
     } catch (_) {}
   }
 
-  // Make phone discoverable as DeskRemote Mouse to nearby Mac/PC
+  // Make phone discoverable as ClickPad Mouse to nearby Mac/PC
   Future<void> makeDiscoverable() async {
     if (defaultTargetPlatform == TargetPlatform.android) {
       try {

@@ -1,4 +1,4 @@
-package com.example.mouse_and_keyboard_for_desktop
+package com.nawalokatech.clickpad
 
 import android.Manifest
 import android.bluetooth.*
@@ -18,7 +18,7 @@ import io.flutter.plugin.common.MethodChannel
 import java.util.concurrent.Executors
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.example.mouse_and_keyboard/bluetooth_hid"
+    private val CHANNEL = "com.nawalokatech.clickpad/bluetooth_hid"
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothHidDevice: BluetoothHidDevice? = null
     private var connectedHost: BluetoothDevice? = null
@@ -162,7 +162,7 @@ class MainActivity : FlutterActivity() {
                 "makeDiscoverable" -> {
                     try {
                         if (hasBluetoothPermission()) {
-                            bluetoothAdapter?.setName("DeskRemote Mouse")
+                            bluetoothAdapter?.setName("ClickPad")
                             val intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
                                 putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
                             }
@@ -350,7 +350,7 @@ class MainActivity : FlutterActivity() {
     private fun initBluetoothHid() {
         if (hasBluetoothPermission()) {
             try {
-                bluetoothAdapter?.setName("DeskRemote Mouse")
+                bluetoothAdapter?.setName("ClickPad")
             } catch (e: Exception) {}
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && hasBluetoothPermission()) {
@@ -378,14 +378,14 @@ class MainActivity : FlutterActivity() {
             try {
                 // Set adapter name & start continuous background advertising silently
                 try {
-                    bluetoothAdapter?.name = "DeskRemote Mouse"
+                    bluetoothAdapter?.name = "ClickPad"
                     startBleAdvertising()
                 } catch (e: Exception) {}
 
                 val sdpSettings = BluetoothHidDeviceAppSdpSettings(
-                    "DeskRemote Mouse",
+                    "ClickPad",
                     "Bluetooth Touchpad",
-                    "DeskRemote",
+                    "ClickPad",
                     0xC0.toByte(), // Mouse Subclass
                     hidDescriptor
                 )
@@ -437,7 +437,7 @@ class MainActivity : FlutterActivity() {
     private fun startBleAdvertising() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && hasBluetoothPermission()) {
             try {
-                bluetoothAdapter?.setName("DeskRemote Mouse")
+                bluetoothAdapter?.setName("ClickPad")
                 val advertiser = bluetoothAdapter?.bluetoothLeAdvertiser
                 val settings = android.bluetooth.le.AdvertiseSettings.Builder()
                     .setAdvertiseMode(android.bluetooth.le.AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
