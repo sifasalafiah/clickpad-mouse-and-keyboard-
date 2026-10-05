@@ -38,7 +38,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Bluetooth HID Status Card
-          const Text('Bluetooth Connection Profile', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          const Text(
+            'Bluetooth Connection Profile',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Card(
             color: AppColors.surfaceElevated,
@@ -54,7 +57,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Expanded(
                         child: Text(
                           'Native Bluetooth HID Hardware Emulation',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ],
@@ -68,7 +74,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      onPressed: () => _bleService.openSystemBluetoothSettings(),
+                      onPressed: () =>
+                          _bleService.openSystemBluetoothSettings(),
                       icon: const Icon(Icons.settings_bluetooth, size: 18),
                       label: const Text('Open Phone Bluetooth Settings'),
                       style: OutlinedButton.styleFrom(
@@ -84,7 +91,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 20),
 
           // Mouse & Touchpad Controls
-          const Text('Touchpad & Input Tuning', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          const Text(
+            'Touchpad & Input Tuning',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Card(
             color: AppColors.surfaceElevated,
@@ -97,8 +107,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Mouse Sensitivity', style: TextStyle(fontWeight: FontWeight.w500)),
-                      Text('${_settings.mouseSensitivity.toStringAsFixed(1)}x', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryLight)),
+                      const Text(
+                        'Mouse Sensitivity',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        '${_settings.mouseSensitivity.toStringAsFixed(1)}x',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryLight,
+                        ),
+                      ),
                     ],
                   ),
                   Slider(
@@ -114,8 +133,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Scroll Speed', style: TextStyle(fontWeight: FontWeight.w500)),
-                      Text('${_settings.scrollSensitivity.toStringAsFixed(1)}x', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryLight)),
+                      const Text(
+                        'Scroll Speed',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        '${_settings.scrollSensitivity.toStringAsFixed(1)}x',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryLight,
+                        ),
+                      ),
                     ],
                   ),
                   Slider(
@@ -133,8 +161,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onChanged: (val) => _settings.setEnableAcceleration(val),
                     activeThumbColor: AppColors.primary,
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Cursor Acceleration', style: TextStyle(fontWeight: FontWeight.w500)),
-                    subtitle: const Text('Speeds up cursor when flicking finger quickly', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                    title: const Text(
+                      'Cursor Acceleration',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    subtitle: const Text(
+                      'Speeds up cursor when flicking finger quickly',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
                   ),
                   const Divider(color: AppColors.border, height: 12),
 
@@ -144,8 +181,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onChanged: (val) => _settings.setEnableHaptics(val),
                     activeThumbColor: AppColors.primary,
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Tactile Haptic Feedback', style: TextStyle(fontWeight: FontWeight.w500)),
-                    subtitle: const Text('Vibrates on taps, clicks, and key presses', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                    title: const Text(
+                      'Tactile Haptic Feedback',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    subtitle: const Text(
+                      'Vibrates on taps, clicks, and key presses',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -166,9 +212,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('ClickPad Bluetooth HID v1.0.0', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          'ClickPad',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         SizedBox(height: 4),
-                        Text('Seamless Bluetooth Mouse & Keyboard controller for macOS, Windows, and Linux.', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                        Text(
+                          'Seamless Bluetooth Mouse & Keyboard controller for macOS, Windows, and Linux.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
                       ],
                     ),
                   ),
