@@ -26,6 +26,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
   int _selectedPlatformTab =
       0; // 0: macOS, 1: Windows, 2: Linux, 3: iPad/Tablet
 
+  bool _isDiscoverabilityDenied = false;
+  bool _isRequestingDiscoverability = false;
+
   @override
   void initState() {
     super.initState();
@@ -42,7 +45,21 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    _bleService.makeDiscoverable();
+    _requestDiscoverability();
+  }
+
+  Future<void> _requestDiscoverability() async {
+    if (_isRequestingDiscoverability) return;
+    if (mounted) setState(() => _isRequestingDiscoverability = true);
+
+    final granted = await _bleService.makeDiscoverable();
+
+    if (mounted) {
+      setState(() {
+        _isDiscoverabilityDenied = !granted;
+        _isRequestingDiscoverability = false;
+      });
+    }
   }
 
   @override
@@ -462,6 +479,40 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                               ],
                             ),
                           ),
+                          if (_isDiscoverabilityDenied) ...[
+                            const SizedBox(height: 12),
+                            ElevatedButton.icon(
+                              onPressed: _isRequestingDiscoverability
+                                  ? null
+                                  : () {
+                                      HapticHelper.mediumImpact();
+                                      _requestDiscoverability();
+                                    },
+                              icon: const Icon(Icons.visibility, size: 16),
+                              label: Text(
+                                _isRequestingDiscoverability
+                                    ? 'Requesting Visibility...'
+                                    : 'Make your BT Visible For Pairing',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary.withAlpha(40),
+                                foregroundColor: AppColors.primaryLight,
+                                elevation: 0,
+                                side: const BorderSide(color: AppColors.primaryLight),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 8,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),

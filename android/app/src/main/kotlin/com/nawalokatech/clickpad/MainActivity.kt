@@ -19,6 +19,8 @@ import java.util.concurrent.Executors
 
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.nawalokatech.clickpad/bluetooth_hid"
+    private val REQUEST_DISCOVERABLE_CODE = 102
+    private var pendingDiscoverableResult: MethodChannel.Result? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothHidDevice: BluetoothHidDevice? = null
     private var connectedHost: BluetoothDevice? = null
@@ -168,9 +170,9 @@ class MainActivity : FlutterActivity() {
                             val intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
                                 putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
                             }
-                            startActivity(intent)
+                            pendingDiscoverableResult = result
+                            startActivityForResult(intent, REQUEST_DISCOVERABLE_CODE)
                             startBleAdvertising()
-                            result.success(true)
                         } else {
                             result.success(false)
                         }
@@ -426,6 +428,18 @@ class MainActivity : FlutterActivity() {
             if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                 initBluetoothHid()
             }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_DISCOVERABLE_CODE) {
+            if (resultCode != RESULT_CANCELED) {
+                pendingDiscoverableResult?.success(true)
+            } else {
+                pendingDiscoverableResult?.success(false)
+            }
+            pendingDiscoverableResult = null
         }
     }
 

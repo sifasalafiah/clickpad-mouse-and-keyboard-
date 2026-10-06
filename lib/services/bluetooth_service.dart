@@ -190,15 +190,18 @@ class BluetoothBleService {
   }
 
   // Make phone discoverable as ClickPad Mouse to nearby Mac/PC
-  Future<void> makeDiscoverable() async {
+  Future<bool> makeDiscoverable() async {
     AdService.instance.isSuppressingAppOpenAd = true;
     if (defaultTargetPlatform == TargetPlatform.android) {
       try {
-        await _nativeHidChannel.invokeMethod('makeDiscoverable');
+        final res = await _nativeHidChannel.invokeMethod('makeDiscoverable');
+        return res == true;
       } catch (e) {
         debugPrint("makeDiscoverable error: $e");
+        return false;
       }
     }
+    return true;
   }
 
   // Open Native Bluetooth Pairing Settings on Phone
