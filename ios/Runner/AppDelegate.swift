@@ -11,7 +11,9 @@ import CoreBluetooth
     private var keyboardReportCharacteristic: CBMutableCharacteristic?
     
     private var connectedCentral: CBCentral?
+    private var subscribedCharacteristicsCount = 0
     private var isAdvertising = false
+    private var shouldStartAdvertising = false
 
     // Composite HID Report Descriptor (Mouse Report ID 1 + Keyboard Report ID 2)
     private let hidDescriptorBytes: [UInt8] = [
@@ -138,6 +140,7 @@ import CoreBluetooth
                 }
             case "disconnect":
                 self.connectedCentral = nil
+                self.subscribedCharacteristicsCount = 0
                 self.notifyStateChange(isConnected: false, deviceName: "")
                 result(true)
             default:
@@ -151,6 +154,9 @@ import CoreBluetooth
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
         if peripheral.state == .poweredOn {
             setupGattServices()
+            if shouldStartAdvertising {
+                startAdvertising()
+            }
         }
     }
 
@@ -203,6 +209,7 @@ import CoreBluetooth
     }
 
     private func startAdvertising() {
+        shouldStartAdvertising = true
         guard let peripheralManager = peripheralManager, peripheralManager.state == .poweredOn else { return }
         if isAdvertising { peripheralManager.stopAdvertising() }
         
@@ -215,14 +222,41 @@ import CoreBluetooth
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
-        connectedCentral = central
-        notifyStateChange(isConnected: true, deviceName: "Connected Desktop (\(central.identifier.uuidString.prefix(8)))")
+        if connectedCentral == nil || connectedCentral?.identifier != central.identifier {
+            connectedCentral = central
+            notifyStateChange(isConnected: true, deviceName: "Connected Desktop (\(central.identifier.uuidString.prefix(8)))")
+        }
+        subscribedCharacteristicsCount += 1
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
         if connectedCentral?.identifier == central.identifier {
-            connectedCentral = nil
-            notifyStateChange(isConnected: false, deviceName: "")
+            subscribedCharacteristicsCount = max(0, subscribedCharacteristicsCount - 1)
+            if subscribedCharacteristicsCount == 0 {
+                connectedCentral = nil
+                notifyStateChange(isConnected: false, deviceName: "")
+            }
+        }
+    }
+
+    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
+        if request.characteristic.uuid == CBUUID(string: "2A4D") {
+            if request.characteristic == mouseReportCharacteristic {
+                request.value = Data([0x00, 0x00, 0x00, 0x00])
+            } else if request.characteristic == keyboardReportCharacteristic {
+                request.value = Data([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+            } else {
+                request.value = Data([0x00])
+            }
+            peripheralManager?.respond(to: request, withResult: .success)
+        } else {
+            peripheralManager?.respond(to: request, withResult: .success)
+        }
+    }
+
+    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+        for request in requests {
+            peripheralManager?.respond(to: request, withResult: .success)
         }
     }
 
