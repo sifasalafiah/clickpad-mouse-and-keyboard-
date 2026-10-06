@@ -187,6 +187,20 @@ class MainActivity : FlutterActivity() {
                         result.success(false)
                     }
                 }
+                "disconnect" -> {
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            connectedHost?.let {
+                                bluetoothHidDevice?.disconnect(it)
+                            }
+                        }
+                        connectedHost = null
+                        notifyStateChange(false, "", "")
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.success(false)
+                    }
+                }
                 "getPairedDevices" -> {
                     val pairedList = ArrayList<Map<String, String>>()
                     try {
@@ -323,6 +337,54 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    private var lastConnectedAddress: String? = null
+    private var isHidAppRegistered = false
+
+    private fun reconnectLastDevice() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P || !hasBluetoothPermission()) return
+
+        if (lastConnectedAddress == null) {
+            try {
+                lastConnectedAddress = getSharedPreferences("clickpad_prefs", Context.MODE_PRIVATE)
+                    .getString("last_device_address", null)
+            } catch (e: Exception) {}
+        }
+
+        val targetAddress = lastConnectedAddress ?: connectedHost?.address ?: return
+        try {
+            val device = bluetoothAdapter?.getRemoteDevice(targetAddress) ?: return
+            connectedHost = device
+
+            val connectedDevices = bluetoothHidDevice?.getConnectedDevices()
+            val isAlreadyConnected = connectedDevices?.any { it.address == targetAddress } == true
+
+            if (isAlreadyConnected) {
+                notifyStateChange(true, device.name ?: "Connected Device", device.address)
+            } else {
+                bluetoothHidDevice?.connect(device)
+            }
+        } catch (e: Exception) {}
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (hasBluetoothPermission()) {
+            if (bluetoothHidDevice == null) {
+                initBluetoothHid()
+            } else if (!isHidAppRegistered) {
+                registerHidApp()
+            } else {
+                val connectedDevices = bluetoothHidDevice?.getConnectedDevices()
+                if (!connectedDevices.isNullOrEmpty()) {
+                    connectedHost = connectedDevices[0]
+                    notifyStateChange(true, connectedHost?.name ?: "Connected Device", connectedHost?.address ?: "")
+                } else {
+                    notifyStateChange(false, "", "")
+                }
+            }
+        }
+    }
+
     override fun onDestroy() {
         try {
             unregisterReceiver(bluetoothReceiver)
@@ -388,6 +450,7 @@ class MainActivity : FlutterActivity() {
                     override fun onServiceDisconnected(profile: Int) {
                         if (profile == BluetoothProfile.HID_DEVICE) {
                             bluetoothHidDevice = null
+                            isHidAppRegistered = false
                         }
                     }
                 }, BluetoothProfile.HID_DEVICE)
@@ -418,16 +481,29 @@ class MainActivity : FlutterActivity() {
                     null,
                     Executors.newSingleThreadExecutor(),
                     object : BluetoothHidDevice.Callback() {
+                        override fun onAppStatusChanged(pluggedDevice: BluetoothDevice?, registered: Boolean) {
+                            super.onAppStatusChanged(pluggedDevice, registered)
+                            isHidAppRegistered = registered
+                        }
+
                         override fun onConnectionStateChanged(device: BluetoothDevice?, state: Int) {
                             super.onConnectionStateChanged(device, state)
                             if (state == BluetoothProfile.STATE_CONNECTED) {
-                                connectedHost = device
+                                if (device != null) {
+                                    connectedHost = device
+                                    lastConnectedAddress = device.address
+                                    try {
+                                        getSharedPreferences("clickpad_prefs", Context.MODE_PRIVATE)
+                                            .edit()
+                                            .putString("last_device_address", device.address)
+                                            .apply()
+                                    } catch (e: Exception) {}
+                                }
                                 try {
                                     bluetoothAdapter?.cancelDiscovery()
                                     notifyStateChange(true, device?.name ?: "Connected Device", device?.address ?: "")
                                 } catch (e: Exception) {}
                             } else if (state == BluetoothProfile.STATE_DISCONNECTED) {
-                                connectedHost = null
                                 notifyStateChange(false, "", "")
                             }
                         }
@@ -450,8 +526,26 @@ class MainActivity : FlutterActivity() {
     private fun sendHidReport(reportId: Int, data: ByteArray) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && hasBluetoothPermission()) {
             try {
-                connectedHost?.let { host ->
-                    bluetoothHidDevice?.sendReport(host, reportId, data)
+                var host = connectedHost
+                if (host == null && bluetoothHidDevice != null) {
+                    val connectedDevices = bluetoothHidDevice?.getConnectedDevices()
+                    if (!connectedDevices.isNullOrEmpty()) {
+                        host = connectedDevices[0]
+                        connectedHost = host
+                    }
+                }
+                if (host == null && lastConnectedAddress != null) {
+                    try {
+                        host = bluetoothAdapter?.getRemoteDevice(lastConnectedAddress)
+                        connectedHost = host
+                    } catch (e: Exception) {}
+                }
+
+                host?.let {
+                    val sent = bluetoothHidDevice?.sendReport(it, reportId, data)
+                    if (sent == false) {
+                        bluetoothHidDevice?.connect(it)
+                    }
                 }
             } catch (e: Exception) {}
         }

@@ -72,7 +72,8 @@ class _AppRootWrapperState extends State<AppRootWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    // Only navigate to Main Navigation Screen (with Navbar) once a device is successfully paired & connected
+    // Navigate to MainNavigationScreen (Touchpad) when connected to PC.
+    // Return to BluetoothPairingScreen when disconnected from PC.
     if (_connService.isConnected) {
       return const MainNavigationScreen();
     } else {

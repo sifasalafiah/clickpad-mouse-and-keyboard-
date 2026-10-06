@@ -307,6 +307,12 @@ class BluetoothBleService {
   Future<void> disconnect() async {
     _connectionStateSubscription?.cancel();
 
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      try {
+        await _nativeHidChannel.invokeMethod('disconnect');
+      } catch (_) {}
+    }
+
     if (_connectedBleDevice != null) {
       try {
         await _connectedBleDevice!.disconnect();

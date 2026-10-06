@@ -48,9 +48,6 @@ class ConnectionService extends ChangeNotifier with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       checkCurrentConnection();
-      Future.delayed(const Duration(milliseconds: 400), () {
-        checkCurrentConnection();
-      });
     }
   }
 
@@ -62,6 +59,11 @@ class ConnectionService extends ChangeNotifier with WidgetsBindingObserver {
       _statusMessage = 'Connected as Hardware Mouse/Keyboard to ${connectedDev.name}';
       _pingMs = 3;
       SettingsService.instance.saveLastConnectedDevice(connectedDev.name, connectedDev.id);
+      notifyListeners();
+    } else if (_status == ConnectionStateStatus.connected) {
+      _status = ConnectionStateStatus.disconnected;
+      _connectedDevice = null;
+      _statusMessage = 'Disconnected';
       notifyListeners();
     }
   }
@@ -153,7 +155,6 @@ class ConnectionService extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void sendCommand(InputCommand command) {
-    if (!isConnected) return;
     _bleService.sendCommand(command);
   }
 }
