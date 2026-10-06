@@ -192,7 +192,7 @@ class BluetoothBleService {
   // Make phone discoverable as ClickPad Mouse to nearby Mac/PC
   Future<bool> makeDiscoverable() async {
     AdService.instance.isSuppressingAppOpenAd = true;
-    if (defaultTargetPlatform == TargetPlatform.android) {
+    if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
       try {
         final res = await _nativeHidChannel.invokeMethod('makeDiscoverable');
         return res == true;
@@ -214,7 +214,7 @@ class BluetoothBleService {
 
   // Check if native Bluetooth HID host is already connected on OS level
   Future<DiscoveredDevice?> checkCurrentConnectedHost() async {
-    if (defaultTargetPlatform == TargetPlatform.android) {
+    if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
       try {
         final res = await _nativeHidChannel.invokeMethod('getConnectedHost');
         if (res != null && res is Map) {
@@ -240,7 +240,7 @@ class BluetoothBleService {
   }
 
   Future<bool> connect(DiscoveredDevice device) async {
-    if (defaultTargetPlatform == TargetPlatform.android) {
+    if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
       try {
         onStatusChanged?.call(ConnectionStateStatus.connecting, device, 'Pairing Bluetooth with ${device.name}...');
         final res = await _nativeHidChannel.invokeMethod('pairDevice', {'address': device.id});
@@ -258,7 +258,7 @@ class BluetoothBleService {
       }
     }
 
-    // Fallback for non-Android or GATT connection
+    // Fallback for GATT connection
     if (device.nativeDeviceHandle == null) {
       onStatusChanged?.call(
         ConnectionStateStatus.connected,
@@ -310,7 +310,7 @@ class BluetoothBleService {
   Future<void> disconnect() async {
     _connectionStateSubscription?.cancel();
 
-    if (defaultTargetPlatform == TargetPlatform.android) {
+    if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
       try {
         await _nativeHidChannel.invokeMethod('disconnect');
       } catch (_) {}
@@ -336,8 +336,8 @@ class BluetoothBleService {
     int dy = command.dy.clamp(-127.0, 127.0).toInt();
     int wheel = command.type == CommandType.scroll ? command.dy.clamp(-127.0, 127.0).toInt() : 0;
 
-    // Send via Native Android Bluetooth HID Service
-    if (defaultTargetPlatform == TargetPlatform.android) {
+    // Send via Native Android / iOS Bluetooth HID Service
+    if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
       try {
         _nativeHidChannel.invokeMethod('sendMouseReport', {
           'button': buttonMask,
@@ -365,7 +365,7 @@ class BluetoothBleService {
   }
 
   void sendKeyboardScancode(int modifier, int keycode) {
-    if (defaultTargetPlatform == TargetPlatform.android) {
+    if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
       try {
         _nativeHidChannel.invokeMethod('sendKeyboardReport', {
           'modifier': modifier,
