@@ -15,7 +15,7 @@ plugins {
 }
 
 android {
-    namespace = "com.nawalokatech.clickpad"
+    namespace = "com.sekala.clickpad"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -38,7 +38,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.nawalokatech.clickpad"
+        applicationId = "com.sekala.clickpad"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

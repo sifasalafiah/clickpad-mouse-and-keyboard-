@@ -1,4 +1,4 @@
-package com.nawalokatech.clickpad
+package com.sekala.clickpad
 
 import android.Manifest
 import android.bluetooth.*
@@ -18,7 +18,7 @@ import io.flutter.plugin.common.MethodChannel
 import java.util.concurrent.Executors
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.nawalokatech.clickpad/bluetooth_hid"
+    private val CHANNEL = "com.sekala.clickpad/bluetooth_hid"
     private val REQUEST_DISCOVERABLE_CODE = 102
     private var pendingDiscoverableResult: MethodChannel.Result? = null
     private var bluetoothAdapter: BluetoothAdapter? = null

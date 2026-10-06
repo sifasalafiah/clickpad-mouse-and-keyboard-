@@ -97,7 +97,7 @@ import CoreBluetooth
 
     private func setupMethodChannel(binaryMessenger: FlutterBinaryMessenger) {
         if methodChannel != nil { return }
-        methodChannel = FlutterMethodChannel(name: "com.nawalokatech.clickpad/bluetooth_hid", binaryMessenger: binaryMessenger)
+        methodChannel = FlutterMethodChannel(name: "com.sekala.clickpad/bluetooth_hid", binaryMessenger: binaryMessenger)
         
         methodChannel?.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) in
             guard let self = self else { return }
@@ -166,7 +166,7 @@ import CoreBluetooth
 
         // 1. Device Information Service (0x180A)
         let infoService = CBMutableService(type: CBUUID(string: "180A"), primary: true)
-        let mfgChar = CBMutableCharacteristic(type: CBUUID(string: "2A29"), properties: [.read], value: Data("NawalokaTech".utf8), permissions: [.readable])
+        let mfgChar = CBMutableCharacteristic(type: CBUUID(string: "2A29"), properties: [.read], value: Data("Sekala".utf8), permissions: [.readable])
         let modelChar = CBMutableCharacteristic(type: CBUUID(string: "2A24"), properties: [.read], value: Data("ClickPad-HID".utf8), permissions: [.readable])
         infoService.characteristics = [mfgChar, modelChar]
         peripheralManager.add(infoService)

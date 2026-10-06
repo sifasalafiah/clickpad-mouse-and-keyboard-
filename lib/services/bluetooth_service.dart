@@ -22,7 +22,7 @@ class BluetoothBleService {
   Function(DiscoveredDevice device)? onDeviceDiscovered;
 
   // Platform Channel for Native Android Bluetooth HID Device Registration
-  static const MethodChannel _nativeHidChannel = MethodChannel('com.nawalokatech.clickpad/bluetooth_hid');
+  static const MethodChannel _nativeHidChannel = MethodChannel('com.sekala.clickpad/bluetooth_hid');
 
   void _initChannelListener() {
     _nativeHidChannel.setMethodCallHandler((call) async {
