@@ -1,12 +1,11 @@
-import 'dart:async';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import '../models/connection_type.dart';
 import '../models/device_model.dart';
 import '../models/input_command.dart';
 import 'bluetooth_service.dart';
 import 'settings_service.dart';
 
-class ConnectionService extends ChangeNotifier {
+class ConnectionService extends ChangeNotifier with WidgetsBindingObserver {
   static final ConnectionService instance = ConnectionService._internal();
   ConnectionService._internal();
 
@@ -26,6 +25,7 @@ class ConnectionService extends ChangeNotifier {
   bool get isConnected => _status == ConnectionStateStatus.connected;
 
   void init() {
+    WidgetsBinding.instance.addObserver(this);
     _bleService.onStatusChanged = (status, device, msg) {
       if (status == ConnectionStateStatus.disconnected && _status == ConnectionStateStatus.connecting) {
         _status = ConnectionStateStatus.failed;
@@ -42,6 +42,16 @@ class ConnectionService extends ChangeNotifier {
     };
 
     checkCurrentConnection();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      checkCurrentConnection();
+      Future.delayed(const Duration(milliseconds: 400), () {
+        checkCurrentConnection();
+      });
+    }
   }
 
   Future<void> checkCurrentConnection() async {
