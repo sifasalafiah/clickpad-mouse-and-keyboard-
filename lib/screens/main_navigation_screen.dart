@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../services/connection_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
-import 'connection_modal.dart';
 import 'keyboard_screen.dart';
 import 'settings_screen.dart';
 import 'touchpad_screen.dart';
@@ -90,7 +89,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             child: InkWell(
               onTap: () {
                 HapticHelper.selectionClick();
-                ConnectionModal.show(context);
+                _showDisconnectConfirmationDialog(context);
               },
               borderRadius: BorderRadius.circular(20),
               child: Container(
@@ -175,6 +174,70 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             icon: Icon(Icons.settings_outlined),
             activeIcon: Icon(Icons.settings),
             label: 'Settings',
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDisconnectConfirmationDialog(BuildContext context) {
+    final deviceName = _connService.connectedDevice?.name ?? 'Desktop';
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceElevated,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.border),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.error.withAlpha(30),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.bluetooth_disabled,
+                color: AppColors.error,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Disconnect?',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to disconnect Bluetooth HID connection with $deviceName?',
+          style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textMuted),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _connService.disconnect();
+            },
+            icon: const Icon(Icons.link_off, size: 16),
+            label: const Text('Disconnect'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
         ],
       ),
