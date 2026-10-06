@@ -14,7 +14,8 @@ class BluetoothPairingScreen extends StatefulWidget {
   State<BluetoothPairingScreen> createState() => _BluetoothPairingScreenState();
 }
 
-class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with SingleTickerProviderStateMixin {
+class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
+    with SingleTickerProviderStateMixin {
   final ConnectionService _connService = ConnectionService.instance;
   final BluetoothBleService _bleService = BluetoothBleService.instance;
   final SettingsService _settings = SettingsService.instance;
@@ -22,7 +23,8 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
-  int _selectedPlatformTab = 0; // 0: macOS, 1: Windows, 2: Linux, 3: iPad/Tablet
+  int _selectedPlatformTab =
+      0; // 0: macOS, 1: Windows, 2: Linux, 3: iPad/Tablet
 
   @override
   void initState() {
@@ -57,7 +59,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
   @override
   Widget build(BuildContext context) {
     final status = _connService.status;
-    final isConnecting = status == ConnectionStateStatus.connecting || status == ConnectionStateStatus.pairing;
+    final isConnecting =
+        status == ConnectionStateStatus.connecting ||
+        status == ConnectionStateStatus.pairing;
 
     return Scaffold(
       body: SafeArea(
@@ -79,7 +83,11 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                             color: AppColors.primary.withAlpha(30),
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Icon(Icons.bluetooth, color: AppColors.primary, size: 28),
+                          child: const Icon(
+                            Icons.bluetooth,
+                            color: AppColors.primary,
+                            size: 28,
+                          ),
                         ),
                         const SizedBox(width: 14),
                         const Expanded(
@@ -88,12 +96,19 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                             children: [
                               Text(
                                 'ClickPad',
-                                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: -0.5),
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: -0.5,
+                                ),
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                'Bluetooth Hardware Remote',
-                                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                                'PC Mouse & Keyboard',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textMuted,
+                                ),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
@@ -106,9 +121,15 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                   OutlinedButton.icon(
                     onPressed: () => _bleService.openSystemBluetoothSettings(),
                     icon: const Icon(Icons.settings_bluetooth, size: 16),
-                    label: const Text('BT Settings', style: TextStyle(fontSize: 11)),
+                    label: const Text(
+                      'BT Settings',
+                      style: TextStyle(fontSize: 11),
+                    ),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                     ),
                   ),
                 ],
@@ -123,7 +144,10 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                     color: AppColors.surfaceElevated,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
-                      side: const BorderSide(color: AppColors.primaryLight, width: 1.5),
+                      side: const BorderSide(
+                        color: AppColors.primaryLight,
+                        width: 1.5,
+                      ),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -135,14 +159,18 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                               color: AppColors.primary.withAlpha(40),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.history, color: AppColors.primaryLight, size: 22),
+                            child: const Icon(
+                              Icons.history,
+                              color: AppColors.primaryLight,
+                              size: 22,
+                            ),
                           ),
                           const SizedBox(width: 14),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                 const Text(
+                                const Text(
                                   'LAST CONNECTED DEVICE',
                                   style: TextStyle(
                                     fontSize: 10,
@@ -154,7 +182,10 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                                 const SizedBox(height: 2),
                                 Text(
                                   _settings.lastDeviceName,
-                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],
@@ -172,12 +203,23 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                               );
                             },
                             icon: const Icon(Icons.bolt, size: 16),
-                            label: const Text('Connect', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            label: const Text(
+                              'Connect',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           ),
                         ],
@@ -196,13 +238,20 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                     color: AppColors.error.withAlpha(25),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: AppColors.error.withAlpha(120), width: 1.5),
+                      side: BorderSide(
+                        color: AppColors.error.withAlpha(120),
+                        width: 1.5,
+                      ),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Row(
                         children: [
-                          const Icon(Icons.error_outline, color: AppColors.error, size: 24),
+                          const Icon(
+                            Icons.error_outline,
+                            color: AppColors.error,
+                            size: 24,
+                          ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -210,12 +259,19 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                               children: [
                                 const Text(
                                   'Connection Failed',
-                                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.error),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.error,
+                                  ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  _connService.statusMessage ?? 'Could not connect. Please make sure Bluetooth is ON on your computer.',
-                                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                                  _connService.statusMessage ??
+                                      'Could not connect. Please make sure Bluetooth is ON on your computer.',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.textMuted,
+                                  ),
                                 ),
                               ],
                             ),
@@ -233,8 +289,19 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                                   ),
                                 );
                               },
-                              icon: const Icon(Icons.refresh, size: 16, color: AppColors.error),
-                              label: const Text('Retry', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.error)),
+                              icon: const Icon(
+                                Icons.refresh,
+                                size: 16,
+                                color: AppColors.error,
+                              ),
+                              label: const Text(
+                                'Retry',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.error,
+                                ),
+                              ),
                             ),
                           ],
                         ],
@@ -254,7 +321,10 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                     color: AppColors.surfaceElevated,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
-                      side: const BorderSide(color: AppColors.primaryLight, width: 1.5),
+                      side: const BorderSide(
+                        color: AppColors.primaryLight,
+                        width: 1.5,
+                      ),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(24),
@@ -273,13 +343,20 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                           Text(
                             'Connecting to ${_settings.lastDeviceName.isNotEmpty ? _settings.lastDeviceName : "Desktop"}...',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            _connService.statusMessage ?? 'Establishing Bluetooth HID connection...',
+                            _connService.statusMessage ??
+                                'Establishing Bluetooth HID connection...',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textMuted,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           OutlinedButton.icon(
@@ -288,11 +365,16 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                               _connService.disconnect();
                             },
                             icon: const Icon(Icons.close, size: 16),
-                            label: const Text('Cancel Connection', style: TextStyle(fontSize: 12)),
+                            label: const Text(
+                              'Cancel Connection',
+                              style: TextStyle(fontSize: 12),
+                            ),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.textMuted,
                               side: const BorderSide(color: AppColors.border),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
                           ),
                         ],
@@ -306,69 +388,93 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
                   width: double.infinity,
                   child: Card(
                     color: AppColors.surfaceElevated,
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        // Animated Pulsing Beacon Icon
-                        ScaleTransition(
-                          scale: _pulseAnimation,
-                          child: Container(
-                            width: 84,
-                            height: 84,
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        children: [
+                          // Animated Pulsing Beacon Icon
+                          ScaleTransition(
+                            scale: _pulseAnimation,
+                            child: Container(
+                              width: 84,
+                              height: 84,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.primary.withAlpha(30),
+                                border: Border.all(
+                                  color: AppColors.primaryLight,
+                                  width: 2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.primary.withAlpha(60),
+                                    blurRadius: 20,
+                                    spreadRadius: 4,
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.bluetooth_searching,
+                                size: 42,
+                                color: AppColors.primaryLight,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Waiting for Bluetooth Connection...',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColors.primary.withAlpha(30),
-                              border: Border.all(color: AppColors.primaryLight, width: 2),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withAlpha(60),
-                                  blurRadius: 20,
-                                  spreadRadius: 4,
+                              color: AppColors.background,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.sensors,
+                                  size: 14,
+                                  color: AppColors.success,
+                                ),
+                                SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    'BT Name: ClickPad',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                               ],
                             ),
-                            child: const Icon(Icons.bluetooth_searching, size: 42, color: AppColors.primaryLight),
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          'Waiting for Bluetooth Connection...',
-                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: AppColors.background,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.sensors, size: 14, color: AppColors.success),
-                              SizedBox(width: 6),
-                              Flexible(
-                                child: Text(
-                                  'Auto Advertising: ClickPad Mouse',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-            const SizedBox(height: 24),
+              ],
+              const SizedBox(height: 24),
 
               // Instruction Tabs Header for macOS, Windows, Linux, Tablet
-              const Text('How to Connect on Your Device', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              const Text(
+                'How to Connect on Your Device',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 10),
 
               SingleChildScrollView(
@@ -414,7 +520,11 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
         HapticHelper.selectionClick();
         setState(() => _selectedPlatformTab = index);
       },
-      avatar: Icon(icon, size: 16, color: isSelected ? Colors.white : AppColors.textMuted),
+      avatar: Icon(
+        icon,
+        size: 16,
+        color: isSelected ? Colors.white : AppColors.textMuted,
+      ),
       label: Text(
         label,
         style: TextStyle(
@@ -427,7 +537,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
       backgroundColor: AppColors.surfaceElevated,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: isSelected ? AppColors.primaryLight : AppColors.border),
+        side: BorderSide(
+          color: isSelected ? AppColors.primaryLight : AppColors.border,
+        ),
       ),
     );
   }
@@ -438,27 +550,64 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
         return const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _StepRow(number: '1', title: 'Open macOS System Settings', desc: 'Click Apple Menu -> System Settings -> Bluetooth.'),
-            _StepRow(number: '2', title: 'Look Under "Nearby Devices"', desc: 'Wait for "ClickPad Mouse" to appear.'),
-            _StepRow(number: '3', title: 'Click Connect & Pair', desc: 'Accept the Bluetooth pairing prompt. App unlocks automatically!'),
+            _StepRow(
+              number: '1',
+              title: 'Open macOS System Settings',
+              desc: 'Click Apple Menu -> System Settings -> Bluetooth.',
+            ),
+            _StepRow(
+              number: '2',
+              title: 'Look Under "Nearby Devices"',
+              desc: 'Wait for "ClickPad Mouse" to appear.',
+            ),
+            _StepRow(
+              number: '3',
+              title: 'Click Connect & Pair',
+              desc:
+                  'Accept the Bluetooth pairing prompt. App unlocks automatically!',
+            ),
           ],
         );
       case 1: // Windows 10/11
         return const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _StepRow(number: '1', title: 'Open Windows Settings', desc: 'Press Win + I -> Bluetooth & Devices.'),
-            _StepRow(number: '2', title: 'Click Add Device', desc: 'Choose "Bluetooth" (Mice, keyboards, pens, etc.).'),
-            _StepRow(number: '3', title: 'Select ClickPad Mouse', desc: 'Click "ClickPad Mouse" to pair & connect.'),
+            _StepRow(
+              number: '1',
+              title: 'Open Windows Settings',
+              desc: 'Press Win + I -> Bluetooth & Devices.',
+            ),
+            _StepRow(
+              number: '2',
+              title: 'Click Add Device',
+              desc: 'Choose "Bluetooth" (Mice, keyboards, pens, etc.).',
+            ),
+            _StepRow(
+              number: '3',
+              title: 'Select ClickPad Mouse',
+              desc: 'Click "ClickPad Mouse" to pair & connect.',
+            ),
           ],
         );
       case 2: // Linux
         return const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _StepRow(number: '1', title: 'Open Bluetooth Manager', desc: 'Open Settings -> Bluetooth or Blueman Manager.'),
-            _StepRow(number: '2', title: 'Scan Nearby Devices', desc: 'Search for "ClickPad Mouse".'),
-            _StepRow(number: '3', title: 'Click Pair & Connect', desc: 'Accept pairing request to start controlling Linux.'),
+            _StepRow(
+              number: '1',
+              title: 'Open Bluetooth Manager',
+              desc: 'Open Settings -> Bluetooth or Blueman Manager.',
+            ),
+            _StepRow(
+              number: '2',
+              title: 'Scan Nearby Devices',
+              desc: 'Search for "ClickPad Mouse".',
+            ),
+            _StepRow(
+              number: '3',
+              title: 'Click Pair & Connect',
+              desc: 'Accept pairing request to start controlling Linux.',
+            ),
           ],
         );
       case 3: // iPad / Android Tablet
@@ -466,9 +615,21 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen> with Si
         return const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _StepRow(number: '1', title: 'Open Settings', desc: 'Go to Settings -> Bluetooth on your iPad / Tablet.'),
-            _StepRow(number: '2', title: 'Other Devices', desc: 'Look for "ClickPad Mouse" under Other Devices.'),
-            _StepRow(number: '3', title: 'Tap to Pair', desc: 'Tap to pair. Touchpad & Keyboard will activate instantly!'),
+            _StepRow(
+              number: '1',
+              title: 'Open Settings',
+              desc: 'Go to Settings -> Bluetooth on your iPad / Tablet.',
+            ),
+            _StepRow(
+              number: '2',
+              title: 'Other Devices',
+              desc: 'Look for "ClickPad Mouse" under Other Devices.',
+            ),
+            _StepRow(
+              number: '3',
+              title: 'Tap to Pair',
+              desc: 'Tap to pair. Touchpad & Keyboard will activate instantly!',
+            ),
           ],
         );
     }
@@ -480,7 +641,11 @@ class _StepRow extends StatelessWidget {
   final String title;
   final String desc;
 
-  const _StepRow({required this.number, required this.title, required this.desc});
+  const _StepRow({
+    required this.number,
+    required this.title,
+    required this.desc,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -494,7 +659,11 @@ class _StepRow extends StatelessWidget {
             backgroundColor: AppColors.primary.withAlpha(40),
             child: Text(
               number,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryLight),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primaryLight,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -502,9 +671,22 @@ class _StepRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(desc, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                Text(
+                  desc,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textMuted,
+                  ),
+                ),
               ],
             ),
           ),

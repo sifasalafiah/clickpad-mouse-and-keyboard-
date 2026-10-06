@@ -31,7 +31,7 @@ class ClickPadApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ClickPad - Mouse & Keyboard Controller',
+      title: 'ClickPad - PC Mouse & Keyboard',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       home: const AppRootWrapper(),
@@ -53,7 +53,7 @@ class _AppRootWrapperState extends State<AppRootWrapper> {
   void initState() {
     super.initState();
     _connService.addListener(_onConnectionStatusChanged);
-    
+
     // Show App Open Ad if loaded after initial rendering
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AdService.instance.showAppOpenAdIfAvailable();

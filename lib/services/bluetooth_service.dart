@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'ad_service.dart';
 import '../models/connection_type.dart';
 import '../models/device_model.dart';
 import '../models/input_command.dart';
@@ -190,6 +191,7 @@ class BluetoothBleService {
 
   // Make phone discoverable as ClickPad Mouse to nearby Mac/PC
   Future<void> makeDiscoverable() async {
+    AdService.instance.isSuppressingAppOpenAd = true;
     if (defaultTargetPlatform == TargetPlatform.android) {
       try {
         await _nativeHidChannel.invokeMethod('makeDiscoverable');
@@ -201,6 +203,7 @@ class BluetoothBleService {
 
   // Open Native Bluetooth Pairing Settings on Phone
   Future<void> openSystemBluetoothSettings() async {
+    AdService.instance.isSuppressingAppOpenAd = true;
     try {
       await _nativeHidChannel.invokeMethod('openBluetoothSettings');
     } catch (_) {}

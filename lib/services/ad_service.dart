@@ -123,9 +123,34 @@ class AdService with WidgetsBindingObserver {
     _appOpenAd!.show();
   }
 
+  DateTime? _pausedTime;
+  /// Flag to explicitly suppress showing App Open Ad (e.g. when opening system settings or permission prompts)
+  bool isSuppressingAppOpenAd = false;
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      _pausedTime ??= DateTime.now();
+    } else if (state == AppLifecycleState.resumed) {
+      final pausedTime = _pausedTime;
+      _pausedTime = null;
+
+      // Skip if explicitly suppressed (e.g. while asking permission or system settings)
+      if (isSuppressingAppOpenAd) {
+        isSuppressingAppOpenAd = false;
+        debugPrint('AppOpenAd suppressed due to permission or system dialog flow.');
+        return;
+      }
+
+      // Skip if app was paused/inactive for less than 4 seconds (e.g. permission popup, system dialog)
+      if (pausedTime != null) {
+        final durationInBackground = DateTime.now().difference(pausedTime);
+        if (durationInBackground.inSeconds < 4) {
+          debugPrint('App was paused briefly (${durationInBackground.inSeconds}s). Skipping AppOpenAd.');
+          return;
+        }
+      }
+
       showAppOpenAdIfAvailable();
     }
   }
