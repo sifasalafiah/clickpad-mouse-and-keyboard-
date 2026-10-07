@@ -23,7 +23,22 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
   // Multi-pointer tracking for smooth tracking & multi-touch ripples
   final Map<int, Offset> _pointerPositions = {};
   final Map<int, Offset> _lastPointerPositions = {};
+  final Map<int, DateTime> _pointerDownTimes = {};
+  final Map<int, Offset> _pointerDownPositions = {};
+  final Map<int, bool> _pointerMovedFlags = {};
   bool _precisionMode = false;
+
+  // Drag & Block Text State
+  bool _isDragging = false;
+  int? _activeDragPointer;
+  DateTime? _lastTapUpTime;
+  Offset? _lastTapUpPosition;
+  Timer? _longPressDragTimer;
+
+  // Bottom Physical Buttons Hold State
+  bool _isLeftButtonHeld = false;
+  bool _isMiddleButtonHeld = false;
+  bool _isRightButtonHeld = false;
 
   // High-frequency 80Hz Input Frame Accumulator for Zero Latency
   double _accumulatedDx = 0.0;
@@ -60,71 +75,170 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
   void dispose() {
     _iapService.removeListener(_onIapChanged);
     _flushTimer?.cancel();
+    _longPressDragTimer?.cancel();
+    // Safety release: ensure no mouse button remains stuck on host
+    if (_isDragging || _isLeftButtonHeld) {
+      _connService.sendCommand(InputCommand.mouseUp('left'));
+    }
+    if (_isRightButtonHeld) {
+      _connService.sendCommand(InputCommand.mouseUp('right'));
+    }
+    if (_isMiddleButtonHeld) {
+      _connService.sendCommand(InputCommand.mouseUp('middle'));
+    }
     super.dispose();
   }
 
   void _onPointerDown(PointerDownEvent event) {
-    setState(() {
-      _pointerPositions[event.pointer] = event.localPosition;
-      _lastPointerPositions[event.pointer] = event.localPosition;
-    });
-  }
+    _pointerPositions[event.pointer] = event.localPosition;
+    _lastPointerPositions[event.pointer] = event.localPosition;
+    _pointerDownTimes[event.pointer] = DateTime.now();
+    _pointerDownPositions[event.pointer] = event.localPosition;
+    _pointerMovedFlags[event.pointer] = false;
 
-  void _onPointerUp(PointerUpEvent event) {
-    setState(() {
-      _pointerPositions.remove(event.pointer);
-      _lastPointerPositions.remove(event.pointer);
-    });
-  }
+    // Check for Double-Tap & Drag (tap once, then tap down within 350ms and drag)
+    if (_pointerPositions.length == 1) {
+      final now = DateTime.now();
+      if (_lastTapUpTime != null && _lastTapUpPosition != null) {
+        final elapsed = now.difference(_lastTapUpTime!).inMilliseconds;
+        final dist = (event.localPosition - _lastTapUpPosition!).distance;
+        if (elapsed < 350 && dist < 45.0) {
+          // Double-tap drag sequence activated!
+          _isDragging = true;
+          _activeDragPointer = event.pointer;
+          _connService.sendCommand(InputCommand.mouseDown('left'));
+          HapticHelper.mediumImpact();
+          _lastTapUpTime = null;
+          _lastTapUpPosition = null;
+          setState(() {});
+          return;
+        }
+      }
 
-  void _onPointerCancel(PointerCancelEvent event) {
-    setState(() {
-      _pointerPositions.clear();
-      _lastPointerPositions.clear();
-    });
+      // Tap-and-hold to drag timer (380ms)
+      _longPressDragTimer?.cancel();
+      _longPressDragTimer = Timer(const Duration(milliseconds: 380), () {
+        if (!mounted) return;
+        if (_pointerPositions.length == 1 &&
+            _pointerPositions.containsKey(event.pointer) &&
+            !(_pointerMovedFlags[event.pointer] ?? false) &&
+            !_isDragging) {
+          _isDragging = true;
+          _activeDragPointer = event.pointer;
+          _connService.sendCommand(InputCommand.mouseDown('left'));
+          HapticHelper.heavyImpact();
+          setState(() {});
+        }
+      });
+    } else {
+      // 2 or more fingers cancels single finger long press
+      _longPressDragTimer?.cancel();
+    }
+
+    setState(() {});
   }
 
   void _onPointerMove(PointerMoveEvent event) {
     final prev = _lastPointerPositions[event.pointer] ?? event.localPosition;
     final delta = event.localPosition - prev;
     _lastPointerPositions[event.pointer] = event.localPosition;
+    _pointerPositions[event.pointer] = event.localPosition;
 
-    setState(() {
-      _pointerPositions[event.pointer] = event.localPosition;
-    });
+    final downPos = _pointerDownPositions[event.pointer] ?? event.localPosition;
+    if ((event.localPosition - downPos).distance > 8.0) {
+      _pointerMovedFlags[event.pointer] = true;
+      _longPressDragTimer?.cancel();
+    }
+
+    setState(() {});
 
     final activeCount = _pointerPositions.length;
     final sensitivity = _precisionMode ? 0.6 : _settings.mouseSensitivity;
 
     if (activeCount == 1) {
-      // Single finger: Accumulate mouse move
+      // Single finger: Accumulate mouse move (left button is held if dragging or left button held)
       _accumulatedDx += delta.dx * sensitivity;
       _accumulatedDy += delta.dy * sensitivity;
     } else if (activeCount >= 2) {
-      // Two fingers: Smooth scroll with proper pixel-to-notch scaling & settings tuning
+      // Two fingers: Smooth scroll
+      if (_isDragging) {
+        _isDragging = false;
+        _activeDragPointer = null;
+        _connService.sendCommand(InputCommand.mouseUp('left'));
+      }
       final scrollFactor = 0.08 * _settings.scrollSensitivity;
       _accumulatedScrollY += delta.dy * scrollFactor;
     }
   }
 
-  void _onTap() {
-    HapticHelper.lightImpact();
-    _connService.sendCommand(InputCommand.click('left'));
+  void _onPointerUp(PointerUpEvent event) {
+    _longPressDragTimer?.cancel();
+
+    final downTime = _pointerDownTimes[event.pointer];
+    final downPos = _pointerDownPositions[event.pointer];
+    final hasMoved = _pointerMovedFlags[event.pointer] ?? false;
+    final durationMs = downTime != null ? DateTime.now().difference(downTime).inMilliseconds : 999;
+    final totalDist = downPos != null ? (event.localPosition - downPos).distance : 999.0;
+    final activeCountAtUp = _pointerPositions.length;
+
+    // Clean up tracking maps
+    _pointerPositions.remove(event.pointer);
+    _lastPointerPositions.remove(event.pointer);
+    _pointerDownTimes.remove(event.pointer);
+    _pointerDownPositions.remove(event.pointer);
+    _pointerMovedFlags.remove(event.pointer);
+
+    // If this pointer was in drag mode, release mouse button
+    if (_isDragging && _activeDragPointer == event.pointer) {
+      _isDragging = false;
+      _activeDragPointer = null;
+      _connService.sendCommand(InputCommand.mouseUp('left'));
+      HapticHelper.lightImpact();
+      _lastTapUpTime = null;
+      _lastTapUpPosition = null;
+      setState(() {});
+      return;
+    }
+
+    // Check for stationary tap (<14px movement, <320ms duration)
+    if (!hasMoved && totalDist < 14.0 && durationMs < 320) {
+      if (activeCountAtUp == 2) {
+        // Two-finger tap -> Right Click (Laptop trackpad standard)
+        HapticHelper.mediumImpact();
+        _connService.sendCommand(InputCommand.click('right'));
+        _lastTapUpTime = null;
+        _lastTapUpPosition = null;
+      } else if (activeCountAtUp == 1) {
+        // Single finger tap -> Left Click
+        HapticHelper.lightImpact();
+        _connService.sendCommand(InputCommand.click('left'));
+        _lastTapUpTime = DateTime.now();
+        _lastTapUpPosition = event.localPosition;
+      }
+    }
+
+    setState(() {});
   }
 
-  void _onDoubleTap() {
-    HapticHelper.mediumImpact();
-    _connService.sendCommand(InputCommand.click('left'));
-    _connService.sendCommand(InputCommand.click('left'));
-  }
-
-  void _onLongPress() {
-    HapticHelper.heavyImpact();
-    _connService.sendCommand(InputCommand.click('right'));
+  void _onPointerCancel(PointerCancelEvent event) {
+    _longPressDragTimer?.cancel();
+    if (_isDragging) {
+      _isDragging = false;
+      _activeDragPointer = null;
+      _connService.sendCommand(InputCommand.mouseUp('left'));
+    }
+    _pointerPositions.clear();
+    _lastPointerPositions.clear();
+    _pointerDownTimes.clear();
+    _pointerDownPositions.clear();
+    _pointerMovedFlags.clear();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDragActive = _isDragging || _isLeftButtonHeld;
+
     return Column(
       children: [
         // Collapsible AdMob Banner Ad at Top of Touchpad Screen (Hidden for PRO users)
@@ -177,11 +291,14 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
             decoration: BoxDecoration(
               color: AppColors.touchpadCanvas,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.border, width: 1.5),
+              border: Border.all(
+                color: isDragActive ? AppColors.primary : AppColors.border,
+                width: isDragActive ? 2.0 : 1.5,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(80),
-                  blurRadius: 12,
+                  color: isDragActive ? AppColors.primary.withAlpha(60) : Colors.black.withAlpha(80),
+                  blurRadius: isDragActive ? 16 : 12,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -193,68 +310,118 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                 onPointerMove: _onPointerMove,
                 onPointerUp: _onPointerUp,
                 onPointerCancel: _onPointerCancel,
-                child: GestureDetector(
-                  onTap: _onTap,
-                  onDoubleTap: _onDoubleTap,
-                  onLongPress: _onLongPress,
-                  behavior: HitTestBehavior.opaque,
-                  child: Stack(
-                    children: [
-                      // Subdued Grid pattern lines
-                      CustomPaint(
-                        size: Size.infinite,
-                        painter: GridPainter(),
+                behavior: HitTestBehavior.opaque,
+                child: Stack(
+                  children: [
+                    // Subdued Grid pattern lines
+                    CustomPaint(
+                      size: Size.infinite,
+                      painter: GridPainter(),
+                    ),
+
+                    // Multi-Touch Ripple Visual Indicators (renders a circle for each finger)
+                    for (final entry in _pointerPositions.entries)
+                      Positioned(
+                        left: entry.value.dx - 26,
+                        top: entry.value.dy - 26,
+                        child: IgnorePointer(
+                          child: Container(
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: (_isDragging && entry.key == _activeDragPointer)
+                                  ? AppColors.primary.withAlpha(120)
+                                  : AppColors.touchRipple,
+                              border: Border.all(
+                                color: (_isDragging && entry.key == _activeDragPointer)
+                                    ? Colors.white
+                                    : AppColors.primaryLight,
+                                width: (_isDragging && entry.key == _activeDragPointer) ? 2.5 : 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withAlpha(
+                                    (_isDragging && entry.key == _activeDragPointer) ? 140 : 70,
+                                  ),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: (_isDragging && entry.key == _activeDragPointer)
+                                ? const Center(
+                                    child: Icon(Icons.drag_indicator, size: 20, color: Colors.white),
+                                  )
+                                : null,
+                          ),
+                        ),
                       ),
 
-                      // Multi-Touch Ripple Visual Indicators (renders a circle for each finger)
-                      for (final pos in _pointerPositions.values)
-                        Positioned(
-                          left: pos.dx - 24,
-                          top: pos.dy - 24,
-                          child: IgnorePointer(
-                            child: Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.touchRipple,
-                                border: Border.all(color: AppColors.primaryLight, width: 2),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.primary.withAlpha(70),
-                                    blurRadius: 8,
-                                    spreadRadius: 2,
+                    // Center gesture guide text
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isDragActive ? Icons.select_all : Icons.mouse,
+                            size: 32,
+                            color: isDragActive ? AppColors.primary : AppColors.textMuted.withAlpha(50),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '1 Finger: Move  •  2 Fingers: Scroll\nDouble-Tap & Slide or Hold Left Click: Select / Block Text\n2-Finger Tap: Right Click',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              height: 1.5,
+                              color: AppColors.textMuted.withAlpha(130),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Floating Drag & Block Indicator Badge
+                    if (isDragActive)
+                      Positioned(
+                        top: 14,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withAlpha(140),
+                                  blurRadius: 10,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.select_all, size: 15, color: Colors.white),
+                                SizedBox(width: 6),
+                                Text(
+                                  'BLOCK / DRAG MODE ACTIVE',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.8,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-
-                      // Center gesture guide text
-                      Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.mouse,
-                              size: 32,
-                              color: AppColors.textMuted.withAlpha(50),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '1 Finger: Move Cursor  •  2 Fingers: Scroll\nTap: Left Click  •  Long Press: Right Click',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textMuted.withAlpha(120),
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -267,30 +434,60 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              // Left Click Button
+              // Left Click Button (Supports Hold-to-Drag for Blocking Text)
               Expanded(
                 flex: 4,
-                child: SizedBox(
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      HapticHelper.mediumImpact();
-                      _connService.sendCommand(InputCommand.click('left'));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.surfaceElevated,
-                      foregroundColor: AppColors.textPrimary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
-                        side: BorderSide(color: AppColors.border),
+                child: Listener(
+                  onPointerDown: (_) {
+                    HapticHelper.mediumImpact();
+                    setState(() => _isLeftButtonHeld = true);
+                    _connService.sendCommand(InputCommand.mouseDown('left'));
+                  },
+                  onPointerUp: (_) {
+                    HapticHelper.lightImpact();
+                    setState(() => _isLeftButtonHeld = false);
+                    _connService.sendCommand(InputCommand.mouseUp('left'));
+                  },
+                  onPointerCancel: (_) {
+                    setState(() => _isLeftButtonHeld = false);
+                    _connService.sendCommand(InputCommand.mouseUp('left'));
+                  },
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: _isLeftButtonHeld ? AppColors.primary : AppColors.surfaceElevated,
+                      borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
+                      border: Border.all(
+                        color: _isLeftButtonHeld ? AppColors.primaryLight : AppColors.border,
+                        width: _isLeftButtonHeld ? 2 : 1,
                       ),
+                      boxShadow: _isLeftButtonHeld
+                          ? [
+                              BoxShadow(
+                                color: AppColors.primary.withAlpha(90),
+                                blurRadius: 10,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : null,
                     ),
+                    alignment: Alignment.center,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.touch_app, size: 18, color: AppColors.primary),
+                        Icon(
+                          Icons.touch_app,
+                          size: 18,
+                          color: _isLeftButtonHeld ? Colors.white : AppColors.primary,
+                        ),
                         const SizedBox(width: 8),
-                        const Text('Left Click', style: TextStyle(fontWeight: FontWeight.w600)),
+                        Text(
+                          'Left Click',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: _isLeftButtonHeld ? Colors.white : AppColors.textPrimary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -301,21 +498,35 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
               // Middle / Scroll Lock Button
               Expanded(
                 flex: 2,
-                child: SizedBox(
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      HapticHelper.mediumImpact();
-                      _connService.sendCommand(InputCommand.click('middle'));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.surfaceElevated,
-                      foregroundColor: AppColors.textSecondary,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(color: AppColors.border),
+                child: Listener(
+                  onPointerDown: (_) {
+                    HapticHelper.mediumImpact();
+                    setState(() => _isMiddleButtonHeld = true);
+                    _connService.sendCommand(InputCommand.mouseDown('middle'));
+                  },
+                  onPointerUp: (_) {
+                    HapticHelper.lightImpact();
+                    setState(() => _isMiddleButtonHeld = false);
+                    _connService.sendCommand(InputCommand.mouseUp('middle'));
+                  },
+                  onPointerCancel: (_) {
+                    setState(() => _isMiddleButtonHeld = false);
+                    _connService.sendCommand(InputCommand.mouseUp('middle'));
+                  },
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: _isMiddleButtonHeld ? AppColors.surfaceElevated.withAlpha(200) : AppColors.surfaceElevated,
+                      border: Border.all(
+                        color: _isMiddleButtonHeld ? AppColors.textSecondary : AppColors.border,
                       ),
                     ),
-                    child: const Icon(Icons.unfold_more, size: 20),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.unfold_more,
+                      size: 20,
+                      color: _isMiddleButtonHeld ? AppColors.textPrimary : AppColors.textSecondary,
+                    ),
                   ),
                 ),
               ),
@@ -324,27 +535,57 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
               // Right Click Button
               Expanded(
                 flex: 4,
-                child: SizedBox(
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      HapticHelper.heavyImpact();
-                      _connService.sendCommand(InputCommand.click('right'));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.surfaceElevated,
-                      foregroundColor: AppColors.textPrimary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: const BorderRadius.horizontal(right: Radius.circular(16)),
-                        side: BorderSide(color: AppColors.border),
+                child: Listener(
+                  onPointerDown: (_) {
+                    HapticHelper.heavyImpact();
+                    setState(() => _isRightButtonHeld = true);
+                    _connService.sendCommand(InputCommand.mouseDown('right'));
+                  },
+                  onPointerUp: (_) {
+                    HapticHelper.lightImpact();
+                    setState(() => _isRightButtonHeld = false);
+                    _connService.sendCommand(InputCommand.mouseUp('right'));
+                  },
+                  onPointerCancel: (_) {
+                    setState(() => _isRightButtonHeld = false);
+                    _connService.sendCommand(InputCommand.mouseUp('right'));
+                  },
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: _isRightButtonHeld ? AppColors.accent : AppColors.surfaceElevated,
+                      borderRadius: const BorderRadius.horizontal(right: Radius.circular(16)),
+                      border: Border.all(
+                        color: _isRightButtonHeld ? AppColors.accent : AppColors.border,
+                        width: _isRightButtonHeld ? 2 : 1,
                       ),
+                      boxShadow: _isRightButtonHeld
+                          ? [
+                              BoxShadow(
+                                color: AppColors.accent.withAlpha(90),
+                                blurRadius: 10,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : null,
                     ),
+                    alignment: Alignment.center,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('Right Click', style: TextStyle(fontWeight: FontWeight.w600)),
+                        Text(
+                          'Right Click',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: _isRightButtonHeld ? Colors.white : AppColors.textPrimary,
+                          ),
+                        ),
                         const SizedBox(width: 8),
-                        Icon(Icons.mouse, size: 18, color: AppColors.accent),
+                        Icon(
+                          Icons.mouse,
+                          size: 18,
+                          color: _isRightButtonHeld ? Colors.white : AppColors.accent,
+                        ),
                       ],
                     ),
                   ),

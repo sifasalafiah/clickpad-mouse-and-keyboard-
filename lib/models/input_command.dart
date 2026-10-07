@@ -3,6 +3,8 @@ import 'dart:convert';
 enum CommandType {
   move,
   click,
+  mouseDown,
+  mouseUp,
   scroll,
   keyPress,
   keyDown,
@@ -36,6 +38,14 @@ class InputCommand {
 
   factory InputCommand.click(String button) {
     return InputCommand(type: CommandType.click, button: button);
+  }
+
+  factory InputCommand.mouseDown(String button) {
+    return InputCommand(type: CommandType.mouseDown, button: button);
+  }
+
+  factory InputCommand.mouseUp(String button) {
+    return InputCommand(type: CommandType.mouseUp, button: button);
   }
 
   factory InputCommand.scroll(double dx, double dy) {

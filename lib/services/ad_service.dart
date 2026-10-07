@@ -28,7 +28,17 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
       WidgetsBinding.instance.addObserver(this);
       IapService.instance.addListener(_onIapChanged);
 
-      // 1. Gather GDPR / UMP Consent (Google User Messaging Platform)
+      // If user is already ClickPad PRO, completely skip ads and consent
+      if (IapService.instance.isPro) {
+        debugPrint(
+          'User is ClickPad PRO: Skipping consent gathering and ads initialization.',
+        );
+        _canRequestAds = false;
+        _isPrivacyOptionsRequired = false;
+        return;
+      }
+
+      // 1. Gather GDPR / US State UMP Consent (Google User Messaging Platform)
       await _gatherConsent();
 
       // 2. Initialize MobileAds SDK if user consent is obtained or ads can be served
@@ -43,8 +53,13 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  /// Gather GDPR / UMP consent from the user
+  /// Gather GDPR / UMP consent from the user (EEA, UK, and US State Regulations)
   Future<void> _gatherConsent() async {
+    if (IapService.instance.isPro) {
+      _canRequestAds = false;
+      _isPrivacyOptionsRequired = false;
+      return;
+    }
     final completer = Completer<void>();
 
     if (kDebugMode) {
@@ -81,7 +96,9 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
     return completer.future.timeout(
       const Duration(seconds: 8),
       onTimeout: () async {
-        debugPrint('Consent gathering timeout. Checking current consent status.');
+        debugPrint(
+          'Consent gathering timeout. Checking current consent status.',
+        );
         await _checkConsentStatus();
       },
     );
@@ -89,13 +106,18 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> _checkConsentStatus() async {
     _canRequestAds = await ConsentInformation.instance.canRequestAds();
-    final status = await ConsentInformation.instance.getPrivacyOptionsRequirementStatus();
-    _isPrivacyOptionsRequired = (status == PrivacyOptionsRequirementStatus.required);
+    final status = await ConsentInformation.instance
+        .getPrivacyOptionsRequirementStatus();
+    _isPrivacyOptionsRequired =
+        (status == PrivacyOptionsRequirementStatus.required);
     notifyListeners();
   }
 
   /// Open GDPR privacy options form so users can review or change their consent preferences
-  void showPrivacyOptionsForm(BuildContext context, {VoidCallback? onDismissed}) {
+  void showPrivacyOptionsForm(
+    BuildContext context, {
+    VoidCallback? onDismissed,
+  }) {
     isSuppressingAppOpenAd = true;
     ConsentForm.showPrivacyOptionsForm((formError) async {
       isSuppressingAppOpenAd = false;
@@ -104,14 +126,18 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to load privacy options: ${formError.message}'),
+              content: Text(
+                'Failed to load privacy options: ${formError.message}',
+              ),
               backgroundColor: Colors.redAccent,
             ),
           );
         }
       } else {
         await _checkConsentStatus();
-        if (_canRequestAds && !IapService.instance.isPro && _appOpenAd == null) {
+        if (_canRequestAds &&
+            !IapService.instance.isPro &&
+            _appOpenAd == null) {
           loadAppOpenAd();
         }
         onDismissed?.call();
@@ -144,7 +170,7 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
         return 'ca-app-pub-4676075129526023/7685138576'; // iOS Banner Production ID
       }
     }
-    
+
     // Debug & Profile Test IDs
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       return 'ca-app-pub-3940256099942544/2934735716'; // iOS Banner Test ID
@@ -162,7 +188,7 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
         return 'ca-app-pub-4676075129526023/3650614087'; // iOS App Open Production ID
       }
     }
-    
+
     // Debug & Profile Test IDs
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       return 'ca-app-pub-3940256099942544/5575463023'; // iOS App Open Test ID
@@ -200,7 +226,8 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
   bool get isAppOpenAdAvailable {
     if (IapService.instance.isPro) return false;
     if (_appOpenAd == null || _appOpenLoadTime == null) return false;
-    return DateTime.now().difference(_appOpenLoadTime!) < const Duration(hours: 4);
+    return DateTime.now().difference(_appOpenLoadTime!) <
+        const Duration(hours: 4);
   }
 
   /// Show App Open Ad if available
@@ -242,6 +269,7 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   DateTime? _pausedTime;
+
   /// Flag to explicitly suppress showing App Open Ad (e.g. when opening system settings or permission prompts)
   bool isSuppressingAppOpenAd = false;
 
@@ -249,7 +277,8 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (IapService.instance.isPro) return;
 
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
       _pausedTime ??= DateTime.now();
     } else if (state == AppLifecycleState.resumed) {
       final pausedTime = _pausedTime;
@@ -258,7 +287,9 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
       // Skip if explicitly suppressed (e.g. while asking permission or system settings)
       if (isSuppressingAppOpenAd) {
         isSuppressingAppOpenAd = false;
-        debugPrint('AppOpenAd suppressed due to permission or system dialog flow.');
+        debugPrint(
+          'AppOpenAd suppressed due to permission or system dialog flow.',
+        );
         return;
       }
 
@@ -266,7 +297,9 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
       if (pausedTime != null) {
         final durationInBackground = DateTime.now().difference(pausedTime);
         if (durationInBackground.inSeconds < 4) {
-          debugPrint('App was paused briefly (${durationInBackground.inSeconds}s). Skipping AppOpenAd.');
+          debugPrint(
+            'App was paused briefly (${durationInBackground.inSeconds}s). Skipping AppOpenAd.',
+          );
           return;
         }
       }

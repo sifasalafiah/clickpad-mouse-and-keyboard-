@@ -14,6 +14,6 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
 
     expect(find.text('ClickPad'), findsOneWidget);
-    expect(find.text('Bluetooth Hardware Remote'), findsOneWidget);
+    expect(find.text('PC Mouse & Keyboard'), findsOneWidget);
   });
 }

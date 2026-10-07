@@ -298,42 +298,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 20),
 
-          // Privacy & GDPR Ad Consent Card
-          const Text(
-            'Privacy & Legal',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            color: AppColors.surfaceElevated,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.privacy_tip_outlined, color: AppColors.primary, size: 22),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'GDPR & Advertising Privacy',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+          // Privacy & Advertising Consent Card (Only visible for Free / Ad-Supported users)
+          if (!isPro) ...[
+            const Text(
+              'Privacy & Legal',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Card(
+              color: AppColors.surfaceElevated,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.privacy_tip_outlined, color: AppColors.primary, size: 22),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            'GDPR & US State Advertising Privacy',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    isPro
-                        ? '100% Ad-Free PRO active. No personalized advertising or tracking cookies are collected.'
-                        : 'Manage your consent preferences for personalized ads, measurement, and privacy under European GDPR / UK regulations.',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                  ),
-                  if (!isPro) ...[
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Manage your consent preferences for personalized ads, measurement, and privacy under European GDPR / UK regulations and US State Privacy laws.',
+                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                    ),
                     const SizedBox(height: 12),
                     SizedBox(
                       width: double.infinity,
@@ -351,11 +349,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
+            const SizedBox(height: 20),
+          ],
 
           // About Card
           Card(

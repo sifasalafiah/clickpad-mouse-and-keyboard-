@@ -307,8 +307,14 @@ class BluetoothBleService {
     }
   }
 
+  int _currentButtonMask = 0;
+  int get currentButtonMask => _currentButtonMask;
+  bool get isLeftMouseButtonDown => (_currentButtonMask & 0x01) != 0;
+
   Future<void> disconnect() async {
     _connectionStateSubscription?.cancel();
+    _currentButtonMask = 0;
+    _sendRawMouseReport(0, 0, 0, 0);
 
     if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
       try {
@@ -326,16 +332,14 @@ class BluetoothBleService {
     onStatusChanged?.call(ConnectionStateStatus.disconnected, null, 'Disconnected');
   }
 
-  void sendCommand(InputCommand command) {
-    int buttonMask = 0;
-    if (command.button == 'left') buttonMask |= 0x01;
-    if (command.button == 'right') buttonMask |= 0x02;
-    if (command.button == 'middle') buttonMask |= 0x04;
+  int _getButtonMask(String? button) {
+    if (button == 'left') return 0x01;
+    if (button == 'right') return 0x02;
+    if (button == 'middle') return 0x04;
+    return 0x01;
+  }
 
-    int dx = command.dx.clamp(-127.0, 127.0).toInt();
-    int dy = command.dy.clamp(-127.0, 127.0).toInt();
-    int wheel = command.type == CommandType.scroll ? command.dy.clamp(-127.0, 127.0).toInt() : 0;
-
+  void _sendRawMouseReport(int buttonMask, int dx, int dy, int wheel) {
     // Send via Native Android / iOS Bluetooth HID Service
     if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
       try {
@@ -361,6 +365,45 @@ class BluetoothBleService {
       try {
         _hidReportCharacteristic!.write(reportBytes, withoutResponse: true);
       } catch (_) {}
+    }
+  }
+
+  void sendCommand(InputCommand command) {
+    switch (command.type) {
+      case CommandType.mouseDown:
+        final mask = _getButtonMask(command.button);
+        _currentButtonMask |= mask;
+        _sendRawMouseReport(_currentButtonMask, 0, 0, 0);
+        return;
+
+      case CommandType.mouseUp:
+        final mask = _getButtonMask(command.button);
+        _currentButtonMask &= ~mask;
+        _sendRawMouseReport(_currentButtonMask, 0, 0, 0);
+        return;
+
+      case CommandType.click:
+        final clickMask = _getButtonMask(command.button);
+        final pressMask = _currentButtonMask | clickMask;
+        _sendRawMouseReport(pressMask, 0, 0, 0);
+        Future.delayed(const Duration(milliseconds: 25), () {
+          _sendRawMouseReport(_currentButtonMask, 0, 0, 0);
+        });
+        return;
+
+      case CommandType.move:
+        final dx = command.dx.clamp(-127.0, 127.0).toInt();
+        final dy = command.dy.clamp(-127.0, 127.0).toInt();
+        _sendRawMouseReport(_currentButtonMask, dx, dy, 0);
+        return;
+
+      case CommandType.scroll:
+        final wheel = command.dy.clamp(-127.0, 127.0).toInt();
+        _sendRawMouseReport(_currentButtonMask, 0, 0, wheel);
+        return;
+
+      default:
+        break;
     }
   }
 
