@@ -20,10 +20,9 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
   final SettingsService _settings = SettingsService.instance;
   final IapService _iapService = IapService.instance;
 
-  Offset? _lastPanPosition;
-  Offset? _touchRipplePosition;
-  bool _showTouchRipple = false;
-  int _activePointers = 0;
+  // Multi-pointer tracking for smooth tracking & multi-touch ripples
+  final Map<int, Offset> _pointerPositions = {};
+  final Map<int, Offset> _lastPointerPositions = {};
   bool _precisionMode = false;
 
   // High-frequency 80Hz Input Frame Accumulator for Zero Latency
@@ -66,53 +65,42 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
 
   void _onPointerDown(PointerDownEvent event) {
     setState(() {
-      _activePointers++;
-      _lastPanPosition = event.localPosition;
-      _touchRipplePosition = event.localPosition;
-      _showTouchRipple = true;
+      _pointerPositions[event.pointer] = event.localPosition;
+      _lastPointerPositions[event.pointer] = event.localPosition;
     });
   }
 
   void _onPointerUp(PointerUpEvent event) {
     setState(() {
-      _activePointers = (_activePointers - 1).clamp(0, 10);
-      if (_activePointers == 0) {
-        _showTouchRipple = false;
-        _touchRipplePosition = null;
-      }
+      _pointerPositions.remove(event.pointer);
+      _lastPointerPositions.remove(event.pointer);
     });
-    _lastPanPosition = null;
   }
 
   void _onPointerCancel(PointerCancelEvent event) {
     setState(() {
-      _activePointers = 0;
-      _showTouchRipple = false;
-      _touchRipplePosition = null;
+      _pointerPositions.clear();
+      _lastPointerPositions.clear();
     });
-    _lastPanPosition = null;
   }
 
   void _onPointerMove(PointerMoveEvent event) {
+    final prev = _lastPointerPositions[event.pointer] ?? event.localPosition;
+    final delta = event.localPosition - prev;
+    _lastPointerPositions[event.pointer] = event.localPosition;
+
     setState(() {
-      _touchRipplePosition = event.localPosition;
+      _pointerPositions[event.pointer] = event.localPosition;
     });
 
-    if (_lastPanPosition == null) {
-      _lastPanPosition = event.localPosition;
-      return;
-    }
-
-    final delta = event.localPosition - _lastPanPosition!;
-    _lastPanPosition = event.localPosition;
-
+    final activeCount = _pointerPositions.length;
     final sensitivity = _precisionMode ? 0.6 : _settings.mouseSensitivity;
 
-    if (_activePointers == 1) {
+    if (activeCount == 1) {
       // Single finger: Accumulate mouse move
       _accumulatedDx += delta.dx * sensitivity;
       _accumulatedDy += delta.dy * sensitivity;
-    } else if (_activePointers >= 2) {
+    } else if (activeCount >= 2) {
       // Two fingers: Smooth scroll with proper pixel-to-notch scaling & settings tuning
       final scrollFactor = 0.08 * _settings.scrollSensitivity;
       _accumulatedScrollY += delta.dy * scrollFactor;
@@ -218,18 +206,27 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                         painter: GridPainter(),
                       ),
 
-                      // Touch Ripple Visual Indicator
-                      if (_showTouchRipple && _touchRipplePosition != null)
+                      // Multi-Touch Ripple Visual Indicators (renders a circle for each finger)
+                      for (final pos in _pointerPositions.values)
                         Positioned(
-                          left: _touchRipplePosition!.dx - 24,
-                          top: _touchRipplePosition!.dy - 24,
-                          child: Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColors.touchRipple,
-                              border: Border.all(color: AppColors.primaryLight, width: 2),
+                          left: pos.dx - 24,
+                          top: pos.dy - 24,
+                          child: IgnorePointer(
+                            child: Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.touchRipple,
+                                border: Border.all(color: AppColors.primaryLight, width: 2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.primary.withAlpha(70),
+                                    blurRadius: 8,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
