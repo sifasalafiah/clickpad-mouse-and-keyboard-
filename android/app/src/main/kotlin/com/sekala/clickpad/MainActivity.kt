@@ -332,6 +332,18 @@ class MainActivity : FlutterActivity() {
 
                     result.success(true)
                 }
+                "sendKeyboardState" -> {
+                    val modifier = call.argument<Int>("modifier") ?: 0
+                    val keycodes = call.argument<List<Int>>("keycodes") ?: emptyList()
+
+                    keyboardReportBuffer[0] = modifier.toByte()
+                    keyboardReportBuffer[1] = 0
+                    for (i in 0..5) {
+                        keyboardReportBuffer[2 + i] = if (i < keycodes.size) keycodes[i].toByte() else 0
+                    }
+                    sendHidReport(2, keyboardReportBuffer)
+                    result.success(true)
+                }
                 else -> result.notImplemented()
             }
         }

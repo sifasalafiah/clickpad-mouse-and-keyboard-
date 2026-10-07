@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../services/bluetooth_service.dart';
+import '../services/iap_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
+import '../utils/haptic_helper.dart';
+import '../widgets/pro_purchase_modal.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -13,16 +16,19 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final SettingsService _settings = SettingsService.instance;
   final BluetoothBleService _bleService = BluetoothBleService.instance;
+  final IapService _iapService = IapService.instance;
 
   @override
   void initState() {
     super.initState();
     _settings.addListener(_onSettingsChanged);
+    _iapService.addListener(_onSettingsChanged);
   }
 
   @override
   void dispose() {
     _settings.removeListener(_onSettingsChanged);
+    _iapService.removeListener(_onSettingsChanged);
     super.dispose();
   }
 
@@ -32,11 +38,99 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPro = _iapService.isPro;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ClickPad PRO Membership Card
+          Card(
+            color: isPro ? const Color(0xFF1E2215) : const Color(0xFF1C1E26),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: isPro ? const Color(0xFFFFD700) : AppColors.primary,
+                width: 1.5,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isPro
+                          ? const Color(0xFFFFD700).withAlpha(30)
+                          : AppColors.primary.withAlpha(30),
+                    ),
+                    child: Icon(
+                      Icons.workspace_premium,
+                      color: isPro ? const Color(0xFFFFD700) : AppColors.primary,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isPro ? 'ClickPad PRO Active' : 'Upgrade to ClickPad PRO',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isPro ? const Color(0xFFFFD700) : Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          isPro
+                              ? 'Virtual Gamepad, Zero Ads, & Premium Themes Unlocked'
+                              : 'Unlock Joystick Gamepad, Motion Control, & Ad-Free UX',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      HapticHelper.mediumImpact();
+                      ProPurchaseModal.show(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          isPro ? const Color(0xFFFFD700) : AppColors.primary,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text(
+                      isPro ? 'Manage' : 'Upgrade',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
           // Bluetooth HID Status Card
           const Text(
             'Bluetooth Connection Profile',
@@ -218,7 +312,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Seamless Bluetooth Mouse & Keyboard controller for macOS, Windows, and Linux.',
+                          'Seamless Bluetooth Mouse, Keyboard, & Gamepad controller for macOS, Windows, and Linux.',
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textMuted,

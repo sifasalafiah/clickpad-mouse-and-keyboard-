@@ -4,6 +4,7 @@ import 'screens/bluetooth_pairing_screen.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/ad_service.dart';
 import 'services/connection_service.dart';
+import 'services/iap_service.dart';
 import 'services/settings_service.dart';
 import 'theme/app_theme.dart';
 
@@ -17,8 +18,9 @@ void main() async {
     debugPrint('Wakelock error: $e');
   }
 
-  // Initialize persistent settings, connection, and AdMob services
+  // Initialize persistent settings, connection, IAP, and AdMob services
   await SettingsService.instance.init();
+  await IapService.instance.init();
   ConnectionService.instance.init();
   await AdService.instance.init();
 

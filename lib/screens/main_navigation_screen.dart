@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../services/connection_service.dart';
+import '../services/iap_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
+import '../widgets/pro_purchase_modal.dart';
+import 'joystick_screen.dart';
 import 'keyboard_screen.dart';
 import 'settings_screen.dart';
 import 'touchpad_screen.dart';
@@ -16,26 +19,30 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
   final ConnectionService _connService = ConnectionService.instance;
+  final IapService _iapService = IapService.instance;
 
   final List<Widget> _screens = const [
     TouchpadScreen(),
     KeyboardScreen(),
+    JoystickScreen(),
     SettingsScreen(),
   ];
 
   @override
   void initState() {
     super.initState();
-    _connService.addListener(_onConnectionChanged);
+    _connService.addListener(_onStateChanged);
+    _iapService.addListener(_onStateChanged);
   }
 
   @override
   void dispose() {
-    _connService.removeListener(_onConnectionChanged);
+    _connService.removeListener(_onStateChanged);
+    _iapService.removeListener(_onStateChanged);
     super.dispose();
   }
 
-  void _onConnectionChanged() {
+  void _onStateChanged() {
     if (mounted) setState(() {});
   }
 
@@ -43,6 +50,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget build(BuildContext context) {
     final isConnected = _connService.isConnected;
     final device = _connService.connectedDevice;
+    final isPro = _iapService.isPro;
 
     return Scaffold(
       appBar: AppBar(
@@ -83,6 +91,21 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ],
         ),
         actions: [
+          // PRO Upgrade Crown Button (if not unlocked)
+          if (!isPro)
+            IconButton(
+              onPressed: () {
+                HapticHelper.mediumImpact();
+                ProPurchaseModal.show(context);
+              },
+              icon: const Icon(
+                Icons.workspace_premium,
+                color: Color(0xFFFFD700),
+                size: 22,
+              ),
+              tooltip: 'Unlock PRO',
+            ),
+
           // Connection Status Pill Button
           Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -155,22 +178,53 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
+        type: BottomNavigationBarType.fixed,
         onTap: (index) {
           HapticHelper.selectionClick();
           setState(() => _currentIndex = index);
         },
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
             icon: Icon(Icons.touch_app_outlined),
             activeIcon: Icon(Icons.touch_app),
             label: 'Touchpad',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.keyboard_outlined),
             activeIcon: Icon(Icons.keyboard),
             label: 'Keyboard',
           ),
           BottomNavigationBarItem(
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(Icons.sports_esports_outlined),
+                if (!isPro)
+                  Positioned(
+                    right: -6,
+                    top: -4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFD700),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        'PRO',
+                        style: TextStyle(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            activeIcon: const Icon(Icons.sports_esports),
+            label: 'Joystick',
+          ),
+          const BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
             activeIcon: Icon(Icons.settings),
             label: 'Settings',

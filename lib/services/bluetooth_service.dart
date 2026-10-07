@@ -376,4 +376,17 @@ class BluetoothBleService {
       }
     }
   }
+
+  void sendKeyboardState(int modifier, List<int> keycodes) {
+    if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
+      try {
+        _nativeHidChannel.invokeMethod('sendKeyboardState', {
+          'modifier': modifier,
+          'keycodes': keycodes,
+        });
+      } catch (e) {
+        debugPrint("Native Keyboard HID Error: $e");
+      }
+    }
+  }
 }
