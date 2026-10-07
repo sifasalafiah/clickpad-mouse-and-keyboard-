@@ -47,9 +47,9 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
 
     return Container(
       constraints: BoxConstraints(maxHeight: size.height * 0.88),
-      decoration: const BoxDecoration(
-        color: Color(0xFF14171D),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: const Color(0xFF14171D),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         border: Border(top: BorderSide(color: AppColors.primary, width: 2)),
       ),
       child: Column(

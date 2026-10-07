@@ -3,18 +3,23 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 class AppTheme {
-  static ThemeData get darkTheme {
+  static ThemeData get darkTheme => getTheme(AppColors.currentTheme);
+
+  static ThemeData getTheme(AppThemeMode mode) {
+    AppColors.applyTheme(mode);
+    final palette = AppColors.palettes[mode] ?? AppColors.palettes[AppThemeMode.midnightSlate]!;
+
     final baseTextTheme = ThemeData.dark().textTheme;
     final googleTextTheme = GoogleFonts.outfitTextTheme(baseTextTheme);
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.background,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
-        secondary: AppColors.accent,
-        surface: AppColors.surface,
+      scaffoldBackgroundColor: palette.background,
+      colorScheme: ColorScheme.dark(
+        primary: palette.primary,
+        secondary: palette.accent,
+        surface: palette.surface,
         error: AppColors.error,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
@@ -42,36 +47,36 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: AppColors.surface,
+        color: palette.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.border, width: 1),
+          side: BorderSide(color: palette.border, width: 1),
         ),
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
+      appBarTheme: AppBarTheme(
+        backgroundColor: palette.background,
         elevation: 0,
         centerTitle: false,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.surface,
-        selectedItemColor: AppColors.primary,
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: palette.surface,
+        selectedItemColor: palette.primary,
         unselectedItemColor: AppColors.textMuted,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
       sliderTheme: SliderThemeData(
-        activeTrackColor: AppColors.primary,
-        inactiveTrackColor: AppColors.surfaceElevated,
-        thumbColor: AppColors.primaryLight,
-        overlayColor: AppColors.primary.withAlpha(50),
+        activeTrackColor: palette.primary,
+        inactiveTrackColor: palette.surfaceElevated,
+        thumbColor: palette.primaryLight,
+        overlayColor: palette.primary.withAlpha(50),
         trackHeight: 4,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: palette.primary,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),

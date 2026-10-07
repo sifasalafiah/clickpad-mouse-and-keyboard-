@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/connection_type.dart';
+import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
+import 'iap_service.dart';
 
 class SettingsService extends ChangeNotifier {
   static final SettingsService instance = SettingsService._internal();
@@ -12,6 +14,7 @@ class SettingsService extends ChangeNotifier {
   bool _enableAcceleration = true;
   bool _enableHaptics = true;
   ConnectionType _preferredConnectionType = ConnectionType.bluetoothHid;
+  AppThemeMode _currentThemeMode = AppThemeMode.midnightSlate;
   String _lastServerIp = '192.168.1.100';
   int _lastServerPort = 8888;
   String _lastDeviceName = '';
@@ -22,6 +25,7 @@ class SettingsService extends ChangeNotifier {
   bool get enableAcceleration => _enableAcceleration;
   bool get enableHaptics => _enableHaptics;
   ConnectionType get preferredConnectionType => _preferredConnectionType;
+  AppThemeMode get currentThemeMode => _currentThemeMode;
   String get lastServerIp => _lastServerIp;
   int get lastServerPort => _lastServerPort;
   String get lastDeviceName => _lastDeviceName;
@@ -46,9 +50,35 @@ class SettingsService extends ChangeNotifier {
         orElse: () => ConnectionType.bluetoothHid,
       );
     }
+
+    final themeStr = prefs.getString('appThemeMode');
+    if (themeStr != null) {
+      _currentThemeMode = AppThemeMode.values.firstWhere(
+        (e) => e.name == themeStr,
+        orElse: () => AppThemeMode.midnightSlate,
+      );
+    }
+    if (!IapService.instance.isPro && (AppColors.palettes[_currentThemeMode]?.isPro ?? false)) {
+      _currentThemeMode = AppThemeMode.midnightSlate;
+    }
+    AppColors.applyTheme(_currentThemeMode);
+
+    IapService.instance.addListener(() {
+      if (!IapService.instance.isPro && (AppColors.palettes[_currentThemeMode]?.isPro ?? false)) {
+        setThemeMode(AppThemeMode.midnightSlate);
+      }
+    });
     
     HapticHelper.enabled = _enableHaptics;
     notifyListeners();
+  }
+
+  Future<void> setThemeMode(AppThemeMode mode) async {
+    _currentThemeMode = mode;
+    AppColors.applyTheme(mode);
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('appThemeMode', mode.name);
   }
 
   Future<void> saveLastConnectedDevice(String name, String id) async {

@@ -144,7 +144,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
                       Icon(Icons.bluetooth_connected, color: AppColors.primary),
                       SizedBox(width: 12),
@@ -174,7 +174,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       label: const Text('Open Phone Bluetooth Settings'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primaryLight,
-                        side: const BorderSide(color: AppColors.primary),
+                        side: BorderSide(color: AppColors.primary),
                       ),
                     ),
                   ),
@@ -182,6 +182,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 20),
+
+          // Appearance & Exclusive Themes
+          _buildThemeSection(isPro),
           const SizedBox(height: 20),
 
           // Mouse & Touchpad Controls
@@ -207,7 +211,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       Text(
                         '${_settings.mouseSensitivity.toStringAsFixed(1)}x',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: AppColors.primaryLight,
                         ),
@@ -233,7 +237,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       Text(
                         '${_settings.scrollSensitivity.toStringAsFixed(1)}x',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: AppColors.primaryLight,
                         ),
@@ -267,7 +271,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
-                  const Divider(color: AppColors.border, height: 12),
+                  Divider(color: AppColors.border, height: 12),
 
                   // Haptics Switch
                   SwitchListTile(
@@ -296,8 +300,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // About Card
           Card(
             color: AppColors.surfaceElevated,
-            child: const Padding(
-              padding: EdgeInsets.all(16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
                   Icon(Icons.info_outline, color: AppColors.primary),
@@ -327,6 +331,171 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildThemeSection(bool isPro) {
+    final currentMode = _settings.currentThemeMode;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Appearance & Themes',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            if (!isPro)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFD700).withAlpha(25),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFFFD700).withAlpha(80)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.workspace_premium, size: 12, color: Color(0xFFFFD700)),
+                    SizedBox(width: 4),
+                    Text(
+                      'PRO Themes',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFFFD700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Card(
+          color: AppColors.surfaceElevated,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              children: AppThemeMode.values.map((mode) {
+                final palette = AppColors.palettes[mode]!;
+                final isSelected = currentMode == mode;
+                final isLocked = palette.isPro && !isPro;
+
+                return InkWell(
+                  onTap: () {
+                    if (isLocked) {
+                      HapticHelper.mediumImpact();
+                      ProPurchaseModal.show(context);
+                    } else {
+                      HapticHelper.selectionClick();
+                      _settings.setThemeMode(mode);
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    child: Row(
+                      children: [
+                        // Color Swatch Preview
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: palette.background,
+                            border: Border.all(
+                              color: isSelected ? palette.primary : palette.border,
+                              width: isSelected ? 2 : 1,
+                            ),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: palette.primary.withAlpha(100),
+                                      blurRadius: 8,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Center(
+                            child: Container(
+                              width: 14,
+                              height: 14,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: palette.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+
+                        // Title & Subtitle
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    palette.name,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                      color: isSelected ? Colors.white : AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  if (palette.isPro) ...[
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                      decoration: BoxDecoration(
+                                        color: isLocked
+                                            ? const Color(0xFFFFD700).withAlpha(30)
+                                            : AppColors.success.withAlpha(30),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        isLocked ? 'PRO' : 'UNLOCKED',
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w900,
+                                          color: isLocked ? const Color(0xFFFFD700) : AppColors.success,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                palette.subtitle,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppColors.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Right Status Indicator
+                        if (isLocked)
+                          const Icon(Icons.lock_outline, color: Color(0xFFFFD700), size: 18)
+                        else if (isSelected)
+                          Icon(Icons.check_circle, color: palette.primary, size: 20)
+                        else
+                          Icon(Icons.radio_button_unchecked, color: AppColors.textMuted.withAlpha(120), size: 18),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

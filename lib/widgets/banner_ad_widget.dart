@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../services/ad_service.dart';
+import '../services/iap_service.dart';
 
 class CollapsibleBannerAdWidget extends StatefulWidget {
   final String collapsiblePosition; // 'top' or 'bottom'
@@ -15,16 +16,36 @@ class CollapsibleBannerAdWidget extends StatefulWidget {
 }
 
 class _CollapsibleBannerAdWidgetState extends State<CollapsibleBannerAdWidget> {
+  final IapService _iapService = IapService.instance;
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _loadCollapsibleBannerAd();
+    _iapService.addListener(_onIapChanged);
+    if (!_iapService.isPro) {
+      _loadCollapsibleBannerAd();
+    }
+  }
+
+  void _onIapChanged() {
+    if (_iapService.isPro) {
+      _bannerAd?.dispose();
+      _bannerAd = null;
+      if (mounted) {
+        setState(() {
+          _isAdLoaded = false;
+        });
+      }
+    } else if (!_isAdLoaded && _bannerAd == null) {
+      _loadCollapsibleBannerAd();
+    }
   }
 
   void _loadCollapsibleBannerAd() {
+    if (_iapService.isPro) return;
+
     _bannerAd = BannerAd(
       adUnitId: AdService.instance.bannerAdUnitId,
       size: AdSize.banner,
@@ -35,6 +56,11 @@ class _CollapsibleBannerAdWidgetState extends State<CollapsibleBannerAdWidget> {
       ),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
+          if (_iapService.isPro) {
+            ad.dispose();
+            _bannerAd = null;
+            return;
+          }
           if (mounted) {
             setState(() {
               _isAdLoaded = true;
@@ -59,13 +85,14 @@ class _CollapsibleBannerAdWidgetState extends State<CollapsibleBannerAdWidget> {
 
   @override
   void dispose() {
+    _iapService.removeListener(_onIapChanged);
     _bannerAd?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isAdLoaded || _bannerAd == null) {
+    if (_iapService.isPro || !_isAdLoaded || _bannerAd == null) {
       return const SizedBox.shrink();
     }
 

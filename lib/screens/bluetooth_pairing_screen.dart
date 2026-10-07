@@ -100,7 +100,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                             color: AppColors.primary.withAlpha(30),
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.bluetooth,
                             color: AppColors.primary,
                             size: 28,
@@ -161,7 +161,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                     color: AppColors.surfaceElevated,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
-                      side: const BorderSide(
+                      side: BorderSide(
                         color: AppColors.primaryLight,
                         width: 1.5,
                       ),
@@ -176,7 +176,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                               color: AppColors.primary.withAlpha(40),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.history,
                               color: AppColors.primaryLight,
                               size: 22,
@@ -187,7 +187,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'LAST CONNECTED DEVICE',
                                   style: TextStyle(
                                     fontSize: 10,
@@ -338,7 +338,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                     color: AppColors.surfaceElevated,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
-                      side: const BorderSide(
+                      side: BorderSide(
                         color: AppColors.primaryLight,
                         width: 1.5,
                       ),
@@ -348,7 +348,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const SizedBox(
+                          SizedBox(
                             width: 48,
                             height: 48,
                             child: CircularProgressIndicator(
@@ -388,7 +388,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                             ),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.textMuted,
-                              side: const BorderSide(color: AppColors.border),
+                              side: BorderSide(color: AppColors.border),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -430,7 +430,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                                   ),
                                 ],
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.bluetooth_searching,
                                 size: 42,
                                 color: AppColors.primaryLight,
@@ -502,7 +502,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                                 backgroundColor: AppColors.primary.withAlpha(40),
                                 foregroundColor: AppColors.primaryLight,
                                 elevation: 0,
-                                side: const BorderSide(color: AppColors.primaryLight),
+                                side: BorderSide(color: AppColors.primaryLight),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 14,
                                   vertical: 8,
@@ -549,7 +549,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                 color: AppColors.background,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: AppColors.border),
+                  side: BorderSide(color: AppColors.border),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -710,7 +710,7 @@ class _StepRow extends StatelessWidget {
             backgroundColor: AppColors.primary.withAlpha(40),
             child: Text(
               number,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 color: AppColors.primaryLight,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/bluetooth_service.dart';
+import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
 import '../widgets/banner_ad_widget.dart';
@@ -14,6 +15,7 @@ class KeyboardScreen extends StatefulWidget {
 
 class _KeyboardScreenState extends State<KeyboardScreen> {
   final BluetoothBleService _bleService = BluetoothBleService.instance;
+  final SettingsService _settings = SettingsService.instance;
 
   bool _isShiftActive = false;
   bool _isCapsLocked = false;
@@ -25,6 +27,7 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
   @override
   void initState() {
     super.initState();
+    _settings.addListener(_onSettingsChanged);
     // Allow landscape orientation for maximum width
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
@@ -35,6 +38,7 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
 
   @override
   void dispose() {
+    _settings.removeListener(_onSettingsChanged);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -42,6 +46,10 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
       DeviceOrientation.landscapeRight,
     ]);
     super.dispose();
+  }
+
+  void _onSettingsChanged() {
+    if (mounted) setState(() {});
   }
 
   int get _modifierMask {
@@ -78,7 +86,7 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
         MediaQuery.of(context).orientation == Orientation.portrait;
 
     Widget keyboardBody = Container(
-      color: const Color(0xFF14171A), // Sleek Pebble Dark Matte Finish
+      color: AppColors.background, // Sleek dynamic theme background
       padding: const EdgeInsets.all(8),
       child: SafeArea(
         child: Column(
@@ -92,11 +100,11 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.keyboard, color: Color(0xFF00E5FF), size: 18),
-                      SizedBox(width: 8),
-                      Text(
+                      Icon(Icons.keyboard, color: AppColors.primary, size: 18),
+                      const SizedBox(width: 8),
+                      const Text(
                         'ClickPad Keyboard',
                         style: TextStyle(
                           fontSize: 13,
@@ -126,9 +134,9 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
               child: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1F2328),
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFF2D3239), width: 2),
+                  border: Border.all(color: AppColors.border, width: 2),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withAlpha(120),
@@ -397,7 +405,7 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
           height: 6,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isConnected ? const Color(0xFF00E5FF) : Colors.white24,
+            color: isConnected ? AppColors.primary : Colors.white24,
           ),
         ),
         const SizedBox(width: 4),
@@ -406,7 +414,7 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.bold,
-            color: isConnected ? const Color(0xFF00E5FF) : Colors.white38,
+            color: isConnected ? AppColors.primary : Colors.white38,
           ),
         ),
       ],
@@ -437,27 +445,31 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                   duration: const Duration(milliseconds: 100),
                   decoration: BoxDecoration(
                     color: key.isActive
-                        ? const Color(0xFF00E5FF)
+                        ? AppColors.primaryLight
                         : key.isPrimary
                         ? AppColors.primary
                         : key.isEasySwitch
-                        ? const Color(0xFF2A2E35)
+                        ? AppColors.surfaceElevated
                         : key.isAction
                         ? const Color(0xFF272C33)
                         : const Color(0xFF323842),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: key.isActive
-                          ? const Color(0xFF80F4FF)
+                          ? AppColors.primaryLight
+                          : key.isPrimary
+                          ? AppColors.primaryLight
                           : key.isEasySwitch
-                          ? const Color(0xFF00E5FF).withAlpha(100)
+                          ? AppColors.primary.withAlpha(100)
                           : const Color(0xFF3F4652),
-                      width: 1,
+                      width: key.isPrimary ? 1.5 : 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withAlpha(60),
-                        blurRadius: 2,
+                        color: key.isPrimary
+                            ? AppColors.primary.withAlpha(90)
+                            : Colors.black.withAlpha(60),
+                        blurRadius: key.isPrimary ? 8 : 2,
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -470,15 +482,23 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                         Icon(
                           key.icon,
                           size: 13,
-                          color: key.isActive ? Colors.black : Colors.white70,
+                          color: key.isActive
+                              ? (ThemeData.estimateBrightnessForColor(AppColors.primaryLight) == Brightness.light ? Colors.black : Colors.white)
+                              : key.isPrimary
+                              ? (ThemeData.estimateBrightnessForColor(AppColors.primary) == Brightness.light ? Colors.black : Colors.white)
+                              : Colors.white70,
                         )
                       else
                         Text(
                           key.label,
                           style: TextStyle(
                             fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: key.isActive ? Colors.black : Colors.white,
+                            fontWeight: key.isPrimary ? FontWeight.bold : FontWeight.w600,
+                            color: key.isActive
+                                ? (ThemeData.estimateBrightnessForColor(AppColors.primaryLight) == Brightness.light ? Colors.black : Colors.white)
+                                : key.isPrimary
+                                ? (ThemeData.estimateBrightnessForColor(AppColors.primary) == Brightness.light ? Colors.black : Colors.white)
+                                : Colors.white,
                           ),
                         ),
                       if (key.isEasySwitch) ...[
@@ -486,9 +506,9 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                         Container(
                           width: 3,
                           height: 3,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Color(0xFF00E5FF),
+                            color: AppColors.primary,
                           ),
                         ),
                       ],

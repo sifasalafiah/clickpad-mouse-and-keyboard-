@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'iap_service.dart';
 
 class AdService with WidgetsBindingObserver {
   static final AdService instance = AdService._internal();
@@ -20,9 +21,21 @@ class AdService with WidgetsBindingObserver {
     try {
       await MobileAds.instance.initialize();
       WidgetsBinding.instance.addObserver(this);
-      loadAppOpenAd();
+      IapService.instance.addListener(_onIapChanged);
+      if (!IapService.instance.isPro) {
+        loadAppOpenAd();
+      }
     } catch (e) {
       debugPrint('AdService initialization error: $e');
+    }
+  }
+
+  void _onIapChanged() {
+    if (IapService.instance.isPro) {
+      _appOpenAd?.dispose();
+      _appOpenAd = null;
+    } else if (_appOpenAd == null) {
+      loadAppOpenAd();
     }
   }
 
@@ -64,11 +77,18 @@ class AdService with WidgetsBindingObserver {
 
   /// Load App Open Ad
   void loadAppOpenAd() {
+    if (IapService.instance.isPro) return;
+
     AppOpenAd.load(
       adUnitId: appOpenAdUnitId,
       request: const AdRequest(),
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
+          if (IapService.instance.isPro) {
+            ad.dispose();
+            _appOpenAd = null;
+            return;
+          }
           debugPrint('AppOpenAd loaded successfully');
           _appOpenAd = ad;
           _appOpenLoadTime = DateTime.now();
@@ -83,12 +103,15 @@ class AdService with WidgetsBindingObserver {
 
   /// Check if App Open Ad is available and not expired (valid for 4 hours)
   bool get isAppOpenAdAvailable {
+    if (IapService.instance.isPro) return false;
     if (_appOpenAd == null || _appOpenLoadTime == null) return false;
     return DateTime.now().difference(_appOpenLoadTime!) < const Duration(hours: 4);
   }
 
   /// Show App Open Ad if available
   void showAppOpenAdIfAvailable() {
+    if (IapService.instance.isPro) return;
+
     if (!isAppOpenAdAvailable) {
       debugPrint('AppOpenAd is not available. Loading a new one...');
       loadAppOpenAd();
@@ -129,6 +152,8 @@ class AdService with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (IapService.instance.isPro) return;
+
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       _pausedTime ??= DateTime.now();
     } else if (state == AppLifecycleState.resumed) {

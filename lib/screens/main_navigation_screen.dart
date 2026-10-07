@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/connection_service.dart';
 import '../services/iap_service.dart';
+import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
 import '../widgets/pro_purchase_modal.dart';
@@ -20,6 +21,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
   final ConnectionService _connService = ConnectionService.instance;
   final IapService _iapService = IapService.instance;
+  final SettingsService _settings = SettingsService.instance;
 
   final List<Widget> _screens = const [
     TouchpadScreen(),
@@ -33,12 +35,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     super.initState();
     _connService.addListener(_onStateChanged);
     _iapService.addListener(_onStateChanged);
+    _settings.addListener(_onStateChanged);
   }
 
   @override
   void dispose() {
     _connService.removeListener(_onStateChanged);
     _iapService.removeListener(_onStateChanged);
+    _settings.removeListener(_onStateChanged);
     super.dispose();
   }
 
@@ -63,7 +67,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 color: AppColors.primary.withAlpha(30),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.bluetooth,
                 color: AppColors.primary,
                 size: 20,
@@ -242,7 +246,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         backgroundColor: AppColors.surfaceElevated,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: AppColors.border),
         ),
         title: Row(
           children: [

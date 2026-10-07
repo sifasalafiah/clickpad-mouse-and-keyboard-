@@ -4,6 +4,7 @@ import '../models/input_command.dart';
 import '../services/bluetooth_service.dart';
 import '../services/connection_service.dart';
 import '../services/iap_service.dart';
+import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
 import '../widgets/joystick_widget.dart';
@@ -19,6 +20,7 @@ class JoystickScreen extends StatefulWidget {
 class _JoystickScreenState extends State<JoystickScreen> {
   final BluetoothBleService _bleService = BluetoothBleService.instance;
   final IapService _iapService = IapService.instance;
+  final SettingsService _settings = SettingsService.instance;
 
   JoystickMode _joystickMode = JoystickMode.wasd;
   bool _useAnalogStick = true;
@@ -31,6 +33,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
   void initState() {
     super.initState();
     _iapService.addListener(_onIapChanged);
+    _settings.addListener(_onIapChanged);
 
     // Prefer landscape for comfortable gaming grip
     SystemChrome.setPreferredOrientations([
@@ -43,6 +46,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
   @override
   void dispose() {
     _iapService.removeListener(_onIapChanged);
+    _settings.removeListener(_onIapChanged);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -490,7 +494,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
       onPointerCancel: (_) => _onButtonTouchUp(scancode),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 60),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        width: 56,
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: isPressed ? AppColors.primary : const Color(0xFF1E222B),
           borderRadius: BorderRadius.circular(16),
@@ -498,6 +504,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
         ),
         child: Text(
           label,
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 9.5,
             fontWeight: FontWeight.bold,

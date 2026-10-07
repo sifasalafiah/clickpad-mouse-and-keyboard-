@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/input_command.dart';
 import '../services/connection_service.dart';
+import '../services/iap_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
@@ -17,6 +18,7 @@ class TouchpadScreen extends StatefulWidget {
 class _TouchpadScreenState extends State<TouchpadScreen> {
   final ConnectionService _connService = ConnectionService.instance;
   final SettingsService _settings = SettingsService.instance;
+  final IapService _iapService = IapService.instance;
 
   Offset? _lastPanPosition;
   Offset? _touchRipplePosition;
@@ -33,6 +35,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
   @override
   void initState() {
     super.initState();
+    _iapService.addListener(_onIapChanged);
     // Flush input deltas every 12ms (~83Hz smooth input frame rate)
     _flushTimer = Timer.periodic(const Duration(milliseconds: 12), (_) {
       if (_accumulatedDx != 0.0 || _accumulatedDy != 0.0) {
@@ -50,8 +53,13 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
     });
   }
 
+  void _onIapChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _iapService.removeListener(_onIapChanged);
     _flushTimer?.cancel();
     super.dispose();
   }
@@ -131,8 +139,9 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Collapsible AdMob Banner Ad at Top of Touchpad Screen
-        const CollapsibleBannerAdWidget(collapsiblePosition: 'top'),
+        // Collapsible AdMob Banner Ad at Top of Touchpad Screen (Hidden for PRO users)
+        if (!_iapService.isPro)
+          const CollapsibleBannerAdWidget(collapsiblePosition: 'top'),
 
         // Top Info & Quick Bar
         Padding(
@@ -274,17 +283,17 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.surfaceElevated,
                       foregroundColor: AppColors.textPrimary,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.horizontal(left: Radius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
                         side: BorderSide(color: AppColors.border),
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.touch_app, size: 18, color: AppColors.primary),
-                        SizedBox(width: 8),
-                        Text('Left Click', style: TextStyle(fontWeight: FontWeight.w600)),
+                        const SizedBox(width: 8),
+                        const Text('Left Click', style: TextStyle(fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -305,7 +314,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.surfaceElevated,
                       foregroundColor: AppColors.textSecondary,
-                      shape: const RoundedRectangleBorder(
+                      shape: RoundedRectangleBorder(
                         side: BorderSide(color: AppColors.border),
                       ),
                     ),
@@ -328,16 +337,16 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.surfaceElevated,
                       foregroundColor: AppColors.textPrimary,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.horizontal(right: Radius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: const BorderRadius.horizontal(right: Radius.circular(16)),
                         side: BorderSide(color: AppColors.border),
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Right Click', style: TextStyle(fontWeight: FontWeight.w600)),
-                        SizedBox(width: 8),
+                        const Text('Right Click', style: TextStyle(fontWeight: FontWeight.w600)),
+                        const SizedBox(width: 8),
                         Icon(Icons.mouse, size: 18, color: AppColors.accent),
                       ],
                     ),

@@ -32,11 +32,17 @@ class ClickPadApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ClickPad - PC Mouse & Keyboard',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      home: const AppRootWrapper(),
+    return ListenableBuilder(
+      listenable: SettingsService.instance,
+      builder: (context, _) {
+        final currentMode = SettingsService.instance.currentThemeMode;
+        return MaterialApp(
+          title: 'ClickPad - PC Mouse & Keyboard',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.getTheme(currentMode),
+          home: const AppRootWrapper(),
+        );
+      },
     );
   }
 }
