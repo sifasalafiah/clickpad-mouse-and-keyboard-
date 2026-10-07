@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../services/ad_service.dart';
 import '../services/bluetooth_service.dart';
@@ -348,30 +347,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primaryLight,
                           side: BorderSide(color: AppColors.primary),
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (kDebugMode) ...[
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      child: TextButton.icon(
-                        onPressed: () async {
-                          HapticHelper.lightImpact();
-                          await AdService.instance.resetConsentForDebug();
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('GDPR Consent reset! Restart or re-open app to test EEA consent flow.'),
-                              ),
-                            );
-                          }
-                        },
-                        icon: const Icon(Icons.restart_alt, size: 16, color: AppColors.textMuted),
-                        label: const Text(
-                          'Reset GDPR Consent (EEA Debug Test)',
-                          style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                         ),
                       ),
                     ),

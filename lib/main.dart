@@ -18,11 +18,10 @@ void main() async {
     debugPrint('Wakelock error: $e');
   }
 
-  // Initialize persistent settings, connection, IAP, and AdMob services
+  // Initialize persistent settings, connection, and IAP
   await SettingsService.instance.init();
   await IapService.instance.init();
   ConnectionService.instance.init();
-  await AdService.instance.init();
 
   runApp(const ClickPadApp());
 }
@@ -62,8 +61,9 @@ class _AppRootWrapperState extends State<AppRootWrapper> {
     super.initState();
     _connService.addListener(_onConnectionStatusChanged);
 
-    // Show App Open Ad if loaded after initial rendering
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Initialize AdMob and gather GDPR consent once UI window is fully attached
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await AdService.instance.init();
       AdService.instance.showAppOpenAdIfAvailable();
     });
   }
