@@ -30,6 +30,9 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
   void initState() {
     super.initState();
     _iapService.addListener(_onIapChanged);
+    if (_iapService.products.isEmpty && _iapService.isAvailable) {
+      _iapService.queryProducts();
+    }
   }
 
   @override
@@ -161,12 +164,16 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                         orElse: () => null,
                       );
 
+                      final isStoreLoading = _iapService.isLoading;
+                      final proPrice = proProduct?.price ?? (isStoreLoading ? '...' : '-');
+                      final joystickPrice = joystickProduct?.price ?? (isStoreLoading ? '...' : '-');
+
                       return Column(
                         children: [
                           _buildPricingCard(
                             title: 'Pro Lifetime Pass',
                             badge: 'BEST VALUE',
-                            price: proProduct?.price ?? 'Rp 29.000',
+                            price: proPrice,
                             subtitle: 'One-time purchase, unlock all features forever',
                             isPrimary: true,
                             onTap: () => _handleUnlock(isLifetime: true),
@@ -174,7 +181,7 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                           const SizedBox(height: 10),
                           _buildPricingCard(
                             title: 'Joystick Game Pass Only',
-                            price: joystickProduct?.price ?? 'Rp 15.000',
+                            price: joystickPrice,
                             subtitle: 'Dedicated to Virtual Gamepad & Controller features',
                             isPrimary: false,
                             onTap: () => _handleUnlock(isLifetime: false),
