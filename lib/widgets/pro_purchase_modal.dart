@@ -161,32 +161,61 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Free Demo / Trial Button
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      HapticHelper.mediumImpact();
-                      Navigator.of(context).pop();
-                      _iapService.startFreeTrial(durationSeconds: 180);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('🎉 3-Minute Free Trial Active! Enjoy testing the Joystick.'),
-                          backgroundColor: AppColors.success,
-                        ),
-                      );
-                      widget.onUnlocked?.call();
-                    },
-                    icon: const Icon(Icons.timer, color: Color(0xFF00E5FF), size: 18),
-                    label: const Text(
-                      'Try 3-Minute Free Trial',
-                      style: TextStyle(color: Color(0xFF00E5FF), fontWeight: FontWeight.bold),
+                  // Free Demo / Trial Button (Single-use only)
+                  if (_iapService.canStartTrial) ...[
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        HapticHelper.mediumImpact();
+                        final started = _iapService.startFreeTrial(durationSeconds: 180);
+                        if (started) {
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('🎉 3-Minute Free Trial Active! Enjoy testing the Joystick.'),
+                              backgroundColor: AppColors.success,
+                            ),
+                          );
+                          widget.onUnlocked?.call();
+                        }
+                      },
+                      icon: const Icon(Icons.timer, color: Color(0xFF00E5FF), size: 18),
+                      label: const Text(
+                        'Try 3-Minute Free Trial',
+                        style: TextStyle(color: Color(0xFF00E5FF), fontWeight: FontWeight.bold),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFF00E5FF)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        minimumSize: const Size(double.infinity, 44),
+                      ),
                     ),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF00E5FF)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      minimumSize: const Size(double.infinity, 44),
+                    const SizedBox(height: 12),
+                  ] else if (_iapService.hasUsedTrial && !_iapService.isPro) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(10),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.lock_clock, color: AppColors.textMuted, size: 16),
+                          SizedBox(width: 8),
+                          Text(
+                            '3-Minute Free Trial has already been used',
+                            style: TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 12),
+                  ],
 
                   // Restore Purchases Button
                   TextButton(

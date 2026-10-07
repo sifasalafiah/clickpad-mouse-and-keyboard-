@@ -87,95 +87,110 @@ class _JoystickScreenState extends State<JoystickScreen> {
     final isTrial = _iapService.isTrialActive;
     final trialSeconds = _iapService.trialSecondsLeft;
 
-    final size = MediaQuery.of(context).size;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
 
-    Widget joystickBody = Container(
-      color: const Color(0xFF0F1115),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  // Top Edge Row: Left Shoulder Buttons | Center Gaming HUD | Right Shoulder Buttons
-                  _buildTopShoulderAndHudBar(isTrial, trialSeconds),
-                  const SizedBox(height: 10),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth =
+            isPortrait ? constraints.maxHeight : constraints.maxWidth;
+        final availableHeight =
+            isPortrait ? constraints.maxWidth : constraints.maxHeight;
 
-                  // Main Gamepad Body: Left Thumb Stick | Center Touchpad & Menu | Right ABXY
-                  Expanded(
-                    child: _buildMainGamepadBody(),
-                  ),
-                ],
-              ),
+        Widget gamepadContent = Container(
+          width: availableWidth,
+          height: availableHeight,
+          color: const Color(0xFF0F1115),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            child: Column(
+              children: [
+                // Top Edge Row: Left Shoulder Buttons | Center Gaming HUD | Right Shoulder Buttons
+                _buildTopShoulderAndHudBar(isTrial, trialSeconds),
+                const SizedBox(height: 6),
 
-              // Pro Locked Glass Overlay if not unlocked and trial expired
-              if (!isPro) _buildProLockOverlay(),
-            ],
+                // Main Gamepad Body: Left Thumb Stick | Center Touchpad & Menu | Right ABXY
+                Expanded(
+                  child: _buildMainGamepadBody(),
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+
+        Widget gamepadView = isPortrait
+            ? RotatedBox(
+                quarterTurns: 1,
+                child: SizedBox(
+                  width: constraints.maxHeight,
+                  height: constraints.maxWidth,
+                  child: gamepadContent,
+                ),
+              )
+            : gamepadContent;
+
+        return Stack(
+          children: [
+            gamepadView,
+
+            // Pro Locked Glass Overlay in natural screen orientation (Portrait when phone is held vertically)
+            if (!isPro) Positioned.fill(child: _buildProLockOverlay()),
+          ],
+        );
+      },
     );
-
-    if (isPortrait) {
-      return RotatedBox(
-        quarterTurns: 1,
-        child: SizedBox(
-          width: size.height,
-          height: size.width,
-          child: joystickBody,
-        ),
-      );
-    }
-
-    return joystickBody;
   }
 
   Widget _buildTopShoulderAndHudBar(bool isTrial, int trialSeconds) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Left Shoulders (L1, L2)
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildShoulderButton(
-              label: 'L1',
-              subLabel: 'Shift',
-              scancode: 0xE1,
-            ),
-            const SizedBox(width: 8),
-            _buildShoulderButton(
-              label: 'L2',
-              subLabel: 'Ctrl',
-              scancode: 0xE0,
-            ),
-          ],
-        ),
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Left Shoulders (L1, L2)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildShoulderButton(
+                label: 'L1',
+                subLabel: 'Shift',
+                scancode: 0xE1,
+              ),
+              const SizedBox(width: 6),
+              _buildShoulderButton(
+                label: 'L2',
+                subLabel: 'Ctrl',
+                scancode: 0xE0,
+              ),
+            ],
+          ),
+          const SizedBox(width: 12),
 
-        // Center HUD
-        _buildTopCenterHud(isTrial, trialSeconds),
+          // Center HUD
+          _buildTopCenterHud(isTrial, trialSeconds),
+          const SizedBox(width: 12),
 
-        // Right Shoulders (R1, R2)
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildShoulderButton(
-              label: 'R1',
-              subLabel: 'Space',
-              scancode: 0x2C,
-            ),
-            const SizedBox(width: 8),
-            _buildShoulderButton(
-              label: 'R2',
-              subLabel: 'Enter',
-              scancode: 0x28,
-            ),
-          ],
-        ),
-      ],
+          // Right Shoulders (R1, R2)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildShoulderButton(
+                label: 'R1',
+                subLabel: 'Space',
+                scancode: 0x2C,
+              ),
+              const SizedBox(width: 6),
+              _buildShoulderButton(
+                label: 'R2',
+                subLabel: 'Enter',
+                scancode: 0x28,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -345,7 +360,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
           child: Center(
             child: _useAnalogStick
                 ? VirtualJoystickWidget(
-                    size: 170,
+                    size: 155,
                     mode: _joystickMode,
                     onDirectionChanged: _onJoystickDirectionChanged,
                   )
@@ -357,21 +372,24 @@ class _JoystickScreenState extends State<JoystickScreen> {
         Expanded(
           flex: 4,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Column(
               children: [
                 // System Buttons Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildCenterButton('SELECT', 0x2B), // Tab
-                    const SizedBox(width: 10),
-                    _buildCenterButton('START', 0x28), // Enter
-                    const SizedBox(width: 10),
-                    _buildCenterButton('ESC', 0x29), // Escape
-                  ],
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildCenterButton('SELECT', 0x2B), // Tab
+                      const SizedBox(width: 8),
+                      _buildCenterButton('START', 0x28), // Enter
+                      const SizedBox(width: 8),
+                      _buildCenterButton('ESC', 0x29), // Escape
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
 
                 // Camera Look Touchpad
                 Expanded(child: _buildCameraLookPad()),
@@ -403,10 +421,10 @@ class _JoystickScreenState extends State<JoystickScreen> {
       onPointerCancel: (_) => _onButtonTouchUp(scancode),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 60),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: isPressed ? AppColors.primary : const Color(0xFF1E222B),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isPressed ? Colors.white : const Color(0xFF333B49),
             width: isPressed ? 1.5 : 1,
@@ -415,15 +433,15 @@ class _JoystickScreenState extends State<JoystickScreen> {
               ? [
                   BoxShadow(
                     color: AppColors.primary.withAlpha(120),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 1),
                   ),
                 ]
               : [
                   BoxShadow(
                     color: Colors.black.withAlpha(60),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
+                    blurRadius: 3,
+                    offset: const Offset(0, 1),
                   ),
                 ],
         ),
@@ -433,28 +451,28 @@ class _JoystickScreenState extends State<JoystickScreen> {
             Text(
               label,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: FontWeight.w900,
                 color: isPressed ? Colors.black : Colors.white,
                 letterSpacing: 0.5,
               ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 5),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
               decoration: BoxDecoration(
                 color: isPressed
                     ? Colors.black.withAlpha(40)
                     : const Color(0xFF2A313E),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(5),
               ),
               child: Text(
                 subLabel,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 9.5,
                   fontWeight: FontWeight.w700,
                   color: isPressed ? Colors.black87 : AppColors.textMuted,
-                  letterSpacing: 0.3,
+                  letterSpacing: 0.2,
                 ),
               ),
             ),
@@ -472,19 +490,16 @@ class _JoystickScreenState extends State<JoystickScreen> {
       onPointerCancel: (_) => _onButtonTouchUp(scancode),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 60),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color:
-              isPressed
-                  ? AppColors.primary
-                  : const Color(0xFF1E222B),
-          borderRadius: BorderRadius.circular(20),
+          color: isPressed ? AppColors.primary : const Color(0xFF1E222B),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0xFF333B4B)),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 10,
+            fontSize: 9.5,
             fontWeight: FontWeight.bold,
             color: isPressed ? Colors.black : AppColors.textMuted,
             letterSpacing: 0.5,
@@ -501,8 +516,8 @@ class _JoystickScreenState extends State<JoystickScreen> {
     // A (Bottom): Space (0x2C)
     // B (Right): Esc (0x29)
     return SizedBox(
-      width: 170,
-      height: 170,
+      width: 155,
+      height: 155,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -539,8 +554,8 @@ class _JoystickScreenState extends State<JoystickScreen> {
       onPointerCancel: (_) => _onButtonTouchUp(scancode),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 60),
-        width: 52,
-        height: 52,
+        width: 48,
+        height: 48,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(
@@ -573,7 +588,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 17,
             fontWeight: FontWeight.w900,
             color: isPressed ? Colors.black : themeColor,
           ),
@@ -590,8 +605,8 @@ class _JoystickScreenState extends State<JoystickScreen> {
     final rightKey = _joystickMode == JoystickMode.wasd ? 0x07 : 0x4F;
 
     return SizedBox(
-      width: 170,
-      height: 170,
+      width: 155,
+      height: 155,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -636,8 +651,8 @@ class _JoystickScreenState extends State<JoystickScreen> {
       onPointerCancel: (_) => _onButtonTouchUp(scancode),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 60),
-        width: 52,
-        height: 52,
+        width: 48,
+        height: 48,
         decoration: BoxDecoration(
           color:
               isPressed
@@ -697,12 +712,13 @@ class _JoystickScreenState extends State<JoystickScreen> {
 
   Widget _buildProLockOverlay() {
     return Container(
-      color: Colors.black.withAlpha(210),
+      color: Colors.black.withAlpha(215),
       alignment: Alignment.center,
       child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Container(
-          margin: const EdgeInsets.all(20),
-          padding: const EdgeInsets.all(20),
+          margin: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
           decoration: BoxDecoration(
             color: const Color(0xFF171A21),
             borderRadius: BorderRadius.circular(24),
@@ -710,7 +726,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFFFFD700).withAlpha(40),
-                blurRadius: 20,
+                blurRadius: 24,
                 spreadRadius: 2,
               ),
             ],
@@ -719,7 +735,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(16),
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Color(0xFF2A2715),
@@ -727,65 +743,92 @@ class _JoystickScreenState extends State<JoystickScreen> {
                 child: const Icon(
                   Icons.sports_esports,
                   color: Color(0xFFFFD700),
-                  size: 32,
+                  size: 38,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               const Text(
                 'PRO Exclusive Feature',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Unlock Virtual Gamepad Controller & 360° Joystick for the ultimate PC gaming experience.',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              const Text(
+                'Unlock Virtual Gamepad Controller & 360° Joystick for the ultimate PC gaming experience.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 22),
               ElevatedButton.icon(
                 onPressed: () {
                   HapticHelper.mediumImpact();
                   ProPurchaseModal.show(context);
                 },
-                icon: const Icon(Icons.workspace_premium, size: 18),
+                icon: const Icon(Icons.workspace_premium, size: 20),
                 label: const Text('Unlock Gamepad Now'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFFD700),
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 10,
-                  ),
+                  minimumSize: const Size(double.infinity, 46),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w900),
+                  textStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
                 ),
               ),
-              const SizedBox(height: 8),
-              TextButton.icon(
-                onPressed: () {
-                  HapticHelper.selectionClick();
-                  _iapService.startFreeTrial(durationSeconds: 180);
-                },
-                icon: const Icon(
-                  Icons.timer,
-                  color: Color(0xFF00E5FF),
-                  size: 16,
-                ),
-                label: const Text(
-                  'Try 3-Minute Free Trial',
-                  style: TextStyle(
+              const SizedBox(height: 10),
+              if (_iapService.canStartTrial)
+                TextButton.icon(
+                  onPressed: () {
+                    HapticHelper.selectionClick();
+                    _iapService.startFreeTrial(durationSeconds: 180);
+                  },
+                  icon: const Icon(
+                    Icons.timer,
                     color: Color(0xFF00E5FF),
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                    size: 16,
+                  ),
+                  label: const Text(
+                    'Try 3-Minute Free Trial',
+                    style: TextStyle(
+                      color: Color(0xFF00E5FF),
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
+              else if (_iapService.hasUsedTrial && !_iapService.isPro)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  margin: const EdgeInsets.only(top: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(10),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.lock_clock, color: AppColors.textMuted, size: 14),
+                      SizedBox(width: 6),
+                      Text(
+                        'Free trial has expired',
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
             ],
           ),
         ),

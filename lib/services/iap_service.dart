@@ -22,6 +22,7 @@ class IapService extends ChangeNotifier {
   // Demo Trial State
   bool _isTrialActive = false;
   int _trialSecondsLeft = 0;
+  bool _hasUsedTrial = false;
   Timer? _trialTimer;
 
   bool get isPro => _isPro || _isJoystickUnlocked || _isTrialActive;
@@ -32,11 +33,25 @@ class IapService extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isTrialActive => _isTrialActive;
   int get trialSecondsLeft => _trialSecondsLeft;
+  bool get hasUsedTrial => _hasUsedTrial;
+  bool get canStartTrial => !_hasUsedTrial && !_isPro && !_isJoystickUnlocked;
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     _isPro = prefs.getBool('isProUnlocked') ?? false;
     _isJoystickUnlocked = prefs.getBool('isJoystickUnlocked') ?? false;
+    _hasUsedTrial = prefs.getBool('hasUsedTrial') ?? false;
+
+    // Check if active trial is still running from previous session
+    final trialEndTime = prefs.getInt('trialEndTime') ?? 0;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (trialEndTime > now) {
+      final remaining = ((trialEndTime - now) / 1000).ceil();
+      _startTrialTimer(remaining);
+    } else if (trialEndTime > 0) {
+      _hasUsedTrial = true;
+      await prefs.setBool('hasUsedTrial', true);
+    }
 
     notifyListeners();
 
@@ -163,8 +178,23 @@ class IapService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Start 2-Minute Free Trial
-  void startFreeTrial({int durationSeconds = 120}) {
+  // Start 3-Minute Free Trial (One-Time Only)
+  bool startFreeTrial({int durationSeconds = 180}) {
+    if (_hasUsedTrial || isPro) return false;
+
+    _hasUsedTrial = true;
+    _startTrialTimer(durationSeconds);
+
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setBool('hasUsedTrial', true);
+      final endTime = DateTime.now().millisecondsSinceEpoch + (durationSeconds * 1000);
+      prefs.setInt('trialEndTime', endTime);
+    });
+
+    return true;
+  }
+
+  void _startTrialTimer(int durationSeconds) {
     _trialTimer?.cancel();
     _isTrialActive = true;
     _trialSecondsLeft = durationSeconds;
@@ -177,10 +207,23 @@ class IapService extends ChangeNotifier {
       } else {
         _isTrialActive = false;
         _trialSecondsLeft = 0;
+        _hasUsedTrial = true;
         _trialTimer?.cancel();
         notifyListeners();
       }
     });
+  }
+
+  // Reset Trial (for testing / debug)
+  Future<void> resetTrialForTesting() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('hasUsedTrial');
+    await prefs.remove('trialEndTime');
+    _hasUsedTrial = false;
+    _isTrialActive = false;
+    _trialSecondsLeft = 0;
+    _trialTimer?.cancel();
+    notifyListeners();
   }
 
   @override
