@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../services/ad_service.dart';
 import '../services/bluetooth_service.dart';
 import '../services/iap_service.dart';
 import '../services/settings_service.dart';
@@ -291,6 +293,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Privacy & GDPR Ad Consent Card
+          const Text(
+            'Privacy & Legal',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            color: AppColors.surfaceElevated,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.privacy_tip_outlined, color: AppColors.primary, size: 22),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          'GDPR & Advertising Privacy',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    isPro
+                        ? '100% Ad-Free PRO active. No personalized advertising or tracking cookies are collected.'
+                        : 'Manage your consent preferences for personalized ads, measurement, and privacy under European GDPR / UK regulations.',
+                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  ),
+                  if (!isPro) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          HapticHelper.selectionClick();
+                          AdService.instance.showPrivacyOptionsForm(context);
+                        },
+                        icon: const Icon(Icons.tune, size: 16),
+                        label: const Text('Change Privacy & Consent Choices'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primaryLight,
+                          side: BorderSide(color: AppColors.primary),
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (kDebugMode) ...[
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: TextButton.icon(
+                        onPressed: () async {
+                          HapticHelper.lightImpact();
+                          await AdService.instance.resetConsentForDebug();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('GDPR Consent reset! Restart or re-open app to test EEA consent flow.'),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.restart_alt, size: 16, color: AppColors.textMuted),
+                        label: const Text(
+                          'Reset GDPR Consent (EEA Debug Test)',
+                          style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

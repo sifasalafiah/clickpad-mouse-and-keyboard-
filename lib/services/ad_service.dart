@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'iap_service.dart';
 
-class AdService with WidgetsBindingObserver {
+class AdService extends ChangeNotifier with WidgetsBindingObserver {
   static final AdService instance = AdService._internal();
   AdService._internal();
 
@@ -12,29 +13,118 @@ class AdService with WidgetsBindingObserver {
   DateTime? _appOpenLoadTime;
 
   bool _initialized = false;
+  bool _canRequestAds = false;
+  bool _isPrivacyOptionsRequired = false;
 
-  /// Initialize Google Mobile Ads SDK
+  bool get canRequestAds => _canRequestAds;
+  bool get isPrivacyOptionsRequired => _isPrivacyOptionsRequired;
+
+  /// Initialize Google Mobile Ads SDK with GDPR / UMP Consent Gathering
   Future<void> init() async {
     if (_initialized) return;
     _initialized = true;
 
     try {
-      await MobileAds.instance.initialize();
       WidgetsBinding.instance.addObserver(this);
       IapService.instance.addListener(_onIapChanged);
-      if (!IapService.instance.isPro) {
-        loadAppOpenAd();
+
+      // 1. Gather GDPR / UMP Consent (Google User Messaging Platform)
+      await _gatherConsent();
+
+      // 2. Initialize MobileAds SDK if user consent is obtained or ads can be served
+      if (_canRequestAds) {
+        await MobileAds.instance.initialize();
+        if (!IapService.instance.isPro) {
+          loadAppOpenAd();
+        }
       }
     } catch (e) {
       debugPrint('AdService initialization error: $e');
     }
   }
 
+  /// Gather GDPR / UMP consent from the user
+  Future<void> _gatherConsent() async {
+    final completer = Completer<void>();
+
+    final params = ConsentRequestParameters(
+      consentDebugSettings: kDebugMode
+          ? ConsentDebugSettings(
+              debugGeography: DebugGeography.debugGeographyEea,
+            )
+          : null,
+    );
+
+    ConsentInformation.instance.requestConsentInfoUpdate(
+      params,
+      () async {
+        ConsentForm.loadAndShowConsentFormIfRequired((formError) async {
+          if (formError != null) {
+            debugPrint('ConsentForm loadAndShow error: ${formError.message}');
+          }
+          await _checkConsentStatus();
+          if (!completer.isCompleted) completer.complete();
+        });
+      },
+      (formError) async {
+        debugPrint('ConsentInfoUpdate error: ${formError.message}');
+        await _checkConsentStatus();
+        if (!completer.isCompleted) completer.complete();
+      },
+    );
+
+    return completer.future.timeout(
+      const Duration(seconds: 8),
+      onTimeout: () async {
+        debugPrint('Consent gathering timeout. Checking current consent status.');
+        await _checkConsentStatus();
+      },
+    );
+  }
+
+  Future<void> _checkConsentStatus() async {
+    _canRequestAds = await ConsentInformation.instance.canRequestAds();
+    final status = await ConsentInformation.instance.getPrivacyOptionsRequirementStatus();
+    _isPrivacyOptionsRequired = (status == PrivacyOptionsRequirementStatus.required);
+    notifyListeners();
+  }
+
+  /// Open GDPR privacy options form so users can review or change their consent preferences
+  void showPrivacyOptionsForm(BuildContext context, {VoidCallback? onDismissed}) {
+    isSuppressingAppOpenAd = true;
+    ConsentForm.showPrivacyOptionsForm((formError) async {
+      isSuppressingAppOpenAd = false;
+      if (formError != null) {
+        debugPrint('PrivacyOptionsForm error: ${formError.message}');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to load privacy options: ${formError.message}'),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+      } else {
+        await _checkConsentStatus();
+        if (_canRequestAds && !IapService.instance.isPro && _appOpenAd == null) {
+          loadAppOpenAd();
+        }
+        onDismissed?.call();
+      }
+    });
+  }
+
+  /// Reset consent state (Useful for debugging/testing GDPR dialog multiple times)
+  Future<void> resetConsentForDebug() async {
+    await ConsentInformation.instance.reset();
+    await _checkConsentStatus();
+  }
+
   void _onIapChanged() {
     if (IapService.instance.isPro) {
       _appOpenAd?.dispose();
       _appOpenAd = null;
-    } else if (_appOpenAd == null) {
+    } else if (_canRequestAds && _appOpenAd == null) {
       loadAppOpenAd();
     }
   }

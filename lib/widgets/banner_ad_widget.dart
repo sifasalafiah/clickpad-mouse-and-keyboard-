@@ -24,7 +24,8 @@ class _CollapsibleBannerAdWidgetState extends State<CollapsibleBannerAdWidget> {
   void initState() {
     super.initState();
     _iapService.addListener(_onIapChanged);
-    if (!_iapService.isPro) {
+    AdService.instance.addListener(_onAdServiceChanged);
+    if (!_iapService.isPro && AdService.instance.canRequestAds) {
       _loadCollapsibleBannerAd();
     }
   }
@@ -38,13 +39,19 @@ class _CollapsibleBannerAdWidgetState extends State<CollapsibleBannerAdWidget> {
           _isAdLoaded = false;
         });
       }
-    } else if (!_isAdLoaded && _bannerAd == null) {
+    } else if (!_isAdLoaded && _bannerAd == null && AdService.instance.canRequestAds) {
+      _loadCollapsibleBannerAd();
+    }
+  }
+
+  void _onAdServiceChanged() {
+    if (!_iapService.isPro && AdService.instance.canRequestAds && !_isAdLoaded && _bannerAd == null) {
       _loadCollapsibleBannerAd();
     }
   }
 
   void _loadCollapsibleBannerAd() {
-    if (_iapService.isPro) return;
+    if (_iapService.isPro || !AdService.instance.canRequestAds) return;
 
     _bannerAd = BannerAd(
       adUnitId: AdService.instance.bannerAdUnitId,
@@ -86,6 +93,7 @@ class _CollapsibleBannerAdWidgetState extends State<CollapsibleBannerAdWidget> {
   @override
   void dispose() {
     _iapService.removeListener(_onIapChanged);
+    AdService.instance.removeListener(_onAdServiceChanged);
     _bannerAd?.dispose();
     super.dispose();
   }
