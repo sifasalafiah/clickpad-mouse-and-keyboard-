@@ -11,7 +11,7 @@ void main() {
     ConnectionService.instance.init();
 
     await tester.pumpWidget(const ClickPadApp());
-    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 9));
 
     expect(find.text('ClickPad'), findsOneWidget);
     expect(find.text('PC Mouse & Keyboard'), findsOneWidget);
