@@ -62,10 +62,6 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
     }
     final completer = Completer<void>();
 
-    if (kDebugMode) {
-      await ConsentInformation.instance.reset();
-    }
-
     final params = ConsentRequestParameters(
       consentDebugSettings: kDebugMode
           ? ConsentDebugSettings(
