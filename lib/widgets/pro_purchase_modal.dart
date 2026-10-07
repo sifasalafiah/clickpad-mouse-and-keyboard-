@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import '../services/iap_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
@@ -38,7 +39,13 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
   }
 
   void _onIapChanged() {
-    if (mounted) setState(() {});
+    if (mounted) {
+      if (_iapService.isPro && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+        widget.onUnlocked?.call();
+      }
+      setState(() {});
+    }
   }
 
   @override
@@ -143,21 +150,38 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                   const SizedBox(height: 20),
 
                   // Pricing Options Cards
-                  _buildPricingCard(
-                    title: 'Pro Lifetime Pass',
-                    badge: 'BEST VALUE',
-                    price: 'Rp 29.000',
-                    subtitle: 'One-time purchase, unlock all features forever',
-                    isPrimary: true,
-                    onTap: () => _handleUnlock(isLifetime: true),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildPricingCard(
-                    title: 'Joystick Game Pass Only',
-                    price: 'Rp 15.000',
-                    subtitle: 'Dedicated to Virtual Gamepad & Controller features',
-                    isPrimary: false,
-                    onTap: () => _handleUnlock(isLifetime: false),
+                  Builder(
+                    builder: (context) {
+                      final proProduct = _iapService.products.cast<ProductDetails?>().firstWhere(
+                        (p) => p?.id == IapService.proLifetimeId,
+                        orElse: () => null,
+                      );
+                      final joystickProduct = _iapService.products.cast<ProductDetails?>().firstWhere(
+                        (p) => p?.id == IapService.joystickPassId,
+                        orElse: () => null,
+                      );
+
+                      return Column(
+                        children: [
+                          _buildPricingCard(
+                            title: 'Pro Lifetime Pass',
+                            badge: 'BEST VALUE',
+                            price: proProduct?.price ?? 'Rp 29.000',
+                            subtitle: 'One-time purchase, unlock all features forever',
+                            isPrimary: true,
+                            onTap: () => _handleUnlock(isLifetime: true),
+                          ),
+                          const SizedBox(height: 10),
+                          _buildPricingCard(
+                            title: 'Joystick Game Pass Only',
+                            price: joystickProduct?.price ?? 'Rp 15.000',
+                            subtitle: 'Dedicated to Virtual Gamepad & Controller features',
+                            isPrimary: false,
+                            onTap: () => _handleUnlock(isLifetime: false),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 16),
 
@@ -367,6 +391,27 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
     HapticHelper.mediumImpact();
     setState(() => _isProcessing = true);
 
+    final targetId = isLifetime ? IapService.proLifetimeId : IapService.joystickPassId;
+    final storeProduct = _iapService.products.cast<ProductDetails?>().firstWhere(
+      (p) => p?.id == targetId,
+      orElse: () => null,
+    );
+
+    // If Google Play / App Store product is loaded and store is available, trigger real checkout
+    if (storeProduct != null && _iapService.isAvailable) {
+      final started = await _iapService.buyProduct(storeProduct);
+      if (mounted) setState(() => _isProcessing = false);
+      if (!started && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not start store checkout. Please check Google Play / App Store account.'),
+          ),
+        );
+      }
+      return;
+    }
+
+    // Fallback: If running in debug / offline / sandbox simulation without configured store product
     await _iapService.unlockProSimulated(joystickOnly: !isLifetime);
 
     if (mounted) {
