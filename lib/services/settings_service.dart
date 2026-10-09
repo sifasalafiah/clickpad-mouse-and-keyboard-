@@ -20,6 +20,7 @@ class SettingsService extends ChangeNotifier {
   String _lastDeviceName = '';
   String _lastDeviceId = '';
   bool _hasSeenOnboarding = false;
+  bool _hasShownFirstInstallProModal = false;
 
   double get mouseSensitivity => _mouseSensitivity;
   double get scrollSensitivity => _scrollSensitivity;
@@ -33,6 +34,7 @@ class SettingsService extends ChangeNotifier {
   String get lastDeviceId => _lastDeviceId;
   bool get hasLastConnectedDevice => _lastDeviceName.isNotEmpty && _lastDeviceId.isNotEmpty;
   bool get hasSeenOnboarding => _hasSeenOnboarding;
+  bool get hasShownFirstInstallProModal => _hasShownFirstInstallProModal;
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -45,6 +47,7 @@ class SettingsService extends ChangeNotifier {
     _lastDeviceName = prefs.getString('lastDeviceName') ?? '';
     _lastDeviceId = prefs.getString('lastDeviceId') ?? '';
     _hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+    _hasShownFirstInstallProModal = prefs.getBool('hasShownFirstInstallProModal') ?? false;
     
     final connStr = prefs.getString('preferredConnectionType');
     if (connStr != null) {
@@ -147,10 +150,19 @@ class SettingsService extends ChangeNotifier {
     await prefs.setBool('hasSeenOnboarding', true);
   }
 
+  Future<void> markFirstInstallProModalShown() async {
+    _hasShownFirstInstallProModal = true;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasShownFirstInstallProModal', true);
+  }
+
   Future<void> resetOnboarding() async {
     _hasSeenOnboarding = false;
+    _hasShownFirstInstallProModal = false;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasSeenOnboarding', false);
+    await prefs.setBool('hasShownFirstInstallProModal', false);
   }
 }

@@ -48,5 +48,10 @@ void main() {
     // Now should be on BluetoothPairingScreen
     expect(find.text('PC Mouse & Keyboard'), findsOneWidget);
     expect(SettingsService.instance.hasSeenOnboarding, isTrue);
+
+    // After 3 seconds, PRO modal opens smoothly
+    await tester.pump(const Duration(seconds: 4));
+    expect(find.text('ClickPad PRO'), findsOneWidget);
+    expect(SettingsService.instance.hasShownFirstInstallProModal, isTrue);
   });
 }

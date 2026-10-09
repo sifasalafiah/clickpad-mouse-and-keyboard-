@@ -94,16 +94,13 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                   Expanded(
                     child: Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withAlpha(30),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Icon(
-                            Icons.bluetooth,
-                            color: AppColors.primary,
-                            size: 28,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.asset(
+                            'assets/icon/app_icon.png',
+                            width: 44,
+                            height: 44,
+                            fit: BoxFit.cover,
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -440,6 +437,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                           const SizedBox(height: 20),
                           const Text(
                             'Waiting for Bluetooth Connection...',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
@@ -499,7 +497,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                                 ),
                               ),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary.withAlpha(40),
+                                backgroundColor: AppColors.primary.withAlpha(
+                                  40,
+                                ),
                                 foregroundColor: AppColors.primaryLight,
                                 elevation: 0,
                                 side: BorderSide(color: AppColors.primaryLight),

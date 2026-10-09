@@ -10,10 +10,17 @@ class ProPurchaseModal extends StatefulWidget {
   const ProPurchaseModal({super.key, this.onUnlocked});
 
   static void show(BuildContext context, {VoidCallback? onUnlocked}) {
+    HapticHelper.mediumImpact();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      sheetAnimationStyle: AnimationStyle(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOutCubic,
+        reverseDuration: const Duration(milliseconds: 350),
+        reverseCurve: Curves.easeInCubic,
+      ),
       builder: (ctx) => ProPurchaseModal(onUnlocked: onUnlocked),
     );
   }
