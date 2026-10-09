@@ -19,6 +19,7 @@ class SettingsService extends ChangeNotifier {
   int _lastServerPort = 8888;
   String _lastDeviceName = '';
   String _lastDeviceId = '';
+  bool _hasSeenOnboarding = false;
 
   double get mouseSensitivity => _mouseSensitivity;
   double get scrollSensitivity => _scrollSensitivity;
@@ -31,6 +32,7 @@ class SettingsService extends ChangeNotifier {
   String get lastDeviceName => _lastDeviceName;
   String get lastDeviceId => _lastDeviceId;
   bool get hasLastConnectedDevice => _lastDeviceName.isNotEmpty && _lastDeviceId.isNotEmpty;
+  bool get hasSeenOnboarding => _hasSeenOnboarding;
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -42,6 +44,7 @@ class SettingsService extends ChangeNotifier {
     _lastServerPort = prefs.getInt('lastServerPort') ?? 8888;
     _lastDeviceName = prefs.getString('lastDeviceName') ?? '';
     _lastDeviceId = prefs.getString('lastDeviceId') ?? '';
+    _hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
     
     final connStr = prefs.getString('preferredConnectionType');
     if (connStr != null) {
@@ -135,5 +138,19 @@ class SettingsService extends ChangeNotifier {
     await prefs.setString('lastServerIp', ip);
     await prefs.setInt('lastServerPort', port);
     if (deviceName != null) await prefs.setString('lastDeviceName', deviceName);
+  }
+
+  Future<void> completeOnboarding() async {
+    _hasSeenOnboarding = true;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasSeenOnboarding', true);
+  }
+
+  Future<void> resetOnboarding() async {
+    _hasSeenOnboarding = false;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasSeenOnboarding', false);
   }
 }

@@ -10,7 +10,7 @@ class AppTheme {
     final palette = AppColors.palettes[mode] ?? AppColors.palettes[AppThemeMode.midnightSlate]!;
 
     final baseTextTheme = ThemeData.dark().textTheme;
-    final googleTextTheme = GoogleFonts.outfitTextTheme(baseTextTheme);
+    final googleTextTheme = GoogleFonts.interTextTheme(baseTextTheme);
 
     return ThemeData(
       useMaterial3: true,
@@ -83,7 +83,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.outfit(
+          textStyle: GoogleFonts.inter(
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),

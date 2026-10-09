@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'screens/bluetooth_pairing_screen.dart';
 import 'screens/main_navigation_screen.dart';
+import 'screens/onboarding_screen.dart';
 import 'services/ad_service.dart';
 import 'services/connection_service.dart';
 import 'services/iap_service.dart';
@@ -55,13 +56,24 @@ class AppRootWrapper extends StatefulWidget {
 
 class _AppRootWrapperState extends State<AppRootWrapper> {
   final ConnectionService _connService = ConnectionService.instance;
+  final SettingsService _settings = SettingsService.instance;
+  bool _adServiceInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _connService.addListener(_onConnectionStatusChanged);
+    _connService.addListener(_onStateChanged);
+    _settings.addListener(_onStateChanged);
 
-    // Initialize AdMob and gather GDPR consent once UI window is fully attached
+    // Only initialize AdMob and GDPR consent if onboarding is already completed
+    if (_settings.hasSeenOnboarding) {
+      _initAdService();
+    }
+  }
+
+  void _initAdService() {
+    if (_adServiceInitialized) return;
+    _adServiceInitialized = true;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await AdService.instance.init();
       AdService.instance.showAppOpenAdIfAvailable();
@@ -70,17 +82,27 @@ class _AppRootWrapperState extends State<AppRootWrapper> {
 
   @override
   void dispose() {
-    _connService.removeListener(_onConnectionStatusChanged);
+    _connService.removeListener(_onStateChanged);
+    _settings.removeListener(_onStateChanged);
     super.dispose();
   }
 
-  void _onConnectionStatusChanged() {
+  void _onStateChanged() {
+    // If onboarding just finished, initialize AdService now
+    if (_settings.hasSeenOnboarding && !_adServiceInitialized) {
+      _initAdService();
+    }
     if (mounted) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    // Navigate to MainNavigationScreen (Touchpad) when connected to PC.
+    // 1. Show onboarding screen on first install
+    if (!_settings.hasSeenOnboarding) {
+      return const OnboardingScreen();
+    }
+
+    // 2. Navigate to MainNavigationScreen (Touchpad) when connected to PC.
     // Return to BluetoothPairingScreen when disconnected from PC.
     if (_connService.isConnected) {
       return const MainNavigationScreen();
