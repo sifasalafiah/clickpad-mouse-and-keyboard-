@@ -189,6 +189,10 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
                         childBuilder: (baseSize) =>
                             _buildPreviewSystemButtons(baseSize),
                       ),
+
+                      // Direct Canvas Resize Badge & Handle (Reliable Hit-Testing)
+                      _buildSelectedResizeBadge(canvasSize),
+                      _buildSelectedResizeCornerHandle(canvasSize),
                     ],
                   );
                 },
@@ -346,8 +350,6 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
     final top = (config.relY * canvasSize.height - scaledHeight / 2)
         .clamp(4.0, canvasSize.height - scaledHeight - 4.0);
 
-    final showBadgeBelow = top < 36;
-
     return Positioned(
       left: left,
       top: top,
@@ -359,146 +361,181 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
         onPanStart: (_) => _onElementSelected(element),
         onPanUpdate: (details) =>
             _onElementDrag(element, details.delta, canvasSize),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // The Button Box with glow when selected
-            Container(
-              width: scaledWidth,
-              height: scaledHeight,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: isSelected ? AppColors.primary : Colors.transparent,
-                  width: isSelected ? 2 : 0,
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: AppColors.primary.withAlpha(140),
-                          blurRadius: 14,
-                          spreadRadius: 2,
-                        ),
-                      ]
-                    : null,
-              ),
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: childBuilder(baseSize),
-              ),
+        child: Container(
+          width: scaledWidth,
+          height: scaledHeight,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected ? AppColors.primary : Colors.transparent,
+              width: isSelected ? 2 : 0,
             ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withAlpha(140),
+                      blurRadius: 14,
+                      spreadRadius: 2,
+                    ),
+                  ]
+                : null,
+          ),
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: childBuilder(baseSize),
+          ),
+        ),
+      ),
+    );
+  }
 
-            // Direct On-Button Resize Controls (PUBG Mobile style)
-            if (isSelected) ...[
-              // 1. Direct [-] [ 100% ] [+] floating badge attached to the button
-              Positioned(
-                top: showBadgeBelow ? null : -30,
-                bottom: showBadgeBelow ? -30 : null,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border:
-                          Border.all(color: AppColors.primaryLight, width: 1.5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.palette.isLight
-                              ? Colors.black.withAlpha(25)
-                              : Colors.black.withAlpha(160),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Minus / Shrink
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => _stepScale(element, -0.10),
-                          child: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent.withAlpha(50),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            alignment: Alignment.center,
-                            child: Icon(Icons.remove,
-                                size: 14, color: AppColors.textPrimary),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${(config.scale * 100).round()}%',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        // Plus / Enlarge
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => _stepScale(element, 0.10),
-                          child: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withAlpha(70),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            alignment: Alignment.center,
-                            child: Icon(Icons.add,
-                                size: 14, color: AppColors.primary),
-                          ),
-                        ),
-                      ],
-                    ),
+  Widget _buildSelectedResizeBadge(Size canvasSize) {
+    final config = _draftLayout.getConfig(_selectedElement);
+    final baseSize =
+        GamepadLayoutDimensions.getBaseSize(_selectedElement, canvasSize);
+    final scaledWidth = baseSize.width * config.scale;
+    final scaledHeight = baseSize.height * config.scale;
+
+    final left = (config.relX * canvasSize.width - scaledWidth / 2)
+        .clamp(4.0, canvasSize.width - scaledWidth - 4.0);
+    final top = (config.relY * canvasSize.height - scaledHeight / 2)
+        .clamp(4.0, canvasSize.height - scaledHeight - 4.0);
+
+    const badgeWidth = 142.0;
+    const badgeHeight = 36.0;
+    final badgeLeft = (left + scaledWidth / 2 - badgeWidth / 2)
+        .clamp(8.0, canvasSize.width - badgeWidth - 8.0);
+    final showBadgeBelow = top < 44;
+    final badgeTop =
+        showBadgeBelow ? (top + scaledHeight + 8) : (top - badgeHeight - 8);
+
+    return Positioned(
+      left: badgeLeft,
+      top: badgeTop,
+      width: badgeWidth,
+      height: badgeHeight,
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.primaryLight, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.palette.isLight
+                    ? Colors.black.withAlpha(25)
+                    : Colors.black.withAlpha(180),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Minus / Shrink
+              InkWell(
+                onTap: () => _stepScale(_selectedElement, -0.10),
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent.withAlpha(AppColors.palette.isLight ? 45 : 35),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.remove,
+                    size: 16,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ),
-
-              // 2. Corner Drag Resize Handle (bottom-right)
-              Positioned(
-                bottom: -8,
-                right: -8,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onPanUpdate: (details) =>
-                      _onCornerResizeDrag(element, details.delta, baseSize),
-                  child: Container(
-                    width: 26,
-                    height: 26,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(120),
-                          blurRadius: 6,
-                        ),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: const Icon(
-                      Icons.open_in_full,
-                      size: 13,
-                      color: Colors.white,
-                    ),
+              // Percentage Display
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  '${(config.scale * 100).round()}%',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              // Plus / Enlarge
+              InkWell(
+                onTap: () => _stepScale(_selectedElement, 0.10),
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withAlpha(AppColors.palette.isLight ? 55 : 40),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.add,
+                    size: 16,
+                    color: AppColors.primary,
                   ),
                 ),
               ),
             ],
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectedResizeCornerHandle(Size canvasSize) {
+    final config = _draftLayout.getConfig(_selectedElement);
+    final baseSize =
+        GamepadLayoutDimensions.getBaseSize(_selectedElement, canvasSize);
+    final scaledWidth = baseSize.width * config.scale;
+    final scaledHeight = baseSize.height * config.scale;
+
+    final left = (config.relX * canvasSize.width - scaledWidth / 2)
+        .clamp(4.0, canvasSize.width - scaledWidth - 4.0);
+    final top = (config.relY * canvasSize.height - scaledHeight / 2)
+        .clamp(4.0, canvasSize.height - scaledHeight - 4.0);
+
+    final handleLeft = left + scaledWidth - 14;
+    final handleTop = top + scaledHeight - 14;
+
+    return Positioned(
+      left: handleLeft,
+      top: handleTop,
+      width: 32,
+      height: 32,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onPanUpdate: (details) =>
+            _onCornerResizeDrag(_selectedElement, details.delta, baseSize),
+        child: Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(120),
+                blurRadius: 6,
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          child: const Icon(
+            Icons.open_in_full,
+            size: 14,
+            color: Colors.white,
+          ),
         ),
       ),
     );
@@ -598,7 +635,7 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
   }
 
   Widget _buildPreviewABXY(Size baseSize) {
-    final btnSize = (baseSize.width * 0.32).clamp(36.0, 52.0);
+    final btnSize = (baseSize.width * 0.32).clamp(24.0, 52.0);
     return SizedBox(
       width: baseSize.width,
       height: baseSize.height,

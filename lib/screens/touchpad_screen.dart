@@ -274,55 +274,107 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
       children: [
         // Top Info & Quick Bar
         Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 52,
-            top: _isNativeKeyboardOpen ? 2 : 8,
-            bottom: _isNativeKeyboardOpen ? 2 : 8,
+          padding: EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: _isNativeKeyboardOpen ? 2 : 8,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Left: Info & Mode Indicator
               Row(
                 children: [
                   Icon(
-                    _precisionMode
-                        ? Icons.filter_center_focus
-                        : Icons.touch_app,
+                    _precisionMode ? Icons.track_changes : Icons.touch_app,
                     size: 16,
-                    color: _precisionMode
-                        ? AppColors.primary
-                        : AppColors.textMuted,
+                    color: _precisionMode ? AppColors.primary : AppColors.textMuted,
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    _precisionMode
-                        ? 'Precision Mode (Low Sens)'
-                        : 'Touchpad Canvas',
+                    _precisionMode ? 'Precision Mode (Low Sens)' : 'Touchpad Canvas',
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: _precisionMode
-                          ? AppColors.primary
-                          : AppColors.textMuted,
+                      fontWeight: FontWeight.w600,
+                      color: _precisionMode ? AppColors.primary : AppColors.textSecondary,
                     ),
                   ),
                 ],
               ),
-              IconButton(
-                onPressed: () {
-                  HapticHelper.selectionClick();
-                  setState(() => _precisionMode = !_precisionMode);
-                },
-                tooltip: 'Toggle Precision Mode',
-                icon: Icon(
-                  _precisionMode
-                      ? Icons.center_focus_strong
-                      : Icons.center_focus_weak,
-                  color: _precisionMode
-                      ? AppColors.primary
-                      : AppColors.textMuted,
-                ),
+              // Right: Action Buttons (Precision Mode + Fullscreen Toggle)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Precision Mode Toggle (Distinct target crosshair icon & visual feedback)
+                  InkWell(
+                    onTap: () {
+                      HapticHelper.selectionClick();
+                      setState(() => _precisionMode = !_precisionMode);
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: _precisionMode
+                            ? AppColors.primary.withAlpha(AppColors.palette.isLight ? 40 : 30)
+                            : AppColors.surfaceElevated,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: _precisionMode ? AppColors.primary : AppColors.border,
+                          width: 1.2,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.track_changes,
+                            size: 15,
+                            color: _precisionMode ? AppColors.primary : AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Precision',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: _precisionMode ? AppColors.primary : AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Fullscreen Toggle Button
+                  InkWell(
+                    onTap: () {
+                      HapticHelper.mediumImpact();
+                      _settings.toggleFullScreen();
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: _settings.isFullScreen
+                            ? AppColors.primary.withAlpha(AppColors.palette.isLight ? 40 : 30)
+                            : AppColors.surfaceElevated,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: _settings.isFullScreen ? AppColors.primary : AppColors.border,
+                          width: 1.2,
+                        ),
+                      ),
+                      child: Icon(
+                        _settings.isFullScreen
+                            ? Icons.fullscreen_exit_rounded
+                            : Icons.fullscreen_rounded,
+                        size: 18,
+                        color: _settings.isFullScreen ? AppColors.primary : AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

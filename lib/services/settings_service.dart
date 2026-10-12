@@ -21,6 +21,7 @@ class SettingsService extends ChangeNotifier {
   String _lastDeviceId = '';
   bool _hasSeenOnboarding = false;
   bool _hasShownFirstInstallProModal = false;
+  bool _isFullScreen = false;
 
   double get mouseSensitivity => _mouseSensitivity;
   double get scrollSensitivity => _scrollSensitivity;
@@ -35,6 +36,19 @@ class SettingsService extends ChangeNotifier {
   bool get hasLastConnectedDevice => _lastDeviceName.isNotEmpty && _lastDeviceId.isNotEmpty;
   bool get hasSeenOnboarding => _hasSeenOnboarding;
   bool get hasShownFirstInstallProModal => _hasShownFirstInstallProModal;
+  bool get isFullScreen => _isFullScreen;
+
+  void toggleFullScreen() {
+    _isFullScreen = !_isFullScreen;
+    notifyListeners();
+  }
+
+  void setFullScreen(bool value) {
+    if (_isFullScreen != value) {
+      _isFullScreen = value;
+      notifyListeners();
+    }
+  }
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();

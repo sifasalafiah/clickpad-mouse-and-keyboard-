@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/gamepad_layout.dart';
@@ -334,6 +335,51 @@ class _JoystickScreenState extends State<JoystickScreen> {
               ),
             ),
 
+            const SizedBox(width: 6),
+
+            // Fullscreen Toggle Button in HUD
+            InkWell(
+              onTap: () {
+                HapticHelper.mediumImpact();
+                _settings.toggleFullScreen();
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _settings.isFullScreen
+                      ? AppColors.primary.withAlpha(AppColors.palette.isLight ? 40 : 30)
+                      : AppColors.surfaceElevated,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: _settings.isFullScreen ? AppColors.primary : AppColors.border,
+                    width: 1.0,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      _settings.isFullScreen
+                          ? Icons.fullscreen_exit_rounded
+                          : Icons.fullscreen_rounded,
+                      color: _settings.isFullScreen ? AppColors.primary : AppColors.textPrimary,
+                      size: 13,
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      _settings.isFullScreen ? 'Exit' : 'Full',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.bold,
+                        color: _settings.isFullScreen ? AppColors.primary : AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
             // PRO / Trial Badge
             if (isTrial) ...[
               const SizedBox(width: 6),
@@ -477,12 +523,38 @@ class _JoystickScreenState extends State<JoystickScreen> {
           canvasSize,
         );
 
+        // Smart responsive anti-collision scaling across elements
+        final stickScaleMod = _resolvePairScale(
+          GamepadHudElement.leftStick,
+          GamepadHudElement.cameraTouchpad,
+          canvasSize,
+        );
+        final abxyScaleMod = _resolvePairScale(
+          GamepadHudElement.cameraTouchpad,
+          GamepadHudElement.abxyCluster,
+          canvasSize,
+        );
+        final cameraScaleMod = math.min(stickScaleMod, abxyScaleMod);
+
+        final lShoulderMod = _resolvePairScale(
+          GamepadHudElement.leftShoulders,
+          GamepadHudElement.systemButtons,
+          canvasSize,
+        );
+        final rShoulderMod = _resolvePairScale(
+          GamepadHudElement.systemButtons,
+          GamepadHudElement.rightShoulders,
+          canvasSize,
+        );
+        final systemMod = math.min(lShoulderMod, rShoulderMod);
+
         return Stack(
           children: [
             // 1. Left Stick or D-Pad
             _buildPositionedHudItem(
               GamepadHudElement.leftStick,
               canvasSize,
+              scaleModifier: stickScaleMod,
               child: _useAnalogStick
                   ? VirtualJoystickWidget(
                       size: stickBase.width,
@@ -496,6 +568,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
             _buildPositionedHudItem(
               GamepadHudElement.abxyCluster,
               canvasSize,
+              scaleModifier: abxyScaleMod,
               child: _buildABXYCluster(abxyBase),
             ),
 
@@ -503,6 +576,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
             _buildPositionedHudItem(
               GamepadHudElement.cameraTouchpad,
               canvasSize,
+              scaleModifier: cameraScaleMod,
               child: _buildCameraLookPad(cameraBase),
             ),
 
@@ -510,6 +584,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
             _buildPositionedHudItem(
               GamepadHudElement.leftShoulders,
               canvasSize,
+              scaleModifier: lShoulderMod,
               child: _buildLeftShoulders(leftShoulderBase),
             ),
 
@@ -517,6 +592,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
             _buildPositionedHudItem(
               GamepadHudElement.rightShoulders,
               canvasSize,
+              scaleModifier: rShoulderMod,
               child: _buildRightShoulders(rightShoulderBase),
             ),
 
@@ -524,6 +600,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
             _buildPositionedHudItem(
               GamepadHudElement.systemButtons,
               canvasSize,
+              scaleModifier: systemMod,
               child: _buildSystemButtons(systemBase),
             ),
           ],
@@ -532,16 +609,50 @@ class _JoystickScreenState extends State<JoystickScreen> {
     );
   }
 
+  double _resolvePairScale(
+    GamepadHudElement el1,
+    GamepadHudElement el2,
+    Size canvasSize,
+  ) {
+    final c1 = _layoutService.layout.getConfig(el1);
+    final c2 = _layoutService.layout.getConfig(el2);
+    final b1 = GamepadLayoutDimensions.getBaseSize(el1, canvasSize);
+    final b2 = GamepadLayoutDimensions.getBaseSize(el2, canvasSize);
+
+    final w1 = b1.width * c1.scale;
+    final h1 = b1.height * c1.scale;
+    final w2 = b2.width * c2.scale;
+    final h2 = b2.height * c2.scale;
+
+    final x1 = c1.relX * canvasSize.width;
+    final y1 = c1.relY * canvasSize.height;
+    final x2 = c2.relX * canvasSize.width;
+    final y2 = c2.relY * canvasSize.height;
+
+    final dy = (y2 - y1).abs();
+    // Only resolve if elements are vertically close / on same row tier
+    if (dy < (h1 / 2 + h2 / 2) * 0.85) {
+      final dx = (x2 - x1).abs();
+      final requiredDx = (w1 / 2 + w2 / 2) + 6.0;
+      if (dx < requiredDx && dx > 0) {
+        return (dx / requiredDx).clamp(0.68, 1.0);
+      }
+    }
+    return 1.0;
+  }
+
   Widget _buildPositionedHudItem(
     GamepadHudElement element,
     Size canvasSize, {
     required Widget child,
+    double scaleModifier = 1.0,
   }) {
     final config = _layoutService.layout.getConfig(element);
     final baseSize = GamepadLayoutDimensions.getBaseSize(element, canvasSize);
 
-    final scaledWidth = baseSize.width * config.scale;
-    final scaledHeight = baseSize.height * config.scale;
+    final effScale = config.scale * scaleModifier;
+    final scaledWidth = baseSize.width * effScale;
+    final scaledHeight = baseSize.height * effScale;
 
     final left = (config.relX * canvasSize.width - scaledWidth / 2)
         .clamp(2.0, canvasSize.width - scaledWidth - 2.0);
@@ -719,7 +830,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
   }
 
   Widget _buildABXYCluster(Size baseSize) {
-    final btnSize = (baseSize.width * 0.32).clamp(36.0, 52.0);
+    final btnSize = (baseSize.width * 0.32).clamp(24.0, 52.0);
     return SizedBox(
       width: baseSize.width,
       height: baseSize.height,

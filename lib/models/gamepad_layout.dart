@@ -190,34 +190,40 @@ class GamepadLayoutDimensions {
     final h = canvasSize.height;
     final w = canvasSize.width;
 
+    // Reference landscape full-screen aspect ratio is ~2.15 (typical modern phone).
+    // In non-fullscreen mode (with topbar, banner ad, and navbar active), width is narrower.
+    // To preserve exact visual proportions and prevent elements from overlapping,
+    // element dimensions scale responsively with aspectFactor.
+    final aspectFactor = (w / (h * 2.15)).clamp(0.65, 1.0);
+
     switch (element) {
       case GamepadHudElement.leftStick:
-        // Movement Stick: ~42% of canvas height, comfortably bounded between 150 and 195
-        final d = (h * 0.42).clamp(150.0, 195.0);
+        // Movement Stick: scales proportionally with height and aspectFactor
+        final d = (h * 0.42 * aspectFactor).clamp(105.0, 195.0);
         return Size(d, d);
 
       case GamepadHudElement.abxyCluster:
-        // Action Buttons: ~42% of canvas height, matching stick proportions
-        final d = (h * 0.42).clamp(150.0, 195.0);
+        // Action Buttons: matches stick proportions
+        final d = (h * 0.42 * aspectFactor).clamp(105.0, 195.0);
         return Size(d, d);
 
       case GamepadHudElement.cameraTouchpad:
-        // Center Touchpad: ~24% of width, ~26% of height (comfortable wide swipe area)
-        final pw = (w * 0.24).clamp(165.0, 260.0);
-        final ph = (h * 0.26).clamp(88.0, 135.0);
+        // Center Touchpad: scales with width and height
+        final pw = (w * 0.24).clamp(120.0, 260.0);
+        final ph = (h * 0.26 * aspectFactor).clamp(65.0, 135.0);
         return Size(pw, ph);
 
       case GamepadHudElement.leftShoulders:
       case GamepadHudElement.rightShoulders:
         // Shoulder Triggers (L1/L2 or R1/R2)
-        final sw = (w * 0.17).clamp(125.0, 180.0);
-        final sh = (h * 0.11).clamp(38.0, 50.0);
+        final sw = (w * 0.17).clamp(95.0, 180.0);
+        final sh = (h * 0.11 * aspectFactor).clamp(28.0, 50.0);
         return Size(sw, sh);
 
       case GamepadHudElement.systemButtons:
         // Menu System (SELECT, START, ESC)
-        final mw = (w * 0.25).clamp(175.0, 230.0);
-        final mh = (h * 0.09).clamp(32.0, 42.0);
+        final mw = (w * 0.25).clamp(135.0, 230.0);
+        final mh = (h * 0.09 * aspectFactor).clamp(24.0, 42.0);
         return Size(mw, mh);
     }
   }

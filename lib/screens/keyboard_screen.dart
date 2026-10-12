@@ -111,12 +111,55 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                     ],
                   ),
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       _buildIndicatorDot('1', true),
                       const SizedBox(width: 6),
                       _buildIndicatorDot('2', false),
                       const SizedBox(width: 6),
                       _buildIndicatorDot('3', false),
+                      const SizedBox(width: 10),
+                      InkWell(
+                        onTap: () {
+                          HapticHelper.mediumImpact();
+                          _settings.toggleFullScreen();
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: _settings.isFullScreen
+                                ? AppColors.primary.withAlpha(AppColors.palette.isLight ? 40 : 30)
+                                : AppColors.surfaceElevated,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: _settings.isFullScreen ? AppColors.primary : AppColors.border,
+                              width: 1.0,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _settings.isFullScreen
+                                    ? Icons.fullscreen_exit_rounded
+                                    : Icons.fullscreen_rounded,
+                                size: 14,
+                                color: _settings.isFullScreen ? AppColors.primary : AppColors.textSecondary,
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                _settings.isFullScreen ? 'Exit' : 'Full',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: _settings.isFullScreen ? AppColors.primary : AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],
