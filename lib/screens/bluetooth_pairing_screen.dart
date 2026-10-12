@@ -224,11 +224,11 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             child: Row(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                   child: Image.asset(
                     'assets/icon/app_icon.png',
-                    width: 40,
-                    height: 40,
+                    width: 36,
+                    height: 36,
                     fit: BoxFit.cover,
                   ),
                 ),

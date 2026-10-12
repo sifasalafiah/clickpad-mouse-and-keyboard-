@@ -138,7 +138,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isPro = _iapService.isPro;
+    final isJoystickUnlocked = _iapService.isJoystickUnlocked;
     final isTrial = _iapService.isTrialActive;
     final trialSeconds = _iapService.trialSecondsLeft;
 
@@ -196,7 +196,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
             gamepadView,
 
             // Pro Locked Glass Overlay in natural screen orientation (Portrait when phone is held vertically)
-            if (!isPro) Positioned.fill(child: _buildProLockOverlay()),
+            if (!isJoystickUnlocked) Positioned.fill(child: _buildProLockOverlay()),
           ],
         );
       },
@@ -402,7 +402,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
                 borderRadius: BorderRadius.circular(8),
                 child: _buildTrialBadge(trialSeconds),
               ),
-            ] else if (_iapService.isPro) ...[
+            ] else if (_iapService.isJoystickUnlocked) ...[
               const SizedBox(width: 6),
               _buildProBadge(),
             ],

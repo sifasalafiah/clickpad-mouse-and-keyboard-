@@ -25,9 +25,18 @@ class IapService extends ChangeNotifier {
   bool _hasUsedTrial = false;
   Timer? _trialTimer;
 
-  bool get isPro => _isPro || _isJoystickUnlocked || _isTrialActive;
+  /// Full Pro Lifetime (unlocked all features, themes, & removes all ads forever)
+  bool get isPro => _isPro;
   bool get isProLifetime => _isPro;
-  bool get isJoystickUnlocked => _isJoystickUnlocked || _isPro;
+
+  /// True only for Pro Lifetime users. Joystick Only and Free Trial users still see ads.
+  bool get isAdFree => _isPro;
+
+  /// True only for Pro Lifetime users.
+  bool get isProThemesUnlocked => _isPro;
+
+  /// True if Joystick feature is unlocked (via Joystick Pass, Pro Lifetime, or active Free Trial)
+  bool get isJoystickUnlocked => _isJoystickUnlocked || _isPro || _isTrialActive;
   bool get isAvailable => _isAvailable;
   List<ProductDetails> get products => _products;
   bool get isLoading => _isLoading;

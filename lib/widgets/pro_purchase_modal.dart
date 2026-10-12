@@ -72,7 +72,13 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
     if (_iapService.isPro) {
       _safeClose(
         successMessage:
-            '🎉 ClickPad PRO Successfully Activated! Enjoy all features.',
+            '🎉 ClickPad PRO Lifetime Successfully Activated! All features & Ad-Free unlocked.',
+      );
+      return;
+    } else if (_iapService.isJoystickUnlocked) {
+      _safeClose(
+        successMessage:
+            '🎮 Joystick Game Pass Successfully Activated! Virtual Gamepad unlocked.',
       );
       return;
     }
@@ -262,7 +268,12 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                         if (_iapService.isPro) {
                           _safeClose(
                             successMessage:
-                                '🎉 Purchases successfully restored!',
+                                '🎉 ClickPad PRO Lifetime successfully restored!',
+                          );
+                        } else if (_iapService.isJoystickUnlocked) {
+                          _safeClose(
+                            successMessage:
+                                '🎮 Joystick Game Pass successfully restored!',
                           );
                         } else {
                           _safeClose();

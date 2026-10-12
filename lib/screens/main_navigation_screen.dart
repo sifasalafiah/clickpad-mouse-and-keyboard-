@@ -56,6 +56,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     final isConnected = _connService.isConnected;
     final device = _connService.connectedDevice;
     final isPro = _iapService.isPro;
+    final isJoystickUnlocked = _iapService.isJoystickUnlocked;
     final isFullScreen = _settings.isFullScreen;
 
     return PopScope(
@@ -72,13 +73,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         titleSpacing: 16,
         title: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(30),
-                borderRadius: BorderRadius.circular(10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                'assets/icon/app_icon.png',
+                width: 36,
+                height: 36,
+                fit: BoxFit.cover,
               ),
-              child: Icon(Icons.bluetooth, color: AppColors.primary, size: 20),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -243,7 +245,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               clipBehavior: Clip.none,
               children: [
                 const Icon(Icons.sports_esports_outlined),
-                if (!isPro)
+                if (!isJoystickUnlocked)
                   Positioned(
                     right: -6,
                     top: -4,
