@@ -68,6 +68,12 @@ class ConnectionService extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  bool get isScanning => _bleService.isScanning;
+
+  Future<List<DiscoveredDevice>> getBondedDevices() async {
+    return await _bleService.getBondedDevices();
+  }
+
   Future<List<DiscoveredDevice>> startDiscovery() async {
     return await _bleService.startScan();
   }

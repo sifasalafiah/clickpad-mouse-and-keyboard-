@@ -90,22 +90,24 @@ class BluetoothBleService {
     }
   }
 
-  Future<List<DiscoveredDevice>> startScan() async {
-    final Map<String, DiscoveredDevice> foundDevices = {};
+  bool _isScanning = false;
+  bool get isScanning => _isScanning;
 
-    try {
-      if (kIsWeb) return [];
+  Future<List<DiscoveredDevice>> getBondedDevices() async {
+    final Map<String, DiscoveredDevice> bondedMap = {};
+    if (kIsWeb) return [];
 
-      // 1. Fetch Native Android Bonded/Paired Devices
-      if (defaultTargetPlatform == TargetPlatform.android) {
-        try {
-          final List? nativePaired = await _nativeHidChannel.invokeMethod('getPairedDevices');
-          if (nativePaired != null) {
-            for (var item in nativePaired) {
-              if (item is Map) {
-                final name = item['name'] as String? ?? 'Paired Device';
-                final addr = item['address'] as String? ?? '';
-                foundDevices[addr] = DiscoveredDevice(
+    // 1. Native Android Bonded/Paired Devices
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      try {
+        final List? nativePaired = await _nativeHidChannel.invokeMethod('getPairedDevices');
+        if (nativePaired != null) {
+          for (var item in nativePaired) {
+            if (item is Map) {
+              final name = item['name'] as String? ?? 'Paired Device';
+              final addr = item['address'] as String? ?? '';
+              if (addr.isNotEmpty) {
+                bondedMap[addr] = DiscoveredDevice(
                   id: addr,
                   name: name,
                   type: ConnectionType.bluetoothHid,
@@ -114,9 +116,47 @@ class BluetoothBleService {
               }
             }
           }
-        } catch (e) {
-          debugPrint("Native paired query error: $e");
         }
+      } catch (e) {
+        debugPrint("Native paired query error: $e");
+      }
+    }
+
+    // 2. Bonded Devices from flutter_blue_plus
+    try {
+      if (await FlutterBluePlus.isSupported) {
+        final bonded = await FlutterBluePlus.bondedDevices;
+        for (BluetoothDevice device in bonded) {
+          final name = device.platformName.isNotEmpty ? device.platformName : device.advName;
+          if (name.isNotEmpty) {
+            bondedMap[device.remoteId.str] = DiscoveredDevice(
+              id: device.remoteId.str,
+              name: name,
+              type: ConnectionType.bluetoothHid,
+              rssi: -45,
+              nativeDeviceHandle: device,
+            );
+          }
+        }
+      }
+    } catch (_) {}
+
+    return bondedMap.values.toList();
+  }
+
+  Future<List<DiscoveredDevice>> startScan() async {
+    if (_isScanning) return [];
+    _isScanning = true;
+    final Map<String, DiscoveredDevice> foundDevices = {};
+
+    try {
+      if (kIsWeb) return [];
+
+      // 1. Fetch & stream Bonded Devices first for instantaneous UI display
+      final bonded = await getBondedDevices();
+      for (var d in bonded) {
+        foundDevices[d.id] = d;
+        onDeviceDiscovered?.call(d);
       }
 
       // 2. Verify Bluetooth is supported
@@ -131,28 +171,9 @@ class BluetoothBleService {
         } catch (_) {}
       }
 
-      // 3. Fetch OS Paired / Bonded Devices via flutter_blue_plus
-      try {
-        final bonded = await FlutterBluePlus.bondedDevices;
-        for (BluetoothDevice device in bonded) {
-          final name = device.platformName.isNotEmpty ? device.platformName : device.advName;
-          if (name.isNotEmpty) {
-            foundDevices[device.remoteId.str] = DiscoveredDevice(
-              id: device.remoteId.str,
-              name: name,
-              type: ConnectionType.bluetoothHid,
-              rssi: -45,
-              nativeDeviceHandle: device,
-            );
-          }
-        }
-      } catch (e) {
-        debugPrint("Bonded fetch error: $e");
-      }
-
-      // 4. Perform Bluetooth Scan for nearby Desktop & PC
+      // 3. Perform Bluetooth Scan for nearby Desktop & PC
       await FlutterBluePlus.startScan(
-        timeout: const Duration(seconds: 4),
+        timeout: const Duration(seconds: 6),
         androidUsesFineLocation: true,
       );
 
@@ -160,18 +181,20 @@ class BluetoothBleService {
         for (ScanResult r in results) {
           final name = r.device.platformName.isNotEmpty ? r.device.platformName : r.device.advName;
           if (name.isNotEmpty) {
-            foundDevices[r.device.remoteId.str] = DiscoveredDevice(
+            final dev = DiscoveredDevice(
               id: r.device.remoteId.str,
               name: name,
               type: ConnectionType.bluetoothHid,
               rssi: r.rssi,
               nativeDeviceHandle: r.device,
             );
+            foundDevices[r.device.remoteId.str] = dev;
+            onDeviceDiscovered?.call(dev);
           }
         }
       });
 
-      await Future.delayed(const Duration(seconds: 4));
+      await Future.delayed(const Duration(seconds: 6));
       await FlutterBluePlus.stopScan();
       _scanSubscription?.cancel();
 
@@ -179,10 +202,13 @@ class BluetoothBleService {
     } catch (e) {
       debugPrint("Bluetooth Scan Exception: $e");
       return foundDevices.values.toList();
+    } finally {
+      _isScanning = false;
     }
   }
 
   void stopScan() {
+    _isScanning = false;
     try {
       FlutterBluePlus.stopScan();
       _scanSubscription?.cancel();
@@ -264,7 +290,9 @@ class BluetoothBleService {
           return true;
         } else if (res == 'connecting_started' || res == 'bonding_started' || res == 'bonded') {
           onStatusChanged?.call(ConnectionStateStatus.connecting, device, 'Connecting to ${device.name}...');
-          return false;
+          if (defaultTargetPlatform == TargetPlatform.android || device.nativeDeviceHandle == null) {
+            return false;
+          }
         }
       } catch (e) {
         debugPrint("Pairing error: $e");

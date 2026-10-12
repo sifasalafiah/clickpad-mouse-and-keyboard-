@@ -159,8 +159,13 @@ import CoreBluetooth
                     result(false)
                 }
             case "getPairedDevices":
-                result([])
+                if let central = self.connectedCentral {
+                    result([["name": "Connected Desktop", "address": central.identifier.uuidString]])
+                } else {
+                    result([])
+                }
             case "pairDevice":
+                self.startAdvertising()
                 result("connecting_started")
             case "disconnect":
                 self.connectedCentral = nil
