@@ -80,7 +80,6 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
   @override
   Widget build(BuildContext context) {
     final isUppercase = _isShiftActive || _isCapsLocked;
-    final size = MediaQuery.of(context).size;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
 
@@ -381,18 +380,21 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
       ),
     );
 
-    if (isPortrait) {
-      return RotatedBox(
-        quarterTurns: 1,
-        child: SizedBox(
-          width: size.height,
-          height: size.width,
-          child: keyboardBody,
-        ),
-      );
-    }
-
-    return keyboardBody;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (isPortrait) {
+          return RotatedBox(
+            quarterTurns: 1,
+            child: SizedBox(
+              width: constraints.maxHeight,
+              height: constraints.maxWidth,
+              child: keyboardBody,
+            ),
+          );
+        }
+        return keyboardBody;
+      },
+    );
   }
 
   Widget _buildIndicatorDot(String label, bool isConnected) {

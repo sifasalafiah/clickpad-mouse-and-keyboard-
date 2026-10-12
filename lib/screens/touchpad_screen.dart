@@ -274,9 +274,11 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
       children: [
         // Top Info & Quick Bar
         Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: _isNativeKeyboardOpen ? 2 : 8,
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 52,
+            top: _isNativeKeyboardOpen ? 2 : 8,
+            bottom: _isNativeKeyboardOpen ? 2 : 8,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

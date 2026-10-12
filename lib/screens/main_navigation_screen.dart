@@ -20,6 +20,7 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
+  bool _isFullScreen = false;
   final ConnectionService _connService = ConnectionService.instance;
   final IapService _iapService = IapService.instance;
   final SettingsService _settings = SettingsService.instance;
@@ -57,8 +58,17 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     final device = _connService.connectedDevice;
     final isPro = _iapService.isPro;
 
-    return Scaffold(
-      appBar: AppBar(
+    return PopScope(
+      canPop: !_isFullScreen,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && _isFullScreen) {
+          setState(() => _isFullScreen = false);
+        }
+      },
+      child: Scaffold(
+        appBar: _isFullScreen
+            ? null
+            : AppBar(
         titleSpacing: 16,
         title: Row(
           children: [
@@ -179,21 +189,57 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       body: Column(
         children: [
           // Banner Ad at topbar that appears across all pages (Free tier)
+          // Remains visible in fullscreen mode (with safe area top)
           if (!isPro)
-            const CollapsibleBannerAdWidget(collapsiblePosition: 'top'),
+            SafeArea(
+              top: _isFullScreen,
+              bottom: false,
+              left: false,
+              right: false,
+              child: const CollapsibleBannerAdWidget(collapsiblePosition: 'top'),
+            ),
           Expanded(
-            child: IndexedStack(index: _currentIndex, children: _screens),
+            child: SafeArea(
+              top: _isFullScreen && isPro,
+              bottom: _isFullScreen,
+              left: _isFullScreen,
+              right: _isFullScreen,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: IndexedStack(
+                      index: _currentIndex,
+                      children: _screens,
+                    ),
+                  ),
+                  // Fullscreen toggle button below topbar (Pro) or banner ad (Free) on the right
+                  // Enabled on Touchpad, Keyboard, and Joystick
+                  if (_currentIndex != 3 || _isFullScreen)
+                    Positioned(
+                      top: 8,
+                      right: 12,
+                      child: _buildFullScreenToggleBtn(),
+                    ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
-      bottomNavigationBar: MediaQuery.of(context).viewInsets.bottom > 0
+      bottomNavigationBar: _isFullScreen ||
+              MediaQuery.of(context).viewInsets.bottom > 0
           ? null
           : BottomNavigationBar(
               currentIndex: _currentIndex,
               type: BottomNavigationBarType.fixed,
               onTap: (index) {
           HapticHelper.selectionClick();
-          setState(() => _currentIndex = index);
+          setState(() {
+            _currentIndex = index;
+            if (index == 3 && _isFullScreen) {
+              _isFullScreen = false;
+            }
+          });
         },
         items: [
           const BottomNavigationBarItem(
@@ -245,6 +291,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             label: 'Settings',
           ),
         ],
+      ),
       ),
     );
   }
@@ -312,6 +359,54 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFullScreenToggleBtn() {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          HapticHelper.mediumImpact();
+          setState(() {
+            _isFullScreen = !_isFullScreen;
+          });
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(7),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceElevated.withAlpha(
+              AppColors.palette.isLight ? 230 : 200,
+            ),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _isFullScreen
+                  ? AppColors.primary.withAlpha(180)
+                  : AppColors.border,
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _isFullScreen
+                    ? AppColors.primary.withAlpha(60)
+                    : (AppColors.palette.isLight
+                        ? Colors.black.withAlpha(20)
+                        : Colors.black.withAlpha(100)),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(
+            _isFullScreen
+                ? Icons.fullscreen_exit_rounded
+                : Icons.fullscreen_rounded,
+            color: _isFullScreen ? AppColors.primary : AppColors.textPrimary,
+            size: 22,
+          ),
+        ),
       ),
     );
   }
