@@ -12,11 +12,12 @@ class GamepadRemappingModal extends StatefulWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       sheetAnimationStyle: AnimationStyle(
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 350),
         curve: Curves.easeOutCubic,
-        reverseDuration: const Duration(milliseconds: 300),
+        reverseDuration: const Duration(milliseconds: 250),
         reverseCurve: Curves.easeInCubic,
       ),
       builder: (ctx) => const GamepadRemappingModal(),
@@ -51,6 +52,7 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _KeyPickerSheet(
         buttonId: buttonId,
@@ -68,10 +70,10 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
     final size = MediaQuery.of(context).size;
 
     return Container(
-      constraints: BoxConstraints(maxHeight: size.height * 0.90),
+      height: size.height,
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         border: Border(
           top: BorderSide(color: AppColors.primary, width: 2),
         ),
@@ -84,11 +86,12 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
         ],
       ),
       child: SafeArea(
-        top: false,
+        top: true,
+        bottom: true,
         child: Column(
           children: [
             // Drag Handle
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Container(
               width: 44,
               height: 5,
@@ -97,7 +100,7 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
             // Modal Header
             Padding(
@@ -677,17 +680,18 @@ class _KeyPickerSheetState extends State<_KeyPickerSheet> {
     }).toList();
 
     return Container(
-      constraints: BoxConstraints(maxHeight: size.height * 0.85),
+      height: size.height,
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         border: Border(top: BorderSide(color: AppColors.primary, width: 2)),
       ),
       child: SafeArea(
-        top: false,
+        top: true,
+        bottom: true,
         child: Column(
           children: [
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Container(
               width: 44,
               height: 5,
@@ -696,7 +700,7 @@ class _KeyPickerSheetState extends State<_KeyPickerSheet> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
             // Header
             Padding(
