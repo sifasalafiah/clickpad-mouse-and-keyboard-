@@ -9,7 +9,6 @@ import '../services/iap_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
-import '../widgets/banner_ad_widget.dart';
 import '../widgets/pro_purchase_modal.dart';
 
 class BluetoothPairingScreen extends StatefulWidget {
@@ -183,10 +182,6 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // Topbar Banner Ad (Free tier)
-            if (!_iapService.isPro)
-              const CollapsibleBannerAdWidget(collapsiblePosition: 'top'),
-
             // 1. Sleek Header Bar
             _buildHeader(context),
 

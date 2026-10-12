@@ -234,7 +234,7 @@ class MainActivity : FlutterActivity() {
                             // 1. Bonded / Paired Devices
                             bluetoothAdapter?.bondedDevices?.forEach { device ->
                                 pairedList.add(mapOf(
-                                    "name" to (device.name ?: "Paired Device (${device.address})"),
+                                    "name" to (if (!device.name.isNullOrBlank()) device.name else "Bluetooth Device"),
                                     "address" to device.address
                                 ))
                             }
