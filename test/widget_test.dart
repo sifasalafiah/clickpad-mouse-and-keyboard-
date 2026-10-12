@@ -56,8 +56,8 @@ void main() {
     expect(find.text('PC Mouse, Keyboard & Joystick'), findsOneWidget);
     expect(SettingsService.instance.hasSeenOnboarding, isTrue);
 
-    // After consent timeout (8s) + 3s delay, PRO modal opens smoothly
-    await tester.pump(const Duration(seconds: 12));
+    // After 3 seconds, PRO modal opens smoothly
+    await tester.pump(const Duration(seconds: 4));
     expect(find.text('ClickPad PRO'), findsOneWidget);
     expect(SettingsService.instance.hasShownFirstInstallProModal, isTrue);
   });

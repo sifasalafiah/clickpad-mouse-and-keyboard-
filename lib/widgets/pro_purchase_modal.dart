@@ -256,14 +256,12 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                         );
                       },
                       icon: const Icon(Icons.ondemand_video_rounded, color: Color(0xFF00E5FF), size: 18),
-                      label: Flexible(
-                        child: Text(
-                          _iapService.isTrialActive
-                              ? 'Extend Free Trial (+3 Min Free)'
-                              : 'Watch Video for 3-Min Free Trial',
-                          style: const TextStyle(color: Color(0xFF00E5FF), fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      label: Text(
+                        _iapService.isTrialActive
+                            ? 'Extend Free Trial (+3 Min Free)'
+                            : 'Watch Video for 3-Min Free Trial',
+                        style: const TextStyle(color: Color(0xFF00E5FF), fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
                       ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFF00E5FF)),
