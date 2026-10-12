@@ -204,6 +204,19 @@ class BluetoothBleService {
     return true;
   }
 
+  // Get configured Bluetooth device advertising name (ClickPad - ${deviceName})
+  Future<String> getBluetoothDeviceName() async {
+    if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
+      try {
+        final res = await _nativeHidChannel.invokeMethod<String>('getBluetoothDeviceName');
+        if (res != null && res.isNotEmpty) return res;
+      } catch (e) {
+        debugPrint("getBluetoothDeviceName error: $e");
+      }
+    }
+    return 'ClickPad';
+  }
+
   // Open Native Bluetooth Pairing Settings on Phone
   Future<void> openSystemBluetoothSettings() async {
     AdService.instance.isSuppressingAppOpenAd = true;

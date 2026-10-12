@@ -52,13 +52,13 @@ class ThemePalette {
 }
 
 class AppColors {
-  static AppThemeMode currentTheme = AppThemeMode.midnightSlateLight;
+  static AppThemeMode currentTheme = AppThemeMode.midnightSlateDark;
 
   static const Map<AppThemeMode, ThemePalette> palettes = {
-    // 1. Midnight Slate (Light) - FREE / UNLOCKED (Default)
+    // 1. Midnight Slate (Light) - FREE / UNLOCKED
     AppThemeMode.midnightSlateLight: ThemePalette(
       name: 'Midnight Slate',
-      subtitle: 'Clean crisp indigo & slate light mode (Default)',
+      subtitle: 'Clean crisp indigo & slate light mode',
       isPro: false,
       isLight: true,
       background: Color(0xFFF1F5F9),
@@ -75,10 +75,10 @@ class AppColors {
       textMuted: Color(0xFF64748B),
     ),
 
-    // 2. Midnight Slate (Dark) - FREE / UNLOCKED
+    // 2. Midnight Slate (Dark) - FREE / UNLOCKED (Default)
     AppThemeMode.midnightSlateDark: ThemePalette(
       name: 'Midnight Slate',
-      subtitle: 'Modern deep indigo & navy dark mode',
+      subtitle: 'Modern deep indigo & navy dark mode (Default)',
       isPro: false,
       isLight: false,
       background: Color(0xFF0B0F19),
@@ -257,7 +257,7 @@ class AppColors {
   };
 
   static ThemePalette get palette =>
-      palettes[currentTheme] ?? palettes[AppThemeMode.midnightSlateLight]!;
+      palettes[currentTheme] ?? palettes[AppThemeMode.midnightSlateDark]!;
 
   static void applyTheme(AppThemeMode mode) {
     currentTheme = mode;

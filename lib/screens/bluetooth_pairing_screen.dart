@@ -31,6 +31,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
 
   bool _isDiscoverabilityDenied = false;
   bool _isRequestingDiscoverability = false;
+  String _bluetoothDeviceName = 'ClickPad';
 
   @override
   void initState() {
@@ -49,7 +50,15 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
+    _loadBtDeviceName();
     _requestDiscoverability();
+  }
+
+  Future<void> _loadBtDeviceName() async {
+    final name = await _bleService.getBluetoothDeviceName();
+    if (mounted && name.isNotEmpty) {
+      setState(() => _bluetoothDeviceName = name);
+    }
   }
 
   Future<void> _requestDiscoverability() async {
@@ -57,6 +66,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
     if (mounted) setState(() => _isRequestingDiscoverability = true);
 
     final granted = await _bleService.makeDiscoverable();
+    await _loadBtDeviceName();
 
     if (mounted) {
       setState(() {
@@ -496,7 +506,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                                       const SizedBox(width: 6),
                                       Flexible(
                                         child: Text(
-                                          'BT Name: ClickPad',
+                                          'BT Name: $_bluetoothDeviceName',
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
@@ -643,10 +653,10 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
   Widget _buildInstructionContent(int tabIndex) {
     switch (tabIndex) {
       case 0: // macOS
-        return const Column(
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _StepRow(
+            const _StepRow(
               number: '1',
               title: 'Open macOS System Settings',
               desc: 'Click Apple Menu -> System Settings -> Bluetooth.',
@@ -654,9 +664,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             _StepRow(
               number: '2',
               title: 'Look Under "Nearby Devices"',
-              desc: 'Wait for "ClickPad Mouse" to appear.',
+              desc: 'Wait for "$_bluetoothDeviceName" to appear.',
             ),
-            _StepRow(
+            const _StepRow(
               number: '3',
               title: 'Click Connect & Pair',
               desc:
@@ -665,31 +675,31 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
           ],
         );
       case 1: // Windows 10/11
-        return const Column(
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _StepRow(
+            const _StepRow(
               number: '1',
               title: 'Open Windows Settings',
               desc: 'Press Win + I -> Bluetooth & Devices.',
             ),
-            _StepRow(
+            const _StepRow(
               number: '2',
               title: 'Click Add Device',
               desc: 'Choose "Bluetooth" (Mice, keyboards, pens, etc.).',
             ),
             _StepRow(
               number: '3',
-              title: 'Select ClickPad Mouse',
-              desc: 'Click "ClickPad Mouse" to pair & connect.',
+              title: 'Select $_bluetoothDeviceName',
+              desc: 'Click "$_bluetoothDeviceName" to pair & connect.',
             ),
           ],
         );
       case 2: // Linux
-        return const Column(
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _StepRow(
+            const _StepRow(
               number: '1',
               title: 'Open Bluetooth Manager',
               desc: 'Open Settings -> Bluetooth or Blueman Manager.',
@@ -697,9 +707,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             _StepRow(
               number: '2',
               title: 'Scan Nearby Devices',
-              desc: 'Search for "ClickPad Mouse".',
+              desc: 'Search for "$_bluetoothDeviceName".',
             ),
-            _StepRow(
+            const _StepRow(
               number: '3',
               title: 'Click Pair & Connect',
               desc: 'Accept pairing request to start controlling Linux.',
@@ -708,10 +718,10 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
         );
       case 3: // iPad / Android Tablet
       default:
-        return const Column(
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _StepRow(
+            const _StepRow(
               number: '1',
               title: 'Open Settings',
               desc: 'Go to Settings -> Bluetooth on your iPad / Tablet.',
@@ -719,9 +729,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             _StepRow(
               number: '2',
               title: 'Other Devices',
-              desc: 'Look for "ClickPad Mouse" under Other Devices.',
+              desc: 'Look for "$_bluetoothDeviceName" under Other Devices.',
             ),
-            _StepRow(
+            const _StepRow(
               number: '3',
               title: 'Tap to Pair',
               desc: 'Tap to pair. Touchpad & Keyboard will activate instantly!',

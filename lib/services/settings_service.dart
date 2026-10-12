@@ -14,7 +14,7 @@ class SettingsService extends ChangeNotifier {
   bool _enableAcceleration = true;
   bool _enableHaptics = true;
   ConnectionType _preferredConnectionType = ConnectionType.bluetoothHid;
-  AppThemeMode _currentThemeMode = AppThemeMode.midnightSlateLight;
+  AppThemeMode _currentThemeMode = AppThemeMode.midnightSlateDark;
   String _lastServerIp = '192.168.1.100';
   int _lastServerPort = 8888;
   String _lastDeviceName = '';
@@ -82,21 +82,21 @@ class SettingsService extends ChangeNotifier {
       } else {
         _currentThemeMode = AppThemeMode.values.firstWhere(
           (e) => e.name == themeStr,
-          orElse: () => AppThemeMode.midnightSlateLight,
+          orElse: () => AppThemeMode.midnightSlateDark,
         );
       }
     } else {
-      _currentThemeMode = AppThemeMode.midnightSlateLight;
+      _currentThemeMode = AppThemeMode.midnightSlateDark;
     }
 
     if (!IapService.instance.isPro && (AppColors.palettes[_currentThemeMode]?.isPro ?? false)) {
-      _currentThemeMode = AppThemeMode.midnightSlateLight;
+      _currentThemeMode = AppThemeMode.midnightSlateDark;
     }
     AppColors.applyTheme(_currentThemeMode);
 
     IapService.instance.addListener(() {
       if (!IapService.instance.isPro && (AppColors.palettes[_currentThemeMode]?.isPro ?? false)) {
-        setThemeMode(AppThemeMode.midnightSlateLight);
+        setThemeMode(AppThemeMode.midnightSlateDark);
       }
     });
     

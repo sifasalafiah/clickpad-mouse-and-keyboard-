@@ -166,7 +166,7 @@ class MainActivity : FlutterActivity() {
                 "makeDiscoverable" -> {
                     try {
                         if (hasBluetoothPermission()) {
-                            bluetoothAdapter?.setName("ClickPad")
+                            bluetoothAdapter?.setName(getDeviceName())
                             val intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
                                 putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
                             }
@@ -188,6 +188,9 @@ class MainActivity : FlutterActivity() {
                     } catch (e: Exception) {
                         result.success(false)
                     }
+                }
+                "getBluetoothDeviceName" -> {
+                    result.success(getDeviceName())
                 }
                 "disconnect" -> {
                     try {
@@ -458,7 +461,7 @@ class MainActivity : FlutterActivity() {
     private fun initBluetoothHid() {
         if (hasBluetoothPermission()) {
             try {
-                bluetoothAdapter?.setName("ClickPad")
+                bluetoothAdapter?.setName(getDeviceName())
             } catch (e: Exception) {}
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && hasBluetoothPermission()) {
@@ -487,12 +490,12 @@ class MainActivity : FlutterActivity() {
             try {
                 // Set adapter name & start continuous background advertising silently
                 try {
-                    bluetoothAdapter?.name = "ClickPad"
+                    bluetoothAdapter?.name = getDeviceName()
                     startBleAdvertising()
                 } catch (e: Exception) {}
 
                 val sdpSettings = BluetoothHidDeviceAppSdpSettings(
-                    "ClickPad",
+                    getDeviceName(),
                     "Bluetooth Touchpad",
                     "ClickPad",
                     0xC0.toByte(), // Mouse Subclass
@@ -570,7 +573,7 @@ class MainActivity : FlutterActivity() {
     private fun startBleAdvertising() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && hasBluetoothPermission()) {
             try {
-                bluetoothAdapter?.setName("ClickPad")
+                bluetoothAdapter?.setName(getDeviceName())
                 val advertiser = bluetoothAdapter?.bluetoothLeAdvertiser
                 val settings = android.bluetooth.le.AdvertiseSettings.Builder()
                     .setAdvertiseMode(android.bluetooth.le.AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
@@ -590,5 +593,34 @@ class MainActivity : FlutterActivity() {
                 })
             } catch (e: Exception) {}
         }
+    }
+
+    private fun getDeviceName(): String {
+        var name: String? = null
+        try {
+            name = Settings.Global.getString(contentResolver, "device_name")
+        } catch (e: Exception) {}
+        if (name.isNullOrBlank()) {
+            try {
+                name = Settings.Secure.getString(contentResolver, "bluetooth_name")
+            } catch (e: Exception) {}
+        }
+        if (name.isNullOrBlank()) {
+            try {
+                val currentAdapterName = bluetoothAdapter?.name
+                if (!currentAdapterName.isNullOrBlank() &&
+                    !currentAdapterName.equals("ClickPad", ignoreCase = true) &&
+                    !currentAdapterName.startsWith("ClickPad -", ignoreCase = true)
+                ) {
+                    name = currentAdapterName
+                }
+            } catch (e: Exception) {}
+        }
+        if (name.isNullOrBlank()) {
+            name = Build.MODEL
+        }
+        val cleanName = name?.trim().orEmpty()
+        val truncatedName = if (cleanName.length > 18) cleanName.take(18) else cleanName
+        return if (truncatedName.isNotEmpty()) "ClickPad - $truncatedName" else "ClickPad"
     }
 }

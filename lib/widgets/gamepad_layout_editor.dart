@@ -153,6 +153,19 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
                       Size(constraints.maxWidth, constraints.maxHeight);
                   return Stack(
                     children: [
+                      // Background Alignment & Symmetry Grid
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: _EditorGridPainter(
+                            gridColor: AppColors.palette.isLight
+                                ? AppColors.border.withAlpha(65)
+                                : AppColors.border.withAlpha(45),
+                            centerLineColor: AppColors.primary.withAlpha(
+                              AppColors.palette.isLight ? 75 : 65,
+                            ),
+                          ),
+                        ),
+                      ),
                       _buildDraggableItem(
                         GamepadHudElement.leftStick,
                         canvasSize,
@@ -791,4 +804,47 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
       ),
     );
   }
+}
+
+class _EditorGridPainter extends CustomPainter {
+  final Color gridColor;
+  final Color centerLineColor;
+
+  const _EditorGridPainter({
+    required this.gridColor,
+    required this.centerLineColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final linePaint = Paint()
+      ..color = gridColor
+      ..strokeWidth = 1.0;
+
+    const step = 32.0;
+
+    // Draw regular background grid
+    for (double x = 0; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), linePaint);
+    }
+    for (double y = 0; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), linePaint);
+    }
+
+    // Draw Center Guide Lines (Vertical & Horizontal axes) to assist symmetry
+    final centerPaint = Paint()
+      ..color = centerLineColor
+      ..strokeWidth = 1.5;
+
+    final midX = size.width / 2;
+    canvas.drawLine(Offset(midX, 0), Offset(midX, size.height), centerPaint);
+
+    final midY = size.height / 2;
+    canvas.drawLine(Offset(0, midY), Offset(size.width, midY), centerPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _EditorGridPainter oldDelegate) =>
+      oldDelegate.gridColor != gridColor ||
+      oldDelegate.centerLineColor != centerLineColor;
 }

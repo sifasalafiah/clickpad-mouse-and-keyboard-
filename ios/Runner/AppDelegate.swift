@@ -118,6 +118,8 @@ import CoreBluetooth
                 } else {
                     result(nil)
                 }
+            case "getBluetoothDeviceName":
+                result(self.getDeviceName())
             case "sendMouseReport":
                 if let args = call.arguments as? [String: Any] {
                     let button = args["button"] as? Int ?? 0
@@ -180,7 +182,7 @@ import CoreBluetooth
         // 1. Device Information Service (0x180A)
         let infoService = CBMutableService(type: CBUUID(string: "180A"), primary: true)
         let mfgChar = CBMutableCharacteristic(type: CBUUID(string: "2A29"), properties: [.read], value: Data("Sekala".utf8), permissions: [.readable])
-        let modelChar = CBMutableCharacteristic(type: CBUUID(string: "2A24"), properties: [.read], value: Data("ClickPad-HID".utf8), permissions: [.readable])
+        let modelChar = CBMutableCharacteristic(type: CBUUID(string: "2A24"), properties: [.read], value: Data(getDeviceName().utf8), permissions: [.readable])
         infoService.characteristics = [mfgChar, modelChar]
         peripheralManager.add(infoService)
 
@@ -228,10 +230,17 @@ import CoreBluetooth
         
         let advertisementData: [String: Any] = [
             CBAdvertisementDataServiceUUIDsKey: [CBUUID(string: "1812")],
-            CBAdvertisementDataLocalNameKey: "ClickPad"
+            CBAdvertisementDataLocalNameKey: getDeviceName()
         ]
         peripheralManager.startAdvertising(advertisementData)
         isAdvertising = true
+    }
+
+    private func getDeviceName() -> String {
+        let rawName = UIDevice.current.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = rawName.isEmpty ? "iPhone" : rawName
+        let truncated = String(name.prefix(18))
+        return "ClickPad - \(truncated)"
     }
 
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {

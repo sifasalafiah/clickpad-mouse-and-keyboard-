@@ -9,7 +9,7 @@ class AppTheme {
   static ThemeData getTheme(AppThemeMode mode) {
     AppColors.applyTheme(mode);
     final palette = AppColors.palettes[mode] ??
-        AppColors.palettes[AppThemeMode.midnightSlateLight]!;
+        AppColors.palettes[AppThemeMode.midnightSlateDark]!;
 
     final baseTextTheme = palette.isLight
         ? ThemeData.light().textTheme
