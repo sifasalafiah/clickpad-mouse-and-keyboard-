@@ -84,6 +84,7 @@ import CoreBluetooth
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        applySplashTheme()
         GeneratedPluginRegistrant.register(with: self)
 
         if let messenger = self.registrar(forPlugin: "ClickPadHidPlugin")?.messenger() {
@@ -93,6 +94,14 @@ import CoreBluetooth
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
         
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+
+    private func applySplashTheme() {
+        let themeMode = UserDefaults.standard.string(forKey: "flutter.appThemeMode") ?? "midnightSlateDark"
+        let isLight = themeMode.hasSuffix("Light") || themeMode == "oledPureWhite"
+        let bgColor = isLight ? UIColor(red: 241/255, green: 245/255, blue: 249/255, alpha: 1.0)
+                              : UIColor(red: 11/255, green: 15/255, blue: 25/255, alpha: 1.0)
+        window?.backgroundColor = bgColor
     }
 
     private func setupMethodChannel(binaryMessenger: FlutterBinaryMessenger) {

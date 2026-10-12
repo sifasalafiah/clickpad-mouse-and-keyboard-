@@ -8,6 +8,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
+import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
@@ -145,6 +147,25 @@ class MainActivity : FlutterActivity() {
         0x81.toByte(), 0x00.toByte(), //   INPUT (Data,Ary,Abs)
         0xc0.toByte()                 // END_COLLECTION
     )
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        applySplashTheme()
+        super.onCreate(savedInstanceState)
+    }
+
+    private fun applySplashTheme() {
+        try {
+            val prefs = getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+            val themeMode = prefs.getString("flutter.appThemeMode", "midnightSlateDark")
+            val isLight = themeMode?.endsWith("Light", ignoreCase = true) == true || themeMode == "oledPureWhite"
+            val bgColor = if (isLight) {
+                Color.parseColor("#F1F5F9")
+            } else {
+                Color.parseColor("#0B0F19")
+            }
+            window.decorView.setBackgroundColor(bgColor)
+        } catch (e: Exception) {}
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
