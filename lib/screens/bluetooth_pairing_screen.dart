@@ -42,7 +42,8 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
   String _bluetoothDeviceName = 'ClickPad';
   bool _isDiscoverabilityDenied = false;
   bool _isRequestingDiscoverability = false;
-  int _selectedPlatformTab = 0; // 0: macOS, 1: Windows, 2: Linux, 3: iPad/Tablet
+  int _selectedPlatformTab =
+      0; // 0: macOS, 1: Windows, 2: Linux, 3: iPad/Tablet
 
   @override
   void initState() {
@@ -213,10 +214,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
       decoration: BoxDecoration(
         color: AppColors.background,
         border: Border(
-          bottom: BorderSide(
-            color: AppColors.border.withAlpha(50),
-            width: 1,
-          ),
+          bottom: BorderSide(color: AppColors.border.withAlpha(50), width: 1),
         ),
       ),
       child: Row(
@@ -281,7 +279,10 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                   ),
                   tooltip: 'Unlock PRO',
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
                 ),
 
               // Open System Bluetooth Settings Shortcut
@@ -298,7 +299,10 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.textPrimary,
                   side: BorderSide(color: AppColors.border, width: 1.2),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -463,9 +467,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
               icon: Icons.bookmark_added_rounded,
             ),
             const SizedBox(height: 8),
-            ...pairedList.map(
-              (dev) => _buildDeviceCard(dev, isPaired: true),
-            ),
+            ...pairedList.map((dev) => _buildDeviceCard(dev, isPaired: true)),
             const SizedBox(height: 16),
           ],
 
@@ -519,8 +521,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
               color: _isAutoScanning ? AppColors.primary : AppColors.success,
               boxShadow: [
                 BoxShadow(
-                  color: (_isAutoScanning ? AppColors.primary : AppColors.success)
-                      .withAlpha(120),
+                  color:
+                      (_isAutoScanning ? AppColors.primary : AppColors.success)
+                          .withAlpha(120),
                   blurRadius: 6,
                   spreadRadius: 2,
                 ),
@@ -552,14 +555,18 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             icon: Icon(
               Icons.refresh_rounded,
               size: 16,
-              color: _isAutoScanning ? AppColors.textMuted : AppColors.primaryLight,
+              color: _isAutoScanning
+                  ? AppColors.textMuted
+                  : AppColors.primaryLight,
             ),
             label: Text(
               _isAutoScanning ? 'Scanning' : 'Rescan',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: _isAutoScanning ? AppColors.textMuted : AppColors.primaryLight,
+                color: _isAutoScanning
+                    ? AppColors.textMuted
+                    : AppColors.primaryLight,
               ),
             ),
             style: TextButton.styleFrom(
@@ -626,7 +633,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
         border: Border.all(
           color: isConnectingThis
               ? AppColors.primary
-              : (isPaired ? AppColors.primaryLight.withAlpha(90) : AppColors.border),
+              : (isPaired
+                    ? AppColors.primaryLight.withAlpha(90)
+                    : AppColors.border),
           width: isConnectingThis ? 2.0 : 1.2,
         ),
         boxShadow: [
@@ -646,7 +655,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             height: 44,
             decoration: BoxDecoration(
               color: isPaired
-                  ? AppColors.primary.withAlpha(AppColors.palette.isLight ? 45 : 30)
+                  ? AppColors.primary.withAlpha(
+                      AppColors.palette.isLight ? 45 : 30,
+                    )
                   : AppColors.background,
               shape: BoxShape.circle,
               border: Border.all(
@@ -657,7 +668,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             child: Icon(
               icon,
               size: 22,
-              color: isPaired ? AppColors.primaryLight : AppColors.textSecondary,
+              color: isPaired
+                  ? AppColors.primaryLight
+                  : AppColors.textSecondary,
             ),
           ),
           const SizedBox(width: 12),
@@ -682,7 +695,10 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                     if (isPaired) ...[
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 1.5,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withAlpha(30),
                           borderRadius: BorderRadius.circular(5),
@@ -707,7 +723,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        isPaired ? 'Paired computer' : 'Ready to connect',
+                        isPaired ? 'Paired device' : 'Ready to connect',
                         style: TextStyle(
                           fontSize: 11,
                           color: AppColors.textMuted,
@@ -802,19 +818,13 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
           const Text(
             'Searching for nearby computers...',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14.5,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
           Text(
             'Make sure Bluetooth is turned ON and discoverable on your PC or Mac.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
-              color: AppColors.textMuted,
-            ),
+            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
           ),
         ],
       ),
@@ -915,7 +925,11 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline_rounded, size: 18, color: AppColors.primaryLight),
+          Icon(
+            Icons.info_outline_rounded,
+            size: 18,
+            color: AppColors.primaryLight,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -1003,10 +1017,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
           const Text(
             'Your Phone is Discoverable',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
           Text(
@@ -1082,14 +1093,20 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                 _isRequestingDiscoverability
                     ? 'Requesting Visibility...'
                     : 'Make Phone Visible for Pairing',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary.withAlpha(40),
                 foregroundColor: AppColors.primaryLight,
                 elevation: 0,
                 side: BorderSide(color: AppColors.primaryLight),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
               ),
             ),
           ],
@@ -1111,14 +1128,15 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
         children: [
           Row(
             children: [
-              Icon(Icons.menu_book_rounded, size: 16, color: AppColors.primaryLight),
+              Icon(
+                Icons.menu_book_rounded,
+                size: 16,
+                color: AppColors.primaryLight,
+              ),
               const SizedBox(width: 8),
               const Text(
                 'How to Connect on Your Computer',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -1131,11 +1149,19 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
               children: [
                 _buildPlatformFilterChip(0, 'macOS', Icons.laptop_mac_rounded),
                 const SizedBox(width: 8),
-                _buildPlatformFilterChip(1, 'Windows 10/11', Icons.desktop_windows_rounded),
+                _buildPlatformFilterChip(
+                  1,
+                  'Windows 10/11',
+                  Icons.desktop_windows_rounded,
+                ),
                 const SizedBox(width: 8),
                 _buildPlatformFilterChip(2, 'Linux', Icons.terminal_rounded),
                 const SizedBox(width: 8),
-                _buildPlatformFilterChip(3, 'iPad / Tablet', Icons.tablet_mac_rounded),
+                _buildPlatformFilterChip(
+                  3,
+                  'iPad / Tablet',
+                  Icons.tablet_mac_rounded,
+                ),
               ],
             ),
           ),
@@ -1198,7 +1224,8 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             const _StepRow(
               number: '3',
               title: 'Connect & Authorize',
-              desc: 'Click Connect and accept pairing prompt. Controls unlock instantly!',
+              desc:
+                  'Click Connect and accept pairing prompt. Controls unlock instantly!',
             ),
           ],
         );
@@ -1213,7 +1240,8 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             const _StepRow(
               number: '2',
               title: 'Add Bluetooth Device',
-              desc: 'Click "Add Device" -> Choose "Bluetooth (Mice, keyboards, etc.)".',
+              desc:
+                  'Click "Add Device" -> Choose "Bluetooth (Mice, keyboards, etc.)".',
             ),
             _StepRow(
               number: '3',
@@ -1233,7 +1261,8 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             _StepRow(
               number: '2',
               title: 'Scan for Devices',
-              desc: 'Look for "$_bluetoothDeviceName" in the list of nearby devices.',
+              desc:
+                  'Look for "$_bluetoothDeviceName" in the list of nearby devices.',
             ),
             const _StepRow(
               number: '3',
@@ -1249,7 +1278,8 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             const _StepRow(
               number: '1',
               title: 'Open Tablet Bluetooth',
-              desc: 'Go to Settings -> Bluetooth on your iPad or Android Tablet.',
+              desc:
+                  'Go to Settings -> Bluetooth on your iPad or Android Tablet.',
             ),
             _StepRow(
               number: '2',
@@ -1272,7 +1302,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.surfaceElevated,
-        border: Border(top: BorderSide(color: AppColors.primaryLight, width: 1.5)),
+        border: Border(
+          top: BorderSide(color: AppColors.primaryLight, width: 1.5),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(90),
@@ -1296,7 +1328,10 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
               children: [
                 Text(
                   _connService.statusMessage ?? 'Connecting to computer...',
-                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
@@ -1331,7 +1366,11 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 22),
+          const Icon(
+            Icons.error_outline_rounded,
+            color: AppColors.error,
+            size: 22,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -1346,7 +1385,8 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                   ),
                 ),
                 Text(
-                  _connService.statusMessage ?? 'Could not establish connection. Please retry.',
+                  _connService.statusMessage ??
+                      'Could not establish connection. Please retry.',
                   style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                 ),
               ],
@@ -1359,7 +1399,11 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             },
             child: const Text(
               'Retry',
-              style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold, fontSize: 12),
+              style: TextStyle(
+                color: AppColors.error,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
           ),
         ],
