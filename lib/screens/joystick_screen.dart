@@ -676,74 +676,74 @@ class _JoystickScreenState extends State<JoystickScreen> {
   }
 
   Widget _buildLeftShoulders(Size baseSize) {
-    final itemW = (baseSize.width - 8) / 2.0;
     return Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        _buildShoulderButton(
-          label: 'L1',
-          scancode: _mappingService.getScancode(GamepadButtonId.l1),
-          width: itemW,
-          height: baseSize.height,
+        Expanded(
+          child: _buildShoulderButton(
+            label: 'L1',
+            scancode: _mappingService.getScancode(GamepadButtonId.l1),
+            height: baseSize.height,
+          ),
         ),
         const SizedBox(width: 8),
-        _buildShoulderButton(
-          label: 'L2',
-          scancode: _mappingService.getScancode(GamepadButtonId.l2),
-          width: itemW,
-          height: baseSize.height,
+        Expanded(
+          child: _buildShoulderButton(
+            label: 'L2',
+            scancode: _mappingService.getScancode(GamepadButtonId.l2),
+            height: baseSize.height,
+          ),
         ),
       ],
     );
   }
 
   Widget _buildRightShoulders(Size baseSize) {
-    final itemW = (baseSize.width - 8) / 2.0;
     return Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        _buildShoulderButton(
-          label: 'R1',
-          scancode: _mappingService.getScancode(GamepadButtonId.r1),
-          width: itemW,
-          height: baseSize.height,
+        Expanded(
+          child: _buildShoulderButton(
+            label: 'R1',
+            scancode: _mappingService.getScancode(GamepadButtonId.r1),
+            height: baseSize.height,
+          ),
         ),
         const SizedBox(width: 8),
-        _buildShoulderButton(
-          label: 'R2',
-          scancode: _mappingService.getScancode(GamepadButtonId.r2),
-          width: itemW,
-          height: baseSize.height,
+        Expanded(
+          child: _buildShoulderButton(
+            label: 'R2',
+            scancode: _mappingService.getScancode(GamepadButtonId.r2),
+            height: baseSize.height,
+          ),
         ),
       ],
     );
   }
 
   Widget _buildSystemButtons(Size baseSize) {
-    final itemW = (baseSize.width - 12) / 3.0;
     return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildCenterButton(
-          'SELECT',
-          _mappingService.getScancode(GamepadButtonId.select),
-          itemW,
-          baseSize.height,
+        Expanded(
+          child: _buildCenterButton(
+            'SELECT',
+            _mappingService.getScancode(GamepadButtonId.select),
+            baseSize.height,
+          ),
         ),
         const SizedBox(width: 6),
-        _buildCenterButton(
-          'START',
-          _mappingService.getScancode(GamepadButtonId.start),
-          itemW,
-          baseSize.height,
+        Expanded(
+          child: _buildCenterButton(
+            'START',
+            _mappingService.getScancode(GamepadButtonId.start),
+            baseSize.height,
+          ),
         ),
         const SizedBox(width: 6),
-        _buildCenterButton(
-          'ESC',
-          _mappingService.getScancode(GamepadButtonId.esc),
-          itemW,
-          baseSize.height,
+        Expanded(
+          child: _buildCenterButton(
+            'ESC',
+            _mappingService.getScancode(GamepadButtonId.esc),
+            baseSize.height,
+          ),
         ),
       ],
     );
@@ -752,7 +752,6 @@ class _JoystickScreenState extends State<JoystickScreen> {
   Widget _buildShoulderButton({
     required String label,
     required int scancode,
-    required double width,
     required double height,
   }) {
     final isPressed = _activeHeldKeys.contains(scancode);
@@ -762,7 +761,6 @@ class _JoystickScreenState extends State<JoystickScreen> {
       onPointerCancel: (_) => _onButtonTouchUp(scancode),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 60),
-        width: width,
         height: height,
         decoration: BoxDecoration(
           color: isPressed ? AppColors.primary : AppColors.surfaceElevated,
@@ -796,7 +794,6 @@ class _JoystickScreenState extends State<JoystickScreen> {
   Widget _buildCenterButton(
     String label,
     int scancode,
-    double width,
     double height,
   ) {
     final isPressed = _activeHeldKeys.contains(scancode);
@@ -806,7 +803,6 @@ class _JoystickScreenState extends State<JoystickScreen> {
       onPointerCancel: (_) => _onButtonTouchUp(scancode),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 60),
-        width: width,
         height: height,
         alignment: Alignment.center,
         decoration: BoxDecoration(

@@ -382,7 +382,11 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
           ),
           child: FittedBox(
             fit: BoxFit.contain,
-            child: childBuilder(baseSize),
+            child: SizedBox(
+              width: baseSize.width,
+              height: baseSize.height,
+              child: childBuilder(baseSize),
+            ),
           ),
         ),
       ),
@@ -719,20 +723,21 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
   }
 
   Widget _buildPreviewShoulders(String btn1, String btn2, Size baseSize) {
-    final itemW = (baseSize.width - 8) / 2.0;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildMiniShoulder(btn1, itemW, baseSize.height),
-        const SizedBox(width: 8),
-        _buildMiniShoulder(btn2, itemW, baseSize.height),
-      ],
+    return SizedBox(
+      width: baseSize.width,
+      height: baseSize.height,
+      child: Row(
+        children: [
+          Expanded(child: _buildMiniShoulder(btn1, baseSize.height)),
+          const SizedBox(width: 8),
+          Expanded(child: _buildMiniShoulder(btn2, baseSize.height)),
+        ],
+      ),
     );
   }
 
-  Widget _buildMiniShoulder(String label, double w, double h) {
+  Widget _buildMiniShoulder(String label, double h) {
     return Container(
-      width: w,
       height: h,
       decoration: BoxDecoration(
         color: AppColors.surfaceElevated,
@@ -752,22 +757,23 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
   }
 
   Widget _buildPreviewSystemButtons(Size baseSize) {
-    final itemW = (baseSize.width - 12) / 3.0;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildMiniCenterBtn('SELECT', itemW, baseSize.height),
-        const SizedBox(width: 6),
-        _buildMiniCenterBtn('START', itemW, baseSize.height),
-        const SizedBox(width: 6),
-        _buildMiniCenterBtn('ESC', itemW, baseSize.height),
-      ],
+    return SizedBox(
+      width: baseSize.width,
+      height: baseSize.height,
+      child: Row(
+        children: [
+          Expanded(child: _buildMiniCenterBtn('SELECT', baseSize.height)),
+          const SizedBox(width: 6),
+          Expanded(child: _buildMiniCenterBtn('START', baseSize.height)),
+          const SizedBox(width: 6),
+          Expanded(child: _buildMiniCenterBtn('ESC', baseSize.height)),
+        ],
+      ),
     );
   }
 
-  Widget _buildMiniCenterBtn(String label, double w, double h) {
+  Widget _buildMiniCenterBtn(String label, double h) {
     return Container(
-      width: w,
       height: h,
       decoration: BoxDecoration(
         color: AppColors.surfaceElevated,
