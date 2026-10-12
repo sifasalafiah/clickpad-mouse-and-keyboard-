@@ -147,6 +147,10 @@ import CoreBluetooth
                 } else {
                     result(false)
                 }
+            case "getPairedDevices":
+                result([])
+            case "pairDevice":
+                result("connecting_started")
             case "disconnect":
                 self.connectedCentral = nil
                 self.subscribedCharacteristicsCount = 0
