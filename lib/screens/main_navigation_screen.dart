@@ -67,11 +67,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 color: AppColors.primary.withAlpha(30),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                Icons.bluetooth,
-                color: AppColors.primary,
-                size: 20,
-              ),
+              child: Icon(Icons.bluetooth, color: AppColors.primary, size: 20),
             ),
             const SizedBox(width: 10),
             const Expanded(
@@ -85,7 +81,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    'PC Mouse & Keyboard',
+                    'PC Mouse, Keyboard & Joystick',
                     style: TextStyle(fontSize: 10, color: AppColors.textMuted),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -208,7 +204,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     right: -6,
                     top: -4,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 1,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFD700),
                         borderRadius: BorderRadius.circular(6),
@@ -273,7 +272,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           'Are you sure you want to disconnect Bluetooth HID connection with $deviceName?',
           style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
         ),
-        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        actionsPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),

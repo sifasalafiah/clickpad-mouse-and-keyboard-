@@ -38,7 +38,7 @@ class ClickPadApp extends StatelessWidget {
       builder: (context, _) {
         final currentMode = SettingsService.instance.currentThemeMode;
         return MaterialApp(
-          title: 'ClickPad - PC Mouse & Keyboard',
+          title: 'ClickPad - PC Mouse, Keyboard & Joystick',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.getTheme(currentMode),
           home: const AppRootWrapper(),
@@ -79,7 +79,8 @@ class _AppRootWrapperState extends State<AppRootWrapper> {
       await AdService.instance.init();
 
       // Show PRO modal 3 seconds after onboarding / consent flow on first install
-      if (!_settings.hasShownFirstInstallProModal && !IapService.instance.isPro) {
+      if (!_settings.hasShownFirstInstallProModal &&
+          !IapService.instance.isPro) {
         Future.delayed(const Duration(seconds: 3), () {
           if (mounted &&
               !IapService.instance.isPro &&

@@ -118,7 +118,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                'PC Mouse & Keyboard',
+                                'PC Mouse, Keyboard & Joystick',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: AppColors.textMuted,

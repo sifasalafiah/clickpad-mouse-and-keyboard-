@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:package_info_plus/package_info_plus.dart';
 import '../services/ad_service.dart';
 import '../services/bluetooth_service.dart';
 import '../services/iap_service.dart';
@@ -19,12 +21,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final SettingsService _settings = SettingsService.instance;
   final BluetoothBleService _bleService = BluetoothBleService.instance;
   final IapService _iapService = IapService.instance;
+  String _appVersion = '0.1.0(1)';
 
   @override
   void initState() {
     super.initState();
     _settings.addListener(_onSettingsChanged);
     _iapService.addListener(_onSettingsChanged);
+    _loadAppVersion();
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final yamlContent = await rootBundle.loadString('pubspec.yaml');
+      final match = RegExp(
+        r'^version:\s*([^\s+]+)(?:\+(\d+))?',
+        multiLine: true,
+      ).firstMatch(yamlContent);
+      if (match != null) {
+        final ver = match.group(1);
+        final build = match.group(2);
+        if (ver != null) {
+          final formatted =
+              (build != null && build.isNotEmpty) ? '$ver($build)' : ver;
+          if (mounted) {
+            setState(() {
+              _appVersion = formatted;
+            });
+            return;
+          }
+        }
+      }
+    } catch (_) {}
+
+    try {
+      final info = await PackageInfo.fromPlatform();
+      var ver = info.version;
+      var build = info.buildNumber;
+      if (ver.contains('+')) {
+        final parts = ver.split('+');
+        ver = parts[0];
+        if (build.isEmpty && parts.length > 1) {
+          build = parts[1];
+        }
+      }
+      final formatted = build.isNotEmpty ? '$ver($build)' : ver;
+      if (mounted) {
+        setState(() {
+          _appVersion = formatted;
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -71,7 +118,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     child: Icon(
                       Icons.workspace_premium,
-                      color: isPro ? const Color(0xFFFFD700) : AppColors.primary,
+                      color: isPro
+                          ? const Color(0xFFFFD700)
+                          : AppColors.primary,
                       size: 28,
                     ),
                   ),
@@ -81,11 +130,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isPro ? 'ClickPad PRO Active' : 'Upgrade to ClickPad PRO',
+                          isPro
+                              ? 'ClickPad PRO Active'
+                              : 'Upgrade to ClickPad PRO',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: isPro ? const Color(0xFFFFD700) : Colors.white,
+                            color: isPro
+                                ? const Color(0xFFFFD700)
+                                : Colors.white,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -101,32 +154,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      HapticHelper.mediumImpact();
-                      ProPurchaseModal.show(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          isPro ? const Color(0xFFFFD700) : AppColors.primary,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
+                  if (!isPro) ...[
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        HapticHelper.mediumImpact();
+                        ProPurchaseModal.show(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                      child: const Text(
+                        'Upgrade',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    child: Text(
-                      isPro ? 'Manage' : 'Upgrade',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -302,7 +356,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Privacy & Advertising Consent Card (Only visible for Free / Ad-Supported users)
           if (!isPro) ...[
             const Text(
-              'Privacy & Legal',
+              'Privacy',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -315,7 +369,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.privacy_tip_outlined, color: AppColors.primary, size: 22),
+                        Icon(
+                          Icons.privacy_tip_outlined,
+                          color: AppColors.primary,
+                          size: 22,
+                        ),
                         const SizedBox(width: 12),
                         const Expanded(
                           child: Text(
@@ -331,7 +389,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 8),
                     const Text(
                       'Manage your consent preferences for personalized ads, measurement, and privacy under European GDPR / UK regulations and US State Privacy laws.',
-                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textMuted,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     SizedBox(
@@ -370,7 +431,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 HapticHelper.selectionClick();
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const OnboardingScreen(isRevisit: true),
+                    builder: (context) =>
+                        const OnboardingScreen(isRevisit: true),
                   ),
                 );
               },
@@ -384,7 +446,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: AppColors.primary.withAlpha(30),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(Icons.auto_stories_rounded, color: AppColors.primaryLight, size: 22),
+                      child: Icon(
+                        Icons.auto_stories_rounded,
+                        color: AppColors.primaryLight,
+                        size: 22,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     const Expanded(
@@ -393,17 +459,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           Text(
                             'Feature Guide & Onboarding',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           SizedBox(height: 2),
                           Text(
                             'Review walkthrough for touchpad, keyboard, & PC connection',
-                            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textMuted,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textMuted),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 14,
+                      color: AppColors.textMuted,
+                    ),
                   ],
                 ),
               ),
@@ -424,9 +500,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'ClickPad',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'ClickPad',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withAlpha(25),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                _appVersion,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primaryLight,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         SizedBox(height: 4),
                         Text(
@@ -467,12 +566,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFD700).withAlpha(25),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFFFD700).withAlpha(80)),
+                  border: Border.all(
+                    color: const Color(0xFFFFD700).withAlpha(80),
+                  ),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.workspace_premium, size: 12, color: Color(0xFFFFD700)),
+                    Icon(
+                      Icons.workspace_premium,
+                      size: 12,
+                      color: Color(0xFFFFD700),
+                    ),
                     SizedBox(width: 4),
                     Text(
                       'PRO Themes',
@@ -509,7 +614,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     }
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     child: Row(
                       children: [
                         // Color Swatch Preview
@@ -520,7 +628,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             shape: BoxShape.circle,
                             color: palette.background,
                             border: Border.all(
-                              color: isSelected ? palette.primary : palette.border,
+                              color: isSelected
+                                  ? palette.primary
+                                  : palette.border,
                               width: isSelected ? 2 : 1,
                             ),
                             boxShadow: isSelected
@@ -556,17 +666,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     palette.name,
                                     style: TextStyle(
                                       fontSize: 14,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                      color: isSelected ? Colors.white : AppColors.textPrimary,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.w600,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : AppColors.textPrimary,
                                     ),
                                   ),
                                   if (palette.isPro) ...[
                                     const SizedBox(width: 6),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 5,
+                                        vertical: 1,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: isLocked
-                                            ? const Color(0xFFFFD700).withAlpha(30)
+                                            ? const Color(
+                                                0xFFFFD700,
+                                              ).withAlpha(30)
                                             : AppColors.success.withAlpha(30),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
@@ -575,7 +694,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         style: TextStyle(
                                           fontSize: 9,
                                           fontWeight: FontWeight.w900,
-                                          color: isLocked ? const Color(0xFFFFD700) : AppColors.success,
+                                          color: isLocked
+                                              ? const Color(0xFFFFD700)
+                                              : AppColors.success,
                                         ),
                                       ),
                                     ),
@@ -596,11 +717,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                         // Right Status Indicator
                         if (isLocked)
-                          const Icon(Icons.lock_outline, color: Color(0xFFFFD700), size: 18)
+                          const Icon(
+                            Icons.lock_outline,
+                            color: Color(0xFFFFD700),
+                            size: 18,
+                          )
                         else if (isSelected)
-                          Icon(Icons.check_circle, color: palette.primary, size: 20)
+                          Icon(
+                            Icons.check_circle,
+                            color: palette.primary,
+                            size: 20,
+                          )
                         else
-                          Icon(Icons.radio_button_unchecked, color: AppColors.textMuted.withAlpha(120), size: 18),
+                          Icon(
+                            Icons.radio_button_unchecked,
+                            color: AppColors.textMuted.withAlpha(120),
+                            size: 18,
+                          ),
                       ],
                     ),
                   ),

@@ -5,7 +5,9 @@ import 'package:clickpad/services/connection_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('ClickPadApp loads OnboardingScreen on fresh install', (WidgetTester tester) async {
+  testWidgets('ClickPadApp loads OnboardingScreen on fresh install', (
+    WidgetTester tester,
+  ) async {
     SharedPreferences.setMockInitialValues({});
     await SettingsService.instance.init();
     ConnectionService.instance.init();
@@ -18,19 +20,24 @@ void main() {
     expect(find.text('Next'), findsOneWidget);
   });
 
-  testWidgets('ClickPadApp loads BluetoothPairingScreen when already onboarded', (WidgetTester tester) async {
-    SharedPreferences.setMockInitialValues({'hasSeenOnboarding': true});
-    await SettingsService.instance.init();
-    ConnectionService.instance.init();
+  testWidgets(
+    'ClickPadApp loads BluetoothPairingScreen when already onboarded',
+    (WidgetTester tester) async {
+      SharedPreferences.setMockInitialValues({'hasSeenOnboarding': true});
+      await SettingsService.instance.init();
+      ConnectionService.instance.init();
 
-    await tester.pumpWidget(const ClickPadApp());
-    await tester.pump(const Duration(seconds: 9));
+      await tester.pumpWidget(const ClickPadApp());
+      await tester.pump(const Duration(seconds: 9));
 
-    expect(find.text('ClickPad'), findsOneWidget);
-    expect(find.text('PC Mouse & Keyboard'), findsOneWidget);
-  });
+      expect(find.text('ClickPad'), findsOneWidget);
+      expect(find.text('PC Mouse, Keyboard & Joystick'), findsOneWidget);
+    },
+  );
 
-  testWidgets('Completing onboarding transitions to pairing screen', (WidgetTester tester) async {
+  testWidgets('Completing onboarding transitions to pairing screen', (
+    WidgetTester tester,
+  ) async {
     SharedPreferences.setMockInitialValues({});
     await SettingsService.instance.init();
     ConnectionService.instance.init();
@@ -46,7 +53,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
 
     // Now should be on BluetoothPairingScreen
-    expect(find.text('PC Mouse & Keyboard'), findsOneWidget);
+    expect(find.text('PC Mouse, Keyboard & Joystick'), findsOneWidget);
     expect(SettingsService.instance.hasSeenOnboarding, isTrue);
 
     // After 3 seconds, PRO modal opens smoothly
