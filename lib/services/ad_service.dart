@@ -331,77 +331,105 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
   }) async {
     HapticHelper.mediumImpact();
 
-    // 1. Confirmation Modal First
+    // 1. Confirmation Modal First (Styled with exact width, height, and card layout as PRO Exclusive Feature)
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(30),
-                shape: BoxShape.circle,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.primary, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withAlpha(40),
+                blurRadius: 24,
+                spreadRadius: 2,
               ),
-              child: Icon(
-                Icons.ondemand_video_rounded,
-                color: AppColors.primary,
-                size: 24,
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary.withAlpha(
+                    AppColors.palette.isLight ? 45 : 30,
+                  ),
+                ),
+                child: Icon(
+                  Icons.ondemand_video_rounded,
+                  color: AppColors.primary,
+                  size: 38,
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
+              const SizedBox(height: 16),
+              Text(
                 IapService.instance.isTrialActive
                     ? 'Extend Free Trial (+3 Mins)'
                     : '3-Minute Free Trial',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
+                textAlign: TextAlign.center,
               ),
-            ),
-          ],
-        ),
-        content: Text(
-          IapService.instance.isTrialActive
-              ? 'Watch a short sponsored video to add 3 more minutes to your active session.'
-              : 'Watch a short sponsored video to unlock full access to the Virtual Gamepad & Joystick for 3 minutes for free. You can use this anytime!',
-          style: TextStyle(
-            fontSize: 13.5,
-            height: 1.45,
-            color: AppColors.textSecondary,
-          ),
-        ),
-        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(
-              'Not Now',
-              style: TextStyle(color: AppColors.textMuted),
-            ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            icon: const Icon(Icons.play_arrow_rounded, size: 18),
-            label: Text(
-              IapService.instance.isTrialActive
-                  ? 'Watch Video (+3 Mins)'
-                  : 'Watch Video & Unlock',
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+              const SizedBox(height: 8),
+              Text(
+                IapService.instance.isTrialActive
+                    ? 'Watch a short sponsored video to add 3 more minutes to your active session.'
+                    : 'Watch a short sponsored video to unlock full access to the Virtual Gamepad & Joystick for 3 minutes for free. You can use this anytime!',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
               ),
-            ),
+              const SizedBox(height: 22),
+              ElevatedButton.icon(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                icon: const Icon(Icons.play_arrow_rounded, size: 20),
+                label: Text(
+                  IapService.instance.isTrialActive
+                      ? 'Watch Video (+3 Mins)'
+                      : 'Watch Video & Unlock',
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 46),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(
+                  'Not Now',
+                  style: TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
 
@@ -483,37 +511,84 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
       if (context.mounted) {
         showDialog(
           context: context,
-          builder: (ctx) => AlertDialog(
-            backgroundColor: AppColors.surface,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            title: Row(
-              children: [
-                Icon(Icons.info_outline_rounded, color: AppColors.warning, size: 22),
-                const SizedBox(width: 10),
-                Text(
-                  'Ad Unavailable',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
+          builder: (ctx) => Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: AppColors.warning.withAlpha(160),
+                  width: 1.5,
                 ),
-              ],
-            ),
-            content: Text(
-              'An ad is currently not available. Please try again later.',
-              style: TextStyle(
-                fontSize: 13.5,
-                height: 1.45,
-                color: AppColors.textSecondary,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.warning.withAlpha(35),
+                    blurRadius: 24,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.warning.withAlpha(
+                        AppColors.palette.isLight ? 45 : 30,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.info_outline_rounded,
+                      color: AppColors.warning,
+                      size: 38,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Ad Unavailable',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'An ad is currently not available. Please try again later.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 22),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 46),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      textStyle: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 14,
+                      ),
+                    ),
+                    child: const Text('OK'),
+                  ),
+                ],
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('OK'),
-              ),
-            ],
           ),
         );
       }
