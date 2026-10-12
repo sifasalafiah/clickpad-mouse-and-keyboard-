@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../models/gamepad_mapping.dart';
+import '../services/gamepad_mapping_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
 
@@ -30,12 +32,18 @@ class _VirtualJoystickWidgetState extends State<VirtualJoystickWidget>
   List<int> _activeKeycodes = [];
 
   // Scancode Mappings
-  // WASD: W=0x1A (26), A=0x04 (4), S=0x16 (22), D=0x07 (7)
-  // Arrow: Up=0x52 (82), Left=0x50 (80), Down=0x51 (81), Right=0x4F (79)
-  int get _keyUp => widget.mode == JoystickMode.wasd ? 0x1A : 0x52;
-  int get _keyLeft => widget.mode == JoystickMode.wasd ? 0x04 : 0x50;
-  int get _keyDown => widget.mode == JoystickMode.wasd ? 0x16 : 0x51;
-  int get _keyRight => widget.mode == JoystickMode.wasd ? 0x07 : 0x4F;
+  int get _keyUp => widget.mode == JoystickMode.wasd
+      ? GamepadMappingService.instance.getScancode(GamepadButtonId.dpadUp)
+      : 0x52;
+  int get _keyLeft => widget.mode == JoystickMode.wasd
+      ? GamepadMappingService.instance.getScancode(GamepadButtonId.dpadLeft)
+      : 0x50;
+  int get _keyDown => widget.mode == JoystickMode.wasd
+      ? GamepadMappingService.instance.getScancode(GamepadButtonId.dpadDown)
+      : 0x51;
+  int get _keyRight => widget.mode == JoystickMode.wasd
+      ? GamepadMappingService.instance.getScancode(GamepadButtonId.dpadRight)
+      : 0x4F;
 
   @override
   void initState() {

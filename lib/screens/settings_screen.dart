@@ -7,6 +7,7 @@ import '../services/iap_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
+import '../widgets/gamepad_remapping_modal.dart';
 import '../widgets/pro_purchase_modal.dart';
 import 'onboarding_screen.dart';
 
@@ -359,6 +360,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Gamepad & Controller Remapping Section
+          const Text(
+            'Gamepad & Controller',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            color: AppColors.surfaceElevated,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () {
+                GamepadRemappingModal.show(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withAlpha(25),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.tune, color: AppColors.primary, size: 22),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Customize Button Remapping',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Remap gamepad buttons (ABXY, Shoulders, D-Pad) to any PC key',
+                            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.chevron_right, color: AppColors.textMuted),
+                  ],
+                ),
               ),
             ),
           ),

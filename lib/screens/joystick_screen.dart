@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../models/gamepad_mapping.dart';
 import '../models/input_command.dart';
 import '../services/ad_service.dart';
 import '../services/bluetooth_service.dart';
 import '../services/connection_service.dart';
+import '../services/gamepad_mapping_service.dart';
 import '../services/iap_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
+import '../widgets/gamepad_remapping_modal.dart';
 import '../widgets/joystick_widget.dart';
 import '../widgets/pro_purchase_modal.dart';
 
@@ -22,6 +25,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
   final BluetoothBleService _bleService = BluetoothBleService.instance;
   final IapService _iapService = IapService.instance;
   final SettingsService _settings = SettingsService.instance;
+  final GamepadMappingService _mappingService = GamepadMappingService.instance;
 
   JoystickMode _joystickMode = JoystickMode.wasd;
   bool _useAnalogStick = true;
@@ -35,6 +39,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
     super.initState();
     _iapService.addListener(_onIapChanged);
     _settings.addListener(_onIapChanged);
+    _mappingService.addListener(_onIapChanged);
 
     // Prefer landscape for comfortable gaming grip
     SystemChrome.setPreferredOrientations([
@@ -48,6 +53,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
   void dispose() {
     _iapService.removeListener(_onIapChanged);
     _settings.removeListener(_onIapChanged);
+    _mappingService.removeListener(_onIapChanged);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -160,14 +166,14 @@ class _JoystickScreenState extends State<JoystickScreen> {
             children: [
               _buildShoulderButton(
                 label: 'L1',
-                subLabel: 'Shift',
-                scancode: 0xE1,
+                subLabel: _mappingService.getShortLabel(GamepadButtonId.l1),
+                scancode: _mappingService.getScancode(GamepadButtonId.l1),
               ),
               const SizedBox(width: 6),
               _buildShoulderButton(
                 label: 'L2',
-                subLabel: 'Ctrl',
-                scancode: 0xE0,
+                subLabel: _mappingService.getShortLabel(GamepadButtonId.l2),
+                scancode: _mappingService.getScancode(GamepadButtonId.l2),
               ),
             ],
           ),
@@ -183,14 +189,14 @@ class _JoystickScreenState extends State<JoystickScreen> {
             children: [
               _buildShoulderButton(
                 label: 'R1',
-                subLabel: 'Space',
-                scancode: 0x2C,
+                subLabel: _mappingService.getShortLabel(GamepadButtonId.r1),
+                scancode: _mappingService.getScancode(GamepadButtonId.r1),
               ),
               const SizedBox(width: 6),
               _buildShoulderButton(
                 label: 'R2',
-                subLabel: 'Enter',
-                scancode: 0x28,
+                subLabel: _mappingService.getShortLabel(GamepadButtonId.r2),
+                scancode: _mappingService.getScancode(GamepadButtonId.r2),
               ),
             ],
           ),
@@ -261,6 +267,38 @@ class _JoystickScreenState extends State<JoystickScreen> {
                 _useAnalogStick ? Icons.radio_button_checked : Icons.grid_4x4,
                 color: _useAnalogStick ? AppColors.primary : AppColors.textSecondary,
                 size: 16,
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+
+          // Gamepad Key Remapper Button
+          InkWell(
+            onTap: () {
+              GamepadRemappingModal.show(context);
+            },
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceElevated,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.tune, color: AppColors.primary, size: 13),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Remap',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -408,11 +446,11 @@ class _JoystickScreenState extends State<JoystickScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildCenterButton('SELECT', 0x2B), // Tab
+                      _buildCenterButton('SELECT', _mappingService.getScancode(GamepadButtonId.select)),
                       const SizedBox(width: 8),
-                      _buildCenterButton('START', 0x28), // Enter
+                      _buildCenterButton('START', _mappingService.getScancode(GamepadButtonId.start)),
                       const SizedBox(width: 8),
-                      _buildCenterButton('ESC', 0x29), // Escape
+                      _buildCenterButton('ESC', _mappingService.getScancode(GamepadButtonId.esc)),
                     ],
                   ),
                 ),
@@ -542,11 +580,6 @@ class _JoystickScreenState extends State<JoystickScreen> {
   }
 
   Widget _buildABXYCluster() {
-    // ABXY Keys:
-    // Y (Top): E (0x08)
-    // X (Left): R (0x15)
-    // A (Bottom): Space (0x2C)
-    // B (Right): Esc (0x29)
     return SizedBox(
       width: 155,
       height: 155,
@@ -556,30 +589,33 @@ class _JoystickScreenState extends State<JoystickScreen> {
           // Y Button (Top / Yellow)
           Positioned(
             top: 0,
-            child: _buildABXYButton('Y', 0x08, const Color(0xFFFFD700)),
+            child: _buildABXYButton('Y', GamepadButtonId.buttonY, const Color(0xFFFFD700)),
           ),
           // X Button (Left / Blue)
           Positioned(
             left: 0,
-            child: _buildABXYButton('X', 0x15, const Color(0xFF00E5FF)),
+            child: _buildABXYButton('X', GamepadButtonId.buttonX, const Color(0xFF00E5FF)),
           ),
           // B Button (Right / Red)
           Positioned(
             right: 0,
-            child: _buildABXYButton('B', 0x29, const Color(0xFFFF5252)),
+            child: _buildABXYButton('B', GamepadButtonId.buttonB, const Color(0xFFFF5252)),
           ),
           // A Button (Bottom / Green)
           Positioned(
             bottom: 0,
-            child: _buildABXYButton('A', 0x2C, const Color(0xFF00E676)),
+            child: _buildABXYButton('A', GamepadButtonId.buttonA, const Color(0xFF00E676)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildABXYButton(String label, int scancode, Color themeColor) {
+  Widget _buildABXYButton(String label, GamepadButtonId buttonId, Color themeColor) {
+    final scancode = _mappingService.getScancode(buttonId);
+    final shortLabel = _mappingService.getShortLabel(buttonId);
     final isPressed = _activeHeldKeys.contains(scancode);
+
     return Listener(
       onPointerDown: (_) => _onButtonTouchDown(scancode),
       onPointerUp: (_) => _onButtonTouchUp(scancode),
@@ -619,13 +655,31 @@ class _JoystickScreenState extends State<JoystickScreen> {
           ],
         ),
         alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w900,
-            color: isPressed ? (themeColor.computeLuminance() > 0.5 ? Colors.black : Colors.white) : themeColor,
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+                color: isPressed ? (themeColor.computeLuminance() > 0.5 ? Colors.black : Colors.white) : themeColor,
+                height: 1.0,
+              ),
+            ),
+            const SizedBox(height: 1),
+            Text(
+              shortLabel,
+              style: TextStyle(
+                fontSize: 8.5,
+                fontWeight: FontWeight.bold,
+                color: isPressed ? Colors.white : AppColors.textMuted,
+                height: 1.0,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );
@@ -633,10 +687,31 @@ class _JoystickScreenState extends State<JoystickScreen> {
 
   Widget _buildDPadWidget() {
     // D-Pad Keys
-    final upKey = _joystickMode == JoystickMode.wasd ? 0x1A : 0x52;
-    final leftKey = _joystickMode == JoystickMode.wasd ? 0x04 : 0x50;
-    final downKey = _joystickMode == JoystickMode.wasd ? 0x16 : 0x51;
-    final rightKey = _joystickMode == JoystickMode.wasd ? 0x07 : 0x4F;
+    final upKey = _joystickMode == JoystickMode.wasd
+        ? _mappingService.getScancode(GamepadButtonId.dpadUp)
+        : 0x52;
+    final leftKey = _joystickMode == JoystickMode.wasd
+        ? _mappingService.getScancode(GamepadButtonId.dpadLeft)
+        : 0x50;
+    final downKey = _joystickMode == JoystickMode.wasd
+        ? _mappingService.getScancode(GamepadButtonId.dpadDown)
+        : 0x51;
+    final rightKey = _joystickMode == JoystickMode.wasd
+        ? _mappingService.getScancode(GamepadButtonId.dpadRight)
+        : 0x4F;
+
+    final upLabel = _joystickMode == JoystickMode.wasd
+        ? _mappingService.getShortLabel(GamepadButtonId.dpadUp)
+        : '▲';
+    final leftLabel = _joystickMode == JoystickMode.wasd
+        ? _mappingService.getShortLabel(GamepadButtonId.dpadLeft)
+        : '◄';
+    final downLabel = _joystickMode == JoystickMode.wasd
+        ? _mappingService.getShortLabel(GamepadButtonId.dpadDown)
+        : '▼';
+    final rightLabel = _joystickMode == JoystickMode.wasd
+        ? _mappingService.getShortLabel(GamepadButtonId.dpadRight)
+        : '►';
 
     return SizedBox(
       width: 155,
@@ -647,28 +722,28 @@ class _JoystickScreenState extends State<JoystickScreen> {
           Positioned(
             top: 0,
             child: _buildDPadButton(
-              _joystickMode == JoystickMode.wasd ? 'W' : '▲',
+              upLabel,
               upKey,
             ),
           ),
           Positioned(
             left: 0,
             child: _buildDPadButton(
-              _joystickMode == JoystickMode.wasd ? 'A' : '◄',
+              leftLabel,
               leftKey,
             ),
           ),
           Positioned(
             right: 0,
             child: _buildDPadButton(
-              _joystickMode == JoystickMode.wasd ? 'D' : '►',
+              rightLabel,
               rightKey,
             ),
           ),
           Positioned(
             bottom: 0,
             child: _buildDPadButton(
-              _joystickMode == JoystickMode.wasd ? 'S' : '▼',
+              downLabel,
               downKey,
             ),
           ),

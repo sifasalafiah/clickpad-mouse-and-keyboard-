@@ -1,0 +1,108 @@
+================================================================================
+                          CLICKPAD - RELEASE & PROJECT NOTES
+================================================================================
+
+--------------------------------------------------------------------------------
+[RELEASE NOTES] - Version 0.1.1 (Build 2)
+Release Date: October 2026
+--------------------------------------------------------------------------------
+
+WHAT'S NEW:
+
+1. VIRTUAL GAMEPAD & 360° JOYSTICK CONTROLLER
+   - Introduced a full-featured Virtual Gamepad designed for PC gaming over Bluetooth HID.
+   - Dual Movement Modes:
+     * WASD Mode (Standard PC Gaming / FPS / Action).
+     * Arrow Keys Mode (Retro Gaming / Emulators / Platformers).
+   - Switchable Analog Thumbstick and 8-Direction Digital D-Pad.
+   - Complete Button Mapping:
+     * ABXY Face Buttons (Space, Enter, Esc, Tab).
+     * Shoulder & Trigger Buttons: L1 (Shift), L2 (Ctrl), R1 (Space), R2 (Enter).
+     * System Action Buttons: Start (Esc), Select (Tab).
+   - Center Touchpad for smooth in-game camera look and aiming.
+   - Gaming HUD with realtime connection indicator, mode switches, and live Remap button.
+   - Customizable Gamepad Layout & Key Remapping Editor:
+     * Full key remapping for every gamepad button (L1, L2, R1, R2, Y, X, B, A, SELECT, START, ESC, D-Pad).
+     * Built-in Gaming Presets: FPS & Action RPG, Retro Platformer, Racing & Driving, and Custom Layout.
+     * Interactive Key Picker with search and categorized PC keyboard keys (Gaming, Alphabet, Numbers & Fn, Arrows & Nav).
+     * Realtime sublabel indicators on buttons reflecting current key assignments.
+     * Accessible directly from the Gamepad HUD and Settings screen.
+     * Persistent custom profile storage via SharedPreferences.
+   - Repeatable 3-Minute Free Trial unlocked via AdMob Rewarded Video Ads, with
+     ability to stack/extend time (+3 mins) directly during gameplay.
+
+2. COMPREHENSIVE THEME SYSTEM (LIGHT & DARK VARIANTS)
+   - Added Light theme variants for all 10 color palette themes.
+   - Default app theme updated to "Midnight Slate (Light)" for a sleek, modern look.
+   - Free Tier Unlocked Themes:
+     * Midnight Slate (Light)
+     * Midnight Slate (Dark)
+   - Refined typography, borders, card elevations, and contrast for both light
+     and dark environments across settings, touchpad, pairing, and modal dialogs.
+
+3. TOUCHPAD FUNCTIONAL ENHANCEMENTS & NATIVE KEYBOARD
+   - Improved cursor smoothing and acceleration algorithms for responsive desktop control.
+   - Added Quick Action Shortcut Buttons below Left/Right click pads:
+     * Ctrl + C (Quick Copy shortcut).
+     * Ctrl + V (Quick Paste shortcut).
+     * Native Keyboard Trigger Button.
+   - Native Android Soft Keyboard Support:
+     * Tapping the keyboard icon opens the system soft keyboard.
+     * Full typing support sends key inputs directly to the paired computer via Bluetooth HID.
+     * State auto-clears on completion.
+   - Smart Keyboard Layout Adaptation:
+     * Touchpad gesture guides and button heights adapt smoothly when the keyboard opens,
+       preventing any bottom screen overflow.
+
+4. UI & NAVIGATION IMPROVEMENTS
+   - Sticky Top Bar on Bluetooth Pairing Screen:
+     * The app header banner (icon, title, and BT Settings button) is now permanently anchored
+       at the top with a subtle border, while discovered devices and pairing guides scroll freely below.
+   - Topbar AdMob Banner:
+     * Clean edge-to-edge banner positioning at the top across all main screens with 0 margin/padding.
+   - Refined Modal Pro / Reward Dialogs:
+     * Ad Reward confirmation modal matched to the exact width, height, and card style
+       of the PRO Exclusive Feature dialog.
+   - Keyboard Screen Light Mode Contrast Polish:
+     * Fixed text visibility in Light Mode for "ClickPad Keyboard" title, top-right device channel indicators (1 2 3), and F1-F3 Easy-Switch keycaps.
+   - Modernized Adaptive Launcher Icon:
+     * Updated splash screen and launcher icon to use adaptive rounded assets.
+
+================================================================================
+[DEVELOPER & PROJECT ARCHITECTURE NOTES]
+================================================================================
+Customizable Gamepad layout / key remapping editor.
+1. CORE SERVICES OVERVIEW:
+   - BluetoothBleService (lib/services/bluetooth_service.dart):
+     * Handles Bluetooth Low Energy (BLE) / HID Profile emulation.
+     * Manages device discoverability, pairing, connection states, and HID reports (Mouse, Keyboard, Gamepad).
+   - IapService (lib/services/iap_service.dart):
+     * In-App Purchase engine handling 'clickpad_pro_lifetime' and 'clickpad_joystick_pass'.
+     * Manages 3-minute free trial timers, state persistence, and repeatable trial extensions.
+   - AdService (lib/services/ad_service.dart):
+     * Integrates Google Mobile Ads SDK (Banner, App Open Ad, Rewarded Ad).
+     * GDPR / UMP Consent gathering.
+     * Rewarded ad loading, timeout handling, and trial trigger flow.
+   - SettingsService (lib/services/settings_service.dart):
+     * Persistent user preferences via SharedPreferences (Themes, Sensitivity, Scroll direction, Last connected device).
+
+2. ADMOB AD UNIT IDS:
+   - Android Banner:    ca-app-pub-4676075129526023/2524225514
+   - Android App Open:  ca-app-pub-4676075129526023/2017878923
+   - Android Rewarded:  ca-app-pub-4676075129526023/9846434887
+   - iOS Banner:        ca-app-pub-4676075129526023/7685138576
+   - iOS App Open:      ca-app-pub-4676075129526023/3650614087
+   - iOS Rewarded:      ca-app-pub-4676075129526023/3221316784
+
+3. IN-APP PURCHASE PRODUCT IDS:
+   - Pro Lifetime Pass:   clickpad_pro_lifetime
+   - Joystick Pass Only:  clickpad_joystick_pass
+
+================================================================================
+[ROADMAP & FUTURE NOTES]
+================================================================================
+- [x] Customizable Gamepad layout / key remapping editor (Completed in 0.1.1).
+- [ ] Multi-touch gesture customization (e.g. 3-finger swipe for desktop switching).
+- [ ] Media & Presentation remote control mode (Volume, Play/Pause, Slide Next/Prev).
+- [ ] Wi-Fi / Local Network fallback connection if Bluetooth is unavailable.
+================================================================================

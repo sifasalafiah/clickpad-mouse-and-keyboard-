@@ -100,12 +100,12 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                     children: [
                       Icon(Icons.keyboard, color: AppColors.primary, size: 18),
                       const SizedBox(width: 8),
-                      const Text(
+                      Text(
                         'ClickPad Keyboard',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           letterSpacing: 0.2,
                         ),
                       ),
@@ -135,7 +135,9 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                   border: Border.all(color: AppColors.border, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withAlpha(120),
+                      color: AppColors.palette.isLight
+                          ? Colors.black.withAlpha(20)
+                          : Colors.black.withAlpha(120),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -394,14 +396,25 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
   }
 
   Widget _buildIndicatorDot(String label, bool isConnected) {
+    final bool isLight = AppColors.palette.isLight;
     return Row(
       children: [
         Container(
-          width: 6,
-          height: 6,
+          width: 7,
+          height: 7,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isConnected ? AppColors.primary : Colors.white24,
+            color: isConnected
+                ? AppColors.primary
+                : (isLight ? AppColors.border : Colors.white24),
+            border: isConnected
+                ? null
+                : Border.all(
+                    color: isLight
+                        ? AppColors.textMuted.withAlpha(120)
+                        : Colors.white38,
+                    width: 1,
+                  ),
           ),
         ),
         const SizedBox(width: 4),
@@ -410,7 +423,9 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.bold,
-            color: isConnected ? AppColors.primary : Colors.white38,
+            color: isConnected
+                ? AppColors.primary
+                : (isLight ? AppColors.textSecondary : Colors.white38),
           ),
         ),
       ],
@@ -420,6 +435,25 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
   Widget _buildRow(List<_PebbleKey> keys) {
     return Row(
       children: keys.map((key) {
+        final Color keyBgColor = key.isActive
+            ? AppColors.primaryLight
+            : key.isPrimary
+            ? AppColors.primary
+            : key.isEasySwitch
+            ? AppColors.surfaceElevated
+            : key.isAction
+            ? const Color(0xFF272C33)
+            : const Color(0xFF323842);
+
+        final bool isKeyLight =
+            ThemeData.estimateBrightnessForColor(keyBgColor) ==
+                Brightness.light;
+
+        final Color textColor =
+            isKeyLight ? AppColors.textPrimary : Colors.white;
+        final Color iconColor =
+            isKeyLight ? AppColors.textPrimary : Colors.white70;
+
         return Expanded(
           flex: key.flex,
           child: Container(
@@ -440,15 +474,7 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 100),
                   decoration: BoxDecoration(
-                    color: key.isActive
-                        ? AppColors.primaryLight
-                        : key.isPrimary
-                        ? AppColors.primary
-                        : key.isEasySwitch
-                        ? AppColors.surfaceElevated
-                        : key.isAction
-                        ? const Color(0xFF272C33)
-                        : const Color(0xFF323842),
+                    color: keyBgColor,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: key.isActive
@@ -456,9 +482,11 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                           : key.isPrimary
                           ? AppColors.primaryLight
                           : key.isEasySwitch
-                          ? AppColors.primary.withAlpha(100)
+                          ? (AppColors.palette.isLight
+                              ? AppColors.primary.withAlpha(160)
+                              : AppColors.primary.withAlpha(100))
                           : const Color(0xFF3F4652),
-                      width: key.isPrimary ? 1.5 : 1,
+                      width: key.isPrimary || key.isEasySwitch ? 1.5 : 1,
                     ),
                     boxShadow: [
                       BoxShadow(
@@ -478,23 +506,19 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                         Icon(
                           key.icon,
                           size: 13,
-                          color: key.isActive
-                              ? (ThemeData.estimateBrightnessForColor(AppColors.primaryLight) == Brightness.light ? Colors.black : Colors.white)
-                              : key.isPrimary
-                              ? (ThemeData.estimateBrightnessForColor(AppColors.primary) == Brightness.light ? Colors.black : Colors.white)
-                              : Colors.white70,
+                          color: iconColor,
                         )
                       else
                         Text(
                           key.label,
                           style: TextStyle(
                             fontSize: 11,
-                            fontWeight: key.isPrimary ? FontWeight.bold : FontWeight.w600,
-                            color: key.isActive
-                                ? (ThemeData.estimateBrightnessForColor(AppColors.primaryLight) == Brightness.light ? Colors.black : Colors.white)
-                                : key.isPrimary
-                                ? (ThemeData.estimateBrightnessForColor(AppColors.primary) == Brightness.light ? Colors.black : Colors.white)
-                                : Colors.white,
+                            fontWeight: key.isPrimary
+                                ? FontWeight.bold
+                                : (key.isEasySwitch
+                                    ? FontWeight.bold
+                                    : FontWeight.w600),
+                            color: textColor,
                           ),
                         ),
                       if (key.isEasySwitch) ...[
