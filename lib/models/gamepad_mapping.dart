@@ -55,6 +55,41 @@ extension GamepadButtonIdExt on GamepadButtonId {
     }
   }
 
+  String get cleanLabel {
+    switch (this) {
+      case GamepadButtonId.l1:
+        return 'L1 Shoulder';
+      case GamepadButtonId.l2:
+        return 'L2 Trigger';
+      case GamepadButtonId.r1:
+        return 'R1 Shoulder';
+      case GamepadButtonId.r2:
+        return 'R2 Trigger';
+      case GamepadButtonId.buttonY:
+        return 'Y Button';
+      case GamepadButtonId.buttonX:
+        return 'X Button';
+      case GamepadButtonId.buttonB:
+        return 'B Button';
+      case GamepadButtonId.buttonA:
+        return 'A Button';
+      case GamepadButtonId.select:
+        return 'Select / Back';
+      case GamepadButtonId.start:
+        return 'Start / Menu';
+      case GamepadButtonId.esc:
+        return 'Esc / Pause';
+      case GamepadButtonId.dpadUp:
+        return 'D-Pad Up';
+      case GamepadButtonId.dpadDown:
+        return 'D-Pad Down';
+      case GamepadButtonId.dpadLeft:
+        return 'D-Pad Left';
+      case GamepadButtonId.dpadRight:
+        return 'D-Pad Right';
+    }
+  }
+
   String get shortName {
     switch (this) {
       case GamepadButtonId.l1:
@@ -74,19 +109,19 @@ extension GamepadButtonIdExt on GamepadButtonId {
       case GamepadButtonId.buttonA:
         return 'A';
       case GamepadButtonId.select:
-        return 'SELECT';
+        return 'SEL';
       case GamepadButtonId.start:
-        return 'START';
+        return 'STA';
       case GamepadButtonId.esc:
         return 'ESC';
       case GamepadButtonId.dpadUp:
         return 'UP';
       case GamepadButtonId.dpadDown:
-        return 'DOWN';
+        return 'DN';
       case GamepadButtonId.dpadLeft:
-        return 'LEFT';
+        return 'LT';
       case GamepadButtonId.dpadRight:
-        return 'RIGHT';
+        return 'RT';
     }
   }
 }
@@ -205,12 +240,14 @@ class GamepadProfilePreset {
   final String id;
   final String name;
   final String description;
+  final String platformTag;
   final Map<GamepadButtonId, int> mappings;
 
   const GamepadProfilePreset({
     required this.id,
     required this.name,
     required this.description,
+    this.platformTag = 'Universal',
     required this.mappings,
   });
 
@@ -219,6 +256,7 @@ class GamepadProfilePreset {
     id: 'fps_action',
     name: 'FPS & Action RPG',
     description: 'WASD movement, Space jump, Shift sprint, Ctrl crouch, E interact, R reload',
+    platformTag: 'PC / Mac / Linux / Cloud',
     mappings: {
       GamepadButtonId.l1: 0xE1, // Left Shift
       GamepadButtonId.l2: 0xE0, // Left Ctrl
@@ -238,11 +276,37 @@ class GamepadProfilePreset {
     },
   );
 
-  /// 2. Retro & Platformer
+  /// 2. Roblox, Minecraft & Tablet Gaming
+  static const GamepadProfilePreset robloxMobile = GamepadProfilePreset(
+    id: 'roblox_mobile',
+    name: 'Roblox & Tablets',
+    description: 'Optimized for iPad/Android tablets: WASD move, Space jump, Shift sprint, E interact',
+    platformTag: 'iPadOS / Android Tablets / Mobile',
+    mappings: {
+      GamepadButtonId.l1: 0xE1, // Left Shift (Sprint / Shift Lock)
+      GamepadButtonId.l2: 0xE0, // Left Ctrl (Crouch)
+      GamepadButtonId.r1: 0x2C, // Space (Jump)
+      GamepadButtonId.r2: 0x08, // E (Interact / Open)
+      GamepadButtonId.buttonY: 0x08, // E (Interact / Bag)
+      GamepadButtonId.buttonX: 0x14, // Q (Drop / Ability)
+      GamepadButtonId.buttonB: 0x29, // Esc (Menu)
+      GamepadButtonId.buttonA: 0x2C, // Space (Jump)
+      GamepadButtonId.select: 0x2B, // Tab (Playerlist)
+      GamepadButtonId.start: 0x28, // Enter (Chat)
+      GamepadButtonId.esc: 0x29, // Esc (Settings)
+      GamepadButtonId.dpadUp: 0x1A, // W
+      GamepadButtonId.dpadDown: 0x16, // S
+      GamepadButtonId.dpadLeft: 0x04, // A
+      GamepadButtonId.dpadRight: 0x07, // D
+    },
+  );
+
+  /// 3. Retro & Platformer
   static const GamepadProfilePreset retroPlatformer = GamepadProfilePreset(
     id: 'retro_platformer',
-    name: 'Retro Platformer',
+    name: 'Retro & Emulators',
     description: 'Arrow keys, Z jump/action, X attack, C dash, Shift run, Esc pause',
+    platformTag: 'Windows / Mac / Linux / Emulators',
     mappings: {
       GamepadButtonId.l1: 0x14, // Q
       GamepadButtonId.l2: 0x08, // E
@@ -262,11 +326,12 @@ class GamepadProfilePreset {
     },
   );
 
-  /// 3. Racing & Driving
+  /// 4. Racing & Driving
   static const GamepadProfilePreset racing = GamepadProfilePreset(
     id: 'racing',
     name: 'Racing & Driving',
     description: 'W/R2 gas, S/L2 brake, Space handbrake, Shift boost/nitro, C camera',
+    platformTag: 'PC / Console Style',
     mappings: {
       GamepadButtonId.l1: 0xE0, // Ctrl
       GamepadButtonId.l2: 0x16, // S (Brake)
@@ -286,10 +351,37 @@ class GamepadProfilePreset {
     },
   );
 
+  /// 5. Media & Desktop Remote
+  static const GamepadProfilePreset mediaDesktop = GamepadProfilePreset(
+    id: 'media_desktop',
+    name: 'Media & Desktop',
+    description: 'Mac & PC presentation/media: Arrow keys, Enter select, Space pause, Esc back',
+    platformTag: 'macOS / Windows / Linux Remote',
+    mappings: {
+      GamepadButtonId.l1: 0x2B, // Tab
+      GamepadButtonId.l2: 0xE3, // Cmd / Win
+      GamepadButtonId.r1: 0x28, // Enter
+      GamepadButtonId.r2: 0x2C, // Space (Play/Pause)
+      GamepadButtonId.buttonY: 0x52, // Up Arrow
+      GamepadButtonId.buttonX: 0x50, // Left Arrow
+      GamepadButtonId.buttonB: 0x4F, // Right Arrow
+      GamepadButtonId.buttonA: 0x51, // Down Arrow
+      GamepadButtonId.select: 0x2B, // Tab
+      GamepadButtonId.start: 0x28, // Enter
+      GamepadButtonId.esc: 0x29, // Esc
+      GamepadButtonId.dpadUp: 0x52, // Up Arrow
+      GamepadButtonId.dpadDown: 0x51, // Down Arrow
+      GamepadButtonId.dpadLeft: 0x50, // Left Arrow
+      GamepadButtonId.dpadRight: 0x4F, // Right Arrow
+    },
+  );
+
   static const List<GamepadProfilePreset> allPresets = [
     standardFps,
+    robloxMobile,
     retroPlatformer,
     racing,
+    mediaDesktop,
   ];
 
   static Map<GamepadButtonId, int> clone(Map<GamepadButtonId, int> source) {

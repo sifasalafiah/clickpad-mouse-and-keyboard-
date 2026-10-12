@@ -72,8 +72,45 @@ class _JoystickScreenState extends State<JoystickScreen> {
     combined.addAll(_joystickKeys);
     combined.addAll(_activeHeldKeys);
 
-    // Send multi-key report to native HID
-    _bleService.sendKeyboardState(0, combined.take(6).toList());
+    int modifierMask = 0;
+    final List<int> regularKeycodes = [];
+
+    for (final key in combined) {
+      switch (key) {
+        case 0xE0: // Left Ctrl
+          modifierMask |= 0x01;
+          break;
+        case 0xE1: // Left Shift
+          modifierMask |= 0x02;
+          break;
+        case 0xE2: // Left Alt
+          modifierMask |= 0x04;
+          break;
+        case 0xE3: // Left GUI / Cmd / Win
+          modifierMask |= 0x08;
+          break;
+        case 0xE4: // Right Ctrl
+          modifierMask |= 0x10;
+          break;
+        case 0xE5: // Right Shift
+          modifierMask |= 0x20;
+          break;
+        case 0xE6: // Right Alt
+          modifierMask |= 0x40;
+          break;
+        case 0xE7: // Right GUI
+          modifierMask |= 0x80;
+          break;
+        default:
+          if (key > 0 && !regularKeycodes.contains(key)) {
+            regularKeycodes.add(key);
+          }
+          break;
+      }
+    }
+
+    // Send multi-key report to native HID with modifier byte
+    _bleService.sendKeyboardState(modifierMask, regularKeycodes.take(6).toList());
   }
 
   void _onJoystickDirectionChanged(List<int> keys) {

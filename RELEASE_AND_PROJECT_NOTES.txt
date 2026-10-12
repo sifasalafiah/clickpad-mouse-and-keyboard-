@@ -65,6 +65,11 @@ WHAT'S NEW:
        of the PRO Exclusive Feature dialog.
    - Keyboard Screen Light Mode Contrast Polish:
      * Fixed text visibility in Light Mode for "ClickPad Keyboard" title, top-right device channel indicators (1 2 3), and F1-F3 Easy-Switch keycaps.
+   - Gamepad Key Remapper Card Polish & Cross-Platform Support:
+     * Fixed text overlapping and cramped cards in GamepadRemappingModal with clean badge icons, spacious 2-column layout, and arrow keycap pills.
+     * Enhanced HID modifier reporting: separates Shift, Ctrl, Alt, and Win/Cmd into byte 0 modifier bitmask, ensuring 100% reliable simultaneous keypresses across Windows, macOS, Linux, iPadOS, and Android Tablets.
+     * Added cross-platform presets: FPS & Action RPG, Roblox & Tablets, Retro & Emulators, Racing & Driving, and Media & Desktop Remote.
+     * Added native sendKeyboardState implementation in iOS AppDelegate for full platform parity.
    - Modernized Adaptive Launcher Icon:
      * Updated splash screen and launcher icon to use adaptive rounded assets.
 

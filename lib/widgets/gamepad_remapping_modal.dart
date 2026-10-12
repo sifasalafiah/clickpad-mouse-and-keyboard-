@@ -124,15 +124,15 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                         Text(
                           'Gamepad Key Remapper',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 17,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textPrimary,
                           ),
                         ),
                         Text(
-                          'Tap any button to customize its keyboard binding',
+                          'Universal Bluetooth HID bindings for all devices',
                           style: TextStyle(
-                            fontSize: 11.5,
+                            fontSize: 11,
                             color: AppColors.textMuted,
                           ),
                         ),
@@ -150,13 +150,37 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
               ),
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
+
+            // Platform Compatibility Chips Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceElevated,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildPlatformBadge('Windows', Icons.desktop_windows),
+                    _buildPlatformBadge('macOS', Icons.laptop_mac),
+                    _buildPlatformBadge('Linux', Icons.terminal),
+                    _buildPlatformBadge('iPad / Tablet', Icons.tablet_mac),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 10),
 
             // Presets Selector Row
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceElevated,
                   borderRadius: BorderRadius.circular(16),
@@ -169,7 +193,7 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'PRESETS',
+                          'GAMEPLAY PRESETS',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
@@ -217,7 +241,7 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                                 },
                                 selectedColor: AppColors.primary,
                                 labelStyle: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 11.5,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                                   color: isSelected ? Colors.white : AppColors.textSecondary,
                                 ),
@@ -234,7 +258,7 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                               onSelected: (_) {},
                               selectedColor: AppColors.primary,
                               labelStyle: const TextStyle(
-                                fontSize: 12,
+                                fontSize: 11.5,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -245,17 +269,35 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 6),
+                    Text(
+                      _mappingService.activePresetId == 'custom'
+                          ? 'Personalized layout: Custom keyboard key bindings'
+                          : GamepadProfilePreset.allPresets
+                              .firstWhere(
+                                (p) => p.id == _mappingService.activePresetId,
+                                orElse: () => GamepadProfilePreset.standardFps,
+                              )
+                              .description,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textMuted,
+                        height: 1.25,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
               ),
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
             // Scrollable List of Gamepad Zones
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                 children: [
                   // 1. Shoulders & Triggers
                   _buildSectionHeader('SHOULDERS & TRIGGERS', Icons.touch_app),
@@ -296,7 +338,7 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 18),
 
                   // 2. Action Buttons (ABXY)
                   _buildSectionHeader('ACTION BUTTONS (ABXY)', Icons.grid_view_rounded),
@@ -337,7 +379,7 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 18),
 
                   // 3. System & Menu Buttons
                   _buildSectionHeader('SYSTEM & MENU BUTTONS', Icons.menu_rounded),
@@ -357,17 +399,23 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                           accentColor: AppColors.primaryLight,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
                       Expanded(
                         child: _buildRemapTile(
                           GamepadButtonId.esc,
                           accentColor: AppColors.primaryLight,
                         ),
                       ),
+                      const SizedBox(width: 8),
+                      const Expanded(child: SizedBox.shrink()),
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 18),
 
                   // 4. Directional D-Pad
                   _buildSectionHeader('DIRECTIONAL D-PAD', Icons.control_camera_rounded),
@@ -418,6 +466,24 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
     );
   }
 
+  Widget _buildPlatformBadge(String title, IconData icon) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 12, color: AppColors.primary),
+        const SizedBox(width: 4),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 10.5,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSectionHeader(String title, IconData icon) {
     return Row(
       children: [
@@ -436,6 +502,63 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
     );
   }
 
+  Widget _buildButtonBadge(GamepadButtonId buttonId, Color accentColor) {
+    IconData? icon;
+    switch (buttonId) {
+      case GamepadButtonId.dpadUp:
+        icon = Icons.arrow_upward;
+        break;
+      case GamepadButtonId.dpadDown:
+        icon = Icons.arrow_downward;
+        break;
+      case GamepadButtonId.dpadLeft:
+        icon = Icons.arrow_back;
+        break;
+      case GamepadButtonId.dpadRight:
+        icon = Icons.arrow_forward;
+        break;
+      case GamepadButtonId.select:
+        icon = Icons.tune;
+        break;
+      case GamepadButtonId.start:
+        icon = Icons.play_arrow;
+        break;
+      case GamepadButtonId.esc:
+        icon = Icons.close;
+        break;
+      default:
+        icon = null;
+        break;
+    }
+
+    final isRound = buttonId == GamepadButtonId.buttonA ||
+        buttonId == GamepadButtonId.buttonB ||
+        buttonId == GamepadButtonId.buttonX ||
+        buttonId == GamepadButtonId.buttonY;
+
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        shape: isRound ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: isRound ? null : BorderRadius.circular(8),
+        color: accentColor.withAlpha(25),
+        border: Border.all(color: accentColor, width: 1.5),
+      ),
+      alignment: Alignment.center,
+      child: icon != null
+          ? Icon(icon, size: 16, color: accentColor)
+          : Text(
+              buttonId.shortName,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                color: accentColor,
+              ),
+            ),
+    );
+  }
+
   Widget _buildRemapTile(
     GamepadButtonId buttonId, {
     required Color accentColor,
@@ -444,75 +567,65 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
 
     return InkWell(
       onTap: () => _showKeyPicker(buttonId),
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
           color: AppColors.surfaceElevated,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.border),
         ),
         child: Row(
           children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: accentColor.withAlpha(25),
-                border: Border.all(color: accentColor, width: 1.5),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                buttonId.shortName,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  color: accentColor,
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
+            _buildButtonBadge(buttonId, accentColor),
+            const SizedBox(width: 8),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    buttonId.shortName,
+                    buttonId.cleanLabel,
                     style: TextStyle(
                       fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-                  Text(
-                    keyName,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  const SizedBox(height: 2),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.keyboard_arrow_right,
+                        size: 11,
+                        color: AppColors.primary,
+                      ),
+                      const SizedBox(width: 2),
+                      Flexible(
+                        child: Text(
+                          keyName,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Text(
-                'Edit',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
-              ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.edit_outlined,
+              size: 14,
+              color: AppColors.textMuted,
             ),
           ],
         ),

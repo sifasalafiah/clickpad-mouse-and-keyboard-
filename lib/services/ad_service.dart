@@ -64,14 +64,7 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
     }
     final completer = Completer<void>();
 
-    final params = ConsentRequestParameters(
-      consentDebugSettings: kDebugMode
-          ? ConsentDebugSettings(
-              debugGeography: DebugGeography.debugGeographyEea,
-              testIdentifiers: ['7DE9ED6305EE99978DF6F5CAD00ED1C9'],
-            )
-          : null,
-    );
+    final params = ConsentRequestParameters();
 
     ConsentInformation.instance.requestConsentInfoUpdate(
       params,
@@ -444,7 +437,9 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
         canPop: false,
         child: Dialog(
           backgroundColor: AppColors.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
             child: Row(
@@ -462,7 +457,10 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
                 Flexible(
                   child: Text(
                     'Loading reward video...',
-                    style: TextStyle(fontSize: 14, color: AppColors.textPrimary),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ),
               ],
@@ -513,7 +511,10 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
           context: context,
           builder: (ctx) => Dialog(
             backgroundColor: Colors.transparent,
-            insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 24,
+            ),
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 12),
               padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),

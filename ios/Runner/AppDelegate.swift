@@ -138,6 +138,15 @@ import CoreBluetooth
                 } else {
                     result(false)
                 }
+            case "sendKeyboardState":
+                if let args = call.arguments as? [String: Any] {
+                    let modifier = args["modifier"] as? Int ?? 0
+                    let keycodes = args["keycodes"] as? [Int] ?? []
+                    self.sendKeyboardState(modifier: modifier, keycodes: keycodes)
+                    result(true)
+                } else {
+                    result(false)
+                }
             case "disconnect":
                 self.connectedCentral = nil
                 self.subscribedCharacteristicsCount = 0
@@ -297,5 +306,21 @@ import CoreBluetooth
             let releaseData = Data([0, 0, 0, 0, 0, 0, 0, 0])
             peripheralManager.updateValue(releaseData, for: char, onSubscribedCentrals: nil)
         }
+    }
+
+    private func sendKeyboardState(modifier: Int, keycodes: [Int]) {
+        guard let peripheralManager = peripheralManager,
+              let char = keyboardReportCharacteristic else { return }
+        
+        let mod = UInt8(modifier & 0xFF)
+        var report = [UInt8](repeating: 0, count: 8)
+        report[0] = mod
+        report[1] = 0
+        for i in 0..<min(6, keycodes.count) {
+            report[2 + i] = UInt8(keycodes[i] & 0xFF)
+        }
+        
+        let reportData = Data(report)
+        peripheralManager.updateValue(reportData, for: char, onSubscribedCentrals: nil)
     }
 }
