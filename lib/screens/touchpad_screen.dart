@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/input_command.dart';
+import '../services/bluetooth_service.dart';
 import '../services/connection_service.dart';
 import '../services/iap_service.dart';
 import '../services/settings_service.dart';
@@ -40,6 +41,26 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
   bool _isMiddleButtonHeld = false;
   bool _isRightButtonHeld = false;
 
+  // Shortcut & Native Keyboard State
+  bool? _manualMacMode;
+  final TextEditingController _nativeTextController = TextEditingController();
+  final FocusNode _nativeKeyboardFocusNode = FocusNode();
+  bool _isNativeKeyboardOpen = false;
+  String _prevText = '';
+  final List<_KeyStroke> _keyQueue = [];
+  bool _isSendingKeys = false;
+
+  bool get _isMacMode {
+    if (_manualMacMode != null) return _manualMacMode!;
+    final name =
+        (ConnectionService.instance.connectedDevice?.name ??
+                SettingsService.instance.lastDeviceName)
+            .toLowerCase();
+    return name.contains('mac') ||
+        name.contains('apple') ||
+        name.contains('darwin');
+  }
+
   // High-frequency 80Hz Input Frame Accumulator for Zero Latency
   double _accumulatedDx = 0.0;
   double _accumulatedDy = 0.0;
@@ -50,10 +71,13 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
   void initState() {
     super.initState();
     _iapService.addListener(_onIapChanged);
+    _nativeKeyboardFocusNode.addListener(_onKeyboardFocusChange);
     // Flush input deltas every 12ms (~83Hz smooth input frame rate)
     _flushTimer = Timer.periodic(const Duration(milliseconds: 12), (_) {
       if (_accumulatedDx != 0.0 || _accumulatedDy != 0.0) {
-        _connService.sendCommand(InputCommand.move(_accumulatedDx, _accumulatedDy));
+        _connService.sendCommand(
+          InputCommand.move(_accumulatedDx, _accumulatedDy),
+        );
         _accumulatedDx = 0.0;
         _accumulatedDy = 0.0;
       }
@@ -74,6 +98,9 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
   @override
   void dispose() {
     _iapService.removeListener(_onIapChanged);
+    _nativeKeyboardFocusNode.removeListener(_onKeyboardFocusChange);
+    _nativeKeyboardFocusNode.dispose();
+    _nativeTextController.dispose();
     _flushTimer?.cancel();
     _longPressDragTimer?.cancel();
     // Safety release: ensure no mouse button remains stuck on host
@@ -177,8 +204,12 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
     final downTime = _pointerDownTimes[event.pointer];
     final downPos = _pointerDownPositions[event.pointer];
     final hasMoved = _pointerMovedFlags[event.pointer] ?? false;
-    final durationMs = downTime != null ? DateTime.now().difference(downTime).inMilliseconds : 999;
-    final totalDist = downPos != null ? (event.localPosition - downPos).distance : 999.0;
+    final durationMs = downTime != null
+        ? DateTime.now().difference(downTime).inMilliseconds
+        : 999;
+    final totalDist = downPos != null
+        ? (event.localPosition - downPos).distance
+        : 999.0;
     final activeCountAtUp = _pointerPositions.length;
 
     // Clean up tracking maps
@@ -254,17 +285,25 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
               Row(
                 children: [
                   Icon(
-                    _precisionMode ? Icons.filter_center_focus : Icons.touch_app,
+                    _precisionMode
+                        ? Icons.filter_center_focus
+                        : Icons.touch_app,
                     size: 16,
-                    color: _precisionMode ? AppColors.primary : AppColors.textMuted,
+                    color: _precisionMode
+                        ? AppColors.primary
+                        : AppColors.textMuted,
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    _precisionMode ? 'Precision Mode (Low Sens)' : 'Touchpad Canvas',
+                    _precisionMode
+                        ? 'Precision Mode (Low Sens)'
+                        : 'Touchpad Canvas',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: _precisionMode ? AppColors.primary : AppColors.textMuted,
+                      color: _precisionMode
+                          ? AppColors.primary
+                          : AppColors.textMuted,
                     ),
                   ),
                 ],
@@ -276,8 +315,12 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                 },
                 tooltip: 'Toggle Precision Mode',
                 icon: Icon(
-                  _precisionMode ? Icons.center_focus_strong : Icons.center_focus_weak,
-                  color: _precisionMode ? AppColors.primary : AppColors.textMuted,
+                  _precisionMode
+                      ? Icons.center_focus_strong
+                      : Icons.center_focus_weak,
+                  color: _precisionMode
+                      ? AppColors.primary
+                      : AppColors.textMuted,
                 ),
               ),
             ],
@@ -297,7 +340,9 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: isDragActive ? AppColors.primary.withAlpha(60) : Colors.black.withAlpha(80),
+                  color: isDragActive
+                      ? AppColors.primary.withAlpha(60)
+                      : Colors.black.withAlpha(80),
                   blurRadius: isDragActive ? 16 : 12,
                   offset: const Offset(0, 4),
                 ),
@@ -314,10 +359,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                 child: Stack(
                   children: [
                     // Subdued Grid pattern lines
-                    CustomPaint(
-                      size: Size.infinite,
-                      painter: GridPainter(),
-                    ),
+                    CustomPaint(size: Size.infinite, painter: GridPainter()),
 
                     // Multi-Touch Ripple Visual Indicators (renders a circle for each finger)
                     for (final entry in _pointerPositions.entries)
@@ -330,28 +372,44 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                             height: 52,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: (_isDragging && entry.key == _activeDragPointer)
+                              color:
+                                  (_isDragging &&
+                                      entry.key == _activeDragPointer)
                                   ? AppColors.primary.withAlpha(120)
                                   : AppColors.touchRipple,
                               border: Border.all(
-                                color: (_isDragging && entry.key == _activeDragPointer)
+                                color:
+                                    (_isDragging &&
+                                        entry.key == _activeDragPointer)
                                     ? Colors.white
                                     : AppColors.primaryLight,
-                                width: (_isDragging && entry.key == _activeDragPointer) ? 2.5 : 2,
+                                width:
+                                    (_isDragging &&
+                                        entry.key == _activeDragPointer)
+                                    ? 2.5
+                                    : 2,
                               ),
                               boxShadow: [
                                 BoxShadow(
                                   color: AppColors.primary.withAlpha(
-                                    (_isDragging && entry.key == _activeDragPointer) ? 140 : 70,
+                                    (_isDragging &&
+                                            entry.key == _activeDragPointer)
+                                        ? 140
+                                        : 70,
                                   ),
                                   blurRadius: 10,
                                   spreadRadius: 2,
                                 ),
                               ],
                             ),
-                            child: (_isDragging && entry.key == _activeDragPointer)
+                            child:
+                                (_isDragging && entry.key == _activeDragPointer)
                                 ? const Center(
-                                    child: Icon(Icons.drag_indicator, size: 20, color: Colors.white),
+                                    child: Icon(
+                                      Icons.drag_indicator,
+                                      size: 20,
+                                      color: Colors.white,
+                                    ),
                                   )
                                 : null,
                           ),
@@ -366,7 +424,9 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                           Icon(
                             isDragActive ? Icons.select_all : Icons.mouse,
                             size: 32,
-                            color: isDragActive ? AppColors.primary : AppColors.textMuted.withAlpha(50),
+                            color: isDragActive
+                                ? AppColors.primary
+                                : AppColors.textMuted.withAlpha(50),
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -390,7 +450,10 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                         right: 0,
                         child: Center(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(20),
@@ -405,7 +468,11 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.select_all, size: 15, color: Colors.white),
+                                Icon(
+                                  Icons.select_all,
+                                  size: 15,
+                                  color: Colors.white,
+                                ),
                                 SizedBox(width: 6),
                                 Text(
                                   'BLOCK / DRAG MODE ACTIVE',
@@ -455,10 +522,16 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                   child: Container(
                     height: 56,
                     decoration: BoxDecoration(
-                      color: _isLeftButtonHeld ? AppColors.primary : AppColors.surfaceElevated,
-                      borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
+                      color: _isLeftButtonHeld
+                          ? AppColors.primary
+                          : AppColors.surfaceElevated,
+                      borderRadius: const BorderRadius.horizontal(
+                        left: Radius.circular(16),
+                      ),
                       border: Border.all(
-                        color: _isLeftButtonHeld ? AppColors.primaryLight : AppColors.border,
+                        color: _isLeftButtonHeld
+                            ? AppColors.primaryLight
+                            : AppColors.border,
                         width: _isLeftButtonHeld ? 2 : 1,
                       ),
                       boxShadow: _isLeftButtonHeld
@@ -478,14 +551,18 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                         Icon(
                           Icons.touch_app,
                           size: 18,
-                          color: _isLeftButtonHeld ? Colors.white : AppColors.primary,
+                          color: _isLeftButtonHeld
+                              ? Colors.white
+                              : AppColors.primary,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'Left Click',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: _isLeftButtonHeld ? Colors.white : AppColors.textPrimary,
+                            color: _isLeftButtonHeld
+                                ? Colors.white
+                                : AppColors.textPrimary,
                           ),
                         ),
                       ],
@@ -516,16 +593,22 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                   child: Container(
                     height: 56,
                     decoration: BoxDecoration(
-                      color: _isMiddleButtonHeld ? AppColors.surfaceElevated.withAlpha(200) : AppColors.surfaceElevated,
+                      color: _isMiddleButtonHeld
+                          ? AppColors.surfaceElevated.withAlpha(200)
+                          : AppColors.surfaceElevated,
                       border: Border.all(
-                        color: _isMiddleButtonHeld ? AppColors.textSecondary : AppColors.border,
+                        color: _isMiddleButtonHeld
+                            ? AppColors.textSecondary
+                            : AppColors.border,
                       ),
                     ),
                     alignment: Alignment.center,
                     child: Icon(
                       Icons.unfold_more,
                       size: 20,
-                      color: _isMiddleButtonHeld ? AppColors.textPrimary : AppColors.textSecondary,
+                      color: _isMiddleButtonHeld
+                          ? AppColors.textPrimary
+                          : AppColors.textSecondary,
                     ),
                   ),
                 ),
@@ -553,10 +636,16 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                   child: Container(
                     height: 56,
                     decoration: BoxDecoration(
-                      color: _isRightButtonHeld ? AppColors.accent : AppColors.surfaceElevated,
-                      borderRadius: const BorderRadius.horizontal(right: Radius.circular(16)),
+                      color: _isRightButtonHeld
+                          ? AppColors.accent
+                          : AppColors.surfaceElevated,
+                      borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(16),
+                      ),
                       border: Border.all(
-                        color: _isRightButtonHeld ? AppColors.accent : AppColors.border,
+                        color: _isRightButtonHeld
+                            ? AppColors.accent
+                            : AppColors.border,
                         width: _isRightButtonHeld ? 2 : 1,
                       ),
                       boxShadow: _isRightButtonHeld
@@ -577,14 +666,18 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                           'Right Click',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: _isRightButtonHeld ? Colors.white : AppColors.textPrimary,
+                            color: _isRightButtonHeld
+                                ? Colors.white
+                                : AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(width: 8),
                         Icon(
                           Icons.mouse,
                           size: 18,
-                          color: _isRightButtonHeld ? Colors.white : AppColors.accent,
+                          color: _isRightButtonHeld
+                              ? Colors.white
+                              : AppColors.accent,
                         ),
                       ],
                     ),
@@ -594,9 +687,456 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
             ],
           ),
         ),
+        const SizedBox(height: 8),
+
+        // Native Keyboard Input Bar (Visible when Keyboard mode is active)
+        if (_isNativeKeyboardOpen)
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+            child: Container(
+              height: 42,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.primary, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withAlpha(50),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.keyboard_alt, size: 16, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _nativeTextController,
+                      focusNode: _nativeKeyboardFocusNode,
+                      autofocus: true,
+                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                      decoration: InputDecoration(
+                        hintText: 'Type on native keyboard to send to PC...',
+                        hintStyle: TextStyle(
+                          color: AppColors.textMuted.withAlpha(150),
+                          fontSize: 12,
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      onChanged: _onNativeKeyboardInput,
+                      onSubmitted: (_) => _onNativeKeyboardEnter(),
+                    ),
+                  ),
+                  if (_nativeTextController.text.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        HapticHelper.selectionClick();
+                        _nativeTextController.clear();
+                        _prevText = '';
+                        setState(() {});
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Icon(
+                          Icons.close,
+                          size: 14,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ),
+                  // Quick Backspace button
+                  GestureDetector(
+                    onTap: _sendBackspace,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceElevated,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Icon(
+                        Icons.backspace_outlined,
+                        size: 14,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ),
+                  // Quick Enter button
+                  GestureDetector(
+                    onTap: _onNativeKeyboardEnter,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceElevated,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Icon(
+                        Icons.keyboard_return,
+                        size: 14,
+                        color: AppColors.primaryLight,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  GestureDetector(
+                    onTap: _closeNativeKeyboard,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withAlpha(30),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        'Done',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryLight,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+        // Shortcut Action Bar: Copy, Paste, Keyboard Icon
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              // Copy Button (Ctrl+C / Cmd+C)
+              Expanded(
+                child: _buildShortcutButton(
+                  label: _isMacMode ? 'Cmd + C' : 'Ctrl + C',
+                  icon: Icons.copy_rounded,
+                  onTap: _sendCopy,
+                ),
+              ),
+              const SizedBox(width: 8),
+
+              // Paste Button (Ctrl+V / Cmd+V)
+              Expanded(
+                child: _buildShortcutButton(
+                  label: _isMacMode ? 'Cmd + V' : 'Ctrl + V',
+                  icon: Icons.paste_rounded,
+                  onTap: _sendPaste,
+                ),
+              ),
+              const SizedBox(width: 8),
+
+              // Native Keyboard Trigger Button
+              Expanded(
+                child: _buildShortcutButton(
+                  label: 'Keyboard',
+                  icon: Icons.keyboard_rounded,
+                  isActive: _isNativeKeyboardOpen,
+                  onTap: _toggleNativeKeyboard,
+                ),
+              ),
+            ],
+          ),
+        ),
         const SizedBox(height: 12),
       ],
     );
+  }
+
+  void _onKeyboardFocusChange() {
+    if (!_nativeKeyboardFocusNode.hasFocus && _isNativeKeyboardOpen) {
+      if (mounted) {
+        setState(() {
+          _isNativeKeyboardOpen = false;
+          _nativeTextController.clear();
+          _prevText = '';
+        });
+      }
+    }
+  }
+
+  void _closeNativeKeyboard() {
+    HapticHelper.selectionClick();
+    _nativeKeyboardFocusNode.unfocus();
+    setState(() {
+      _isNativeKeyboardOpen = false;
+      _nativeTextController.clear();
+      _prevText = '';
+    });
+  }
+
+  Future<void> _sendShortcut(int keycode) async {
+    HapticHelper.mediumImpact();
+    // 0x08 = Left GUI / Command (macOS), 0x01 = Left Ctrl (Windows / Linux)
+    final modifier = _isMacMode ? 0x08 : 0x01;
+
+    // 1. Modifier down
+    BluetoothBleService.instance.sendKeyboardState(modifier, []);
+    await Future.delayed(const Duration(milliseconds: 25));
+
+    // 2. Key down with modifier held (hold 65ms for OS chord registration)
+    BluetoothBleService.instance.sendKeyboardState(modifier, [keycode]);
+    await Future.delayed(const Duration(milliseconds: 65));
+
+    // 3. Key up, modifier still held
+    BluetoothBleService.instance.sendKeyboardState(modifier, []);
+    await Future.delayed(const Duration(milliseconds: 25));
+
+    // 4. Release all
+    BluetoothBleService.instance.sendKeyboardState(0, []);
+  }
+
+  void _sendCopy() {
+    _sendShortcut(0x06); // 'c'
+  }
+
+  void _sendPaste() {
+    _sendShortcut(0x19); // 'v'
+  }
+
+  void _toggleNativeKeyboard() {
+    HapticHelper.selectionClick();
+    if (_isNativeKeyboardOpen) {
+      _closeNativeKeyboard();
+    } else {
+      setState(() {
+        _isNativeKeyboardOpen = true;
+        _nativeTextController.clear();
+        _prevText = '';
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _nativeKeyboardFocusNode.requestFocus();
+      });
+    }
+  }
+
+  void _onNativeKeyboardInput(String newText) {
+    if (newText == _prevText) return;
+
+    // Find common prefix length
+    int prefixLen = 0;
+    while (prefixLen < _prevText.length &&
+        prefixLen < newText.length &&
+        _prevText[prefixLen] == newText[prefixLen]) {
+      prefixLen++;
+    }
+
+    // Number of characters deleted from _prevText
+    final numDeleted = _prevText.length - prefixLen;
+    for (int i = 0; i < numDeleted; i++) {
+      _sendKey(0x00, 0x2A); // Backspace HID keycode
+    }
+
+    // Characters added in newText
+    final addedChars = newText.substring(prefixLen);
+    for (int i = 0; i < addedChars.length; i++) {
+      _sendCharToHost(addedChars[i]);
+    }
+
+    _prevText = newText;
+  }
+
+  void _onNativeKeyboardEnter() {
+    HapticHelper.lightImpact();
+    _sendKey(0x00, 0x28); // Enter HID keycode
+    _nativeTextController.clear();
+    _prevText = '';
+    setState(() {});
+  }
+
+  void _sendBackspace() {
+    HapticHelper.lightImpact();
+    _sendKey(0x00, 0x2A);
+    if (_nativeTextController.text.isNotEmpty) {
+      final t = _nativeTextController.text;
+      _nativeTextController.text = t.substring(0, t.length - 1);
+      _prevText = _nativeTextController.text;
+      setState(() {});
+    }
+  }
+
+  void _sendCharToHost(String char) {
+    final stroke = _charToKeyStroke(char);
+    if (stroke != null) {
+      _sendKey(stroke.modifier, stroke.keycode);
+    }
+  }
+
+  void _sendKey(int modifier, int keycode) {
+    _keyQueue.add(_KeyStroke(modifier, keycode));
+    _processKeyQueue();
+  }
+
+  void _processKeyQueue() async {
+    if (_isSendingKeys || _keyQueue.isEmpty) return;
+    _isSendingKeys = true;
+    while (_keyQueue.isNotEmpty) {
+      final stroke = _keyQueue.removeAt(0);
+      BluetoothBleService.instance.sendKeyboardScancode(
+        stroke.modifier,
+        stroke.keycode,
+      );
+      await Future.delayed(const Duration(milliseconds: 25));
+    }
+    _isSendingKeys = false;
+  }
+
+  Widget _buildShortcutButton({
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+    bool isActive = false,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Ink(
+          height: 44,
+          decoration: BoxDecoration(
+            color: isActive
+                ? AppColors.primary.withAlpha(40)
+                : AppColors.surfaceElevated,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isActive ? AppColors.primary : AppColors.border,
+              width: isActive ? 1.5 : 1.0,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: isActive ? AppColors.primary : AppColors.primaryLight,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: isActive ? AppColors.primary : Colors.white,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _KeyStroke {
+  final int modifier;
+  final int keycode;
+  const _KeyStroke(this.modifier, this.keycode);
+}
+
+_KeyStroke? _charToKeyStroke(String char) {
+  if (char.isEmpty) return null;
+  final codeUnit = char.codeUnitAt(0);
+
+  // Lowercase a-z (0x61 - 0x7A) -> HID 0x04 - 0x1D
+  if (codeUnit >= 0x61 && codeUnit <= 0x7A) {
+    return _KeyStroke(0x00, 0x04 + (codeUnit - 0x61));
+  }
+
+  // Uppercase A-Z (0x41 - 0x5A) -> HID 0x04 - 0x1D with Shift (0x02)
+  if (codeUnit >= 0x41 && codeUnit <= 0x5A) {
+    return _KeyStroke(0x02, 0x04 + (codeUnit - 0x41));
+  }
+
+  // Digits 1-9 -> HID 0x1E - 0x26, 0 -> 0x27
+  if (codeUnit >= 0x31 && codeUnit <= 0x39) {
+    return _KeyStroke(0x00, 0x1E + (codeUnit - 0x31));
+  }
+  if (char == '0') return const _KeyStroke(0x00, 0x27);
+
+  // Whitespace
+  if (char == ' ') return const _KeyStroke(0x00, 0x2C);
+  if (char == '\n' || char == '\r') return const _KeyStroke(0x00, 0x28);
+  if (char == '\t') return const _KeyStroke(0x00, 0x2B);
+
+  // Symbols
+  switch (char) {
+    case '!':
+      return const _KeyStroke(0x02, 0x1E);
+    case '@':
+      return const _KeyStroke(0x02, 0x1F);
+    case '#':
+      return const _KeyStroke(0x02, 0x20);
+    case '\$':
+      return const _KeyStroke(0x02, 0x21);
+    case '%':
+      return const _KeyStroke(0x02, 0x22);
+    case '^':
+      return const _KeyStroke(0x02, 0x23);
+    case '&':
+      return const _KeyStroke(0x02, 0x24);
+    case '*':
+      return const _KeyStroke(0x02, 0x25);
+    case '(':
+      return const _KeyStroke(0x02, 0x26);
+    case ')':
+      return const _KeyStroke(0x02, 0x27);
+    case '-':
+      return const _KeyStroke(0x00, 0x2D);
+    case '_':
+      return const _KeyStroke(0x02, 0x2D);
+    case '=':
+      return const _KeyStroke(0x00, 0x2E);
+    case '+':
+      return const _KeyStroke(0x02, 0x2E);
+    case '[':
+      return const _KeyStroke(0x00, 0x2F);
+    case '{':
+      return const _KeyStroke(0x02, 0x2F);
+    case ']':
+      return const _KeyStroke(0x00, 0x30);
+    case '}':
+      return const _KeyStroke(0x02, 0x30);
+    case '\\':
+      return const _KeyStroke(0x00, 0x31);
+    case '|':
+      return const _KeyStroke(0x02, 0x31);
+    case ';':
+      return const _KeyStroke(0x00, 0x33);
+    case ':':
+      return const _KeyStroke(0x02, 0x33);
+    case '\'':
+      return const _KeyStroke(0x00, 0x34);
+    case '"':
+      return const _KeyStroke(0x02, 0x34);
+    case '`':
+      return const _KeyStroke(0x00, 0x35);
+    case '~':
+      return const _KeyStroke(0x02, 0x35);
+    case ',':
+      return const _KeyStroke(0x00, 0x36);
+    case '<':
+      return const _KeyStroke(0x02, 0x36);
+    case '.':
+      return const _KeyStroke(0x00, 0x37);
+    case '>':
+      return const _KeyStroke(0x02, 0x37);
+    case '/':
+      return const _KeyStroke(0x00, 0x38);
+    case '?':
+      return const _KeyStroke(0x02, 0x38);
+    default:
+      return null;
   }
 }
 

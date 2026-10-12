@@ -97,7 +97,7 @@ class IapService extends ChangeNotifier {
     }
   }
 
-  void _onPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
+  Future<void> _onPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) async {
     for (var purchaseDetails in purchaseDetailsList) {
       if (purchaseDetails.status == PurchaseStatus.pending) {
         _isLoading = true;
@@ -107,10 +107,10 @@ class IapService extends ChangeNotifier {
           debugPrint('Purchase Error: ${purchaseDetails.error}');
         } else if (purchaseDetails.status == PurchaseStatus.purchased ||
             purchaseDetails.status == PurchaseStatus.restored) {
-          _deliverProduct(purchaseDetails);
+          await _deliverProduct(purchaseDetails);
         }
         if (purchaseDetails.pendingCompletePurchase) {
-          _iap.completePurchase(purchaseDetails);
+          await _iap.completePurchase(purchaseDetails);
         }
         _isLoading = false;
       }

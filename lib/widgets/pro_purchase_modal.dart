@@ -32,6 +32,7 @@ class ProPurchaseModal extends StatefulWidget {
 class _ProPurchaseModalState extends State<ProPurchaseModal> {
   final IapService _iapService = IapService.instance;
   bool _isProcessing = false;
+  bool _hasPopped = false;
 
   @override
   void initState() {
@@ -48,14 +49,33 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
     super.dispose();
   }
 
-  void _onIapChanged() {
-    if (mounted) {
-      if (_iapService.isPro && Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-        widget.onUnlocked?.call();
+  void _safeClose({String? successMessage}) {
+    if (_hasPopped) return;
+    _hasPopped = true;
+    if (mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+      widget.onUnlocked?.call();
+      if (successMessage != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(successMessage),
+            backgroundColor: AppColors.success,
+          ),
+        );
       }
-      setState(() {});
     }
+  }
+
+  void _onIapChanged() {
+    if (!mounted || _hasPopped) return;
+    if (_iapService.isPro) {
+      _safeClose(
+        successMessage:
+            '🎉 ClickPad PRO Successfully Activated! Enjoy all features.',
+      );
+      return;
+    }
+    setState(() {});
   }
 
   @override
@@ -204,16 +224,13 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                     OutlinedButton.icon(
                       onPressed: () {
                         HapticHelper.mediumImpact();
-                        final started = _iapService.startFreeTrial(durationSeconds: 180);
+                        final started =
+                            _iapService.startFreeTrial(durationSeconds: 180);
                         if (started) {
-                          Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('🎉 3-Minute Free Trial Active! Enjoy testing the Joystick.'),
-                              backgroundColor: AppColors.success,
-                            ),
+                          _safeClose(
+                            successMessage:
+                                '🎉 3-Minute Free Trial Active! Enjoy testing the Joystick.',
                           );
-                          widget.onUnlocked?.call();
                         }
                       },
                       icon: const Icon(Icons.timer, color: Color(0xFF00E5FF), size: 18),
@@ -261,10 +278,21 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                       HapticHelper.selectionClick();
                       await _iapService.restorePurchases();
                       if (context.mounted) {
-                        Navigator.of(context).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Purchase status has been updated.')),
-                        );
+                        if (_iapService.isPro) {
+                          _safeClose(
+                            successMessage:
+                                '🎉 Purchases successfully restored!',
+                          );
+                        } else {
+                          _safeClose();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'No previous purchases found to restore.',
+                              ),
+                            ),
+                          );
+                        }
                       }
                     },
                     child: const Text(
@@ -430,18 +458,11 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
 
     if (mounted) {
       setState(() => _isProcessing = false);
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isLifetime
-                ? '🎉 ClickPad PRO Successfully Activated! Enjoy playing.'
-                : '🎮 Joystick Pass Successfully Activated!',
-          ),
-          backgroundColor: AppColors.success,
-        ),
+      _safeClose(
+        successMessage: isLifetime
+            ? '🎉 ClickPad PRO Successfully Activated! Enjoy playing.'
+            : '🎮 Joystick Pass Successfully Activated!',
       );
-      widget.onUnlocked?.call();
     }
   }
 }

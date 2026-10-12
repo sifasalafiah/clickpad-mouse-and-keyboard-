@@ -112,17 +112,18 @@ class _AppRootWrapperState extends State<AppRootWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Show onboarding screen on first install
+    Widget screen;
     if (!_settings.hasSeenOnboarding) {
-      return const OnboardingScreen();
+      screen = const OnboardingScreen();
+    } else if (_connService.isConnected) {
+      screen = const MainNavigationScreen();
+    } else {
+      screen = const BluetoothPairingScreen();
     }
 
-    // 2. Navigate to MainNavigationScreen (Touchpad) when connected to PC.
-    // Return to BluetoothPairingScreen when disconnected from PC.
-    if (_connService.isConnected) {
-      return const MainNavigationScreen();
-    } else {
-      return const BluetoothPairingScreen();
-    }
+    return PopScope(
+      canPop: false,
+      child: screen,
+    );
   }
 }
