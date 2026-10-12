@@ -21,7 +21,7 @@ Pastikan Product ID yang Anda daftarkan di konsol toko **sama persis** (case-sen
 
 | Nama Produk | Tipe Produk | Product ID (SKU) | Estimasi Harga Default | Manfaat |
 |---|---|---|---|---|
-| **ClickPad PRO Lifetime** | Non-Consumable (Sekali Beli) | `clickpad_pro_lifetime` | Rp 29.000 / $1.99 | Bebas iklan 100%, Gamepad Virtual, Gyro Steering, Tema Eksklusif OLED Dark Mode, Zero Latency mode |
+| **ClickPad PRO Lifetime** | Non-Consumable (Sekali Beli) | `clickpad_pro_lifetime` | Rp 29.000 / $1.99 | Bebas iklan 100%, Gamepad Virtual, Custom Layout Editor, Tema Eksklusif OLED Dark Mode, Zero Latency mode |
 | **Joystick Game Pass Only** | Non-Consumable (Sekali Beli) | `clickpad_joystick_pass` | Rp 15.000 / $0.99 | Khusus membuka Virtual Gamepad & Joystick Controller |
 
 ---
@@ -140,5 +140,5 @@ Di ClickPad:
 Untuk kenyamanan pengembangan lokal ketika Anda belum menghubungkan aplikasi ke akun Google Play / Apple ID tester:
 * Tombol pembelian di ClickPad memiliki mekanisme **fallback otomatis**:
   * Jika produk toko Google/Apple terdeteksi $\rightarrow$ Aplikasi otomatis memanggil antarmuka pembayaran asli Google Play / Apple StoreKit.
-  * Jika dijalankan di Emulator/Simulator/Offline $\rightarrow$ Aplikasi otomatis mengaktifkan status PRO simulasi secara instan sehingga Anda bisa menguji seluruh fitur PRO (Joystick, Gyro, OLED theme, dll.) tanpa hambatan.
+  * Jika dijalankan di Emulator/Simulator/Offline $\rightarrow$ Aplikasi otomatis mengaktifkan status PRO simulasi secara instan sehingga Anda bisa menguji seluruh fitur PRO (Joystick, Layout Editor, OLED theme, dll.) tanpa hambatan.
 * Terdapat juga fitur **3-Minute Free Trial** bawaan untuk menguji fitur Joystick secara langsung bagi pengguna gratis.

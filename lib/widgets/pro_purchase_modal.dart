@@ -164,9 +164,9 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                     'Hardware-level Bluetooth HID connection with zero input lag',
                   ),
                   _buildFeatureTile(
-                    Icons.motion_photos_on,
-                    'Gyroscope Steering (Motion Control)',
-                    'Steer racing games or navigate using phone gyroscope motion',
+                    Icons.dashboard_customize_rounded,
+                    'Custom Gamepad Layout Editor',
+                    'Freely reposition, resize, and personalize controls to fit your hands',
                   ),
                   _buildFeatureTile(
                     Icons.block,
