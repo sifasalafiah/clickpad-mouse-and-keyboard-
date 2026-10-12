@@ -3,47 +3,63 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 class AppTheme {
-  static ThemeData get darkTheme => getTheme(AppColors.currentTheme);
+  static ThemeData get lightTheme => getTheme(AppThemeMode.midnightSlateLight);
+  static ThemeData get darkTheme => getTheme(AppThemeMode.midnightSlateDark);
 
   static ThemeData getTheme(AppThemeMode mode) {
     AppColors.applyTheme(mode);
-    final palette = AppColors.palettes[mode] ?? AppColors.palettes[AppThemeMode.midnightSlate]!;
+    final palette = AppColors.palettes[mode] ??
+        AppColors.palettes[AppThemeMode.midnightSlateLight]!;
 
-    final baseTextTheme = ThemeData.dark().textTheme;
+    final baseTextTheme = palette.isLight
+        ? ThemeData.light().textTheme
+        : ThemeData.dark().textTheme;
     final googleTextTheme = GoogleFonts.interTextTheme(baseTextTheme);
+
+    final colorScheme = palette.isLight
+        ? ColorScheme.light(
+            primary: palette.primary,
+            secondary: palette.accent,
+            surface: palette.surface,
+            error: AppColors.error,
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
+            onSurface: palette.textPrimary,
+          )
+        : ColorScheme.dark(
+            primary: palette.primary,
+            secondary: palette.accent,
+            surface: palette.surface,
+            error: AppColors.error,
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
+            onSurface: palette.textPrimary,
+          );
 
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: palette.isLight ? Brightness.light : Brightness.dark,
       scaffoldBackgroundColor: palette.background,
-      colorScheme: ColorScheme.dark(
-        primary: palette.primary,
-        secondary: palette.accent,
-        surface: palette.surface,
-        error: AppColors.error,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: AppColors.textPrimary,
-      ),
+      colorScheme: colorScheme,
       textTheme: googleTextTheme.copyWith(
         headlineMedium: googleTextTheme.headlineMedium?.copyWith(
-          color: AppColors.textPrimary,
+          color: palette.textPrimary,
           fontWeight: FontWeight.bold,
           letterSpacing: -0.5,
         ),
         titleLarge: googleTextTheme.titleLarge?.copyWith(
-          color: AppColors.textPrimary,
+          color: palette.textPrimary,
           fontWeight: FontWeight.w600,
         ),
         titleMedium: googleTextTheme.titleMedium?.copyWith(
-          color: AppColors.textPrimary,
+          color: palette.textPrimary,
           fontWeight: FontWeight.w500,
         ),
         bodyLarge: googleTextTheme.bodyLarge?.copyWith(
-          color: AppColors.textPrimary,
+          color: palette.textPrimary,
         ),
         bodyMedium: googleTextTheme.bodyMedium?.copyWith(
-          color: AppColors.textSecondary,
+          color: palette.textSecondary,
         ),
       ),
       cardTheme: CardThemeData(
@@ -58,12 +74,12 @@ class AppTheme {
         backgroundColor: palette.background,
         elevation: 0,
         centerTitle: false,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: palette.textPrimary),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: palette.surface,
         selectedItemColor: palette.primary,
-        unselectedItemColor: AppColors.textMuted,
+        unselectedItemColor: palette.textMuted,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),

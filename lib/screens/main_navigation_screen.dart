@@ -4,6 +4,7 @@ import '../services/iap_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
+import '../widgets/banner_ad_widget.dart';
 import '../widgets/pro_purchase_modal.dart';
 import 'joystick_screen.dart';
 import 'keyboard_screen.dart';
@@ -70,12 +71,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               child: Icon(Icons.bluetooth, color: AppColors.primary, size: 20),
             ),
             const SizedBox(width: 10),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  const Text(
                     'ClickPad',
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
@@ -175,11 +176,22 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
         ],
       ),
-      body: IndexedStack(index: _currentIndex, children: _screens),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
+      body: Column(
+        children: [
+          // Banner Ad at topbar that appears across all pages (Free tier)
+          if (!isPro)
+            const CollapsibleBannerAdWidget(collapsiblePosition: 'top'),
+          Expanded(
+            child: IndexedStack(index: _currentIndex, children: _screens),
+          ),
+        ],
+      ),
+      bottomNavigationBar: MediaQuery.of(context).viewInsets.bottom > 0
+          ? null
+          : BottomNavigationBar(
+              currentIndex: _currentIndex,
+              type: BottomNavigationBarType.fixed,
+              onTap: (index) {
           HapticHelper.selectionClick();
           setState(() => _currentIndex = index);
         },
@@ -270,7 +282,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         ),
         content: Text(
           'Are you sure you want to disconnect Bluetooth HID connection with $deviceName?',
-          style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
         ),
         actionsPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -279,7 +291,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text(
+            child: Text(
               'Cancel',
               style: TextStyle(color: AppColors.textMuted),
             ),

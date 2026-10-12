@@ -85,7 +85,7 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
     return Container(
       constraints: BoxConstraints(maxHeight: size.height * 0.88),
       decoration: BoxDecoration(
-        color: const Color(0xFF14171D),
+        color: AppColors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         border: Border(top: BorderSide(color: AppColors.primary, width: 2)),
       ),
@@ -98,7 +98,7 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
             width: 44,
             height: 5,
             decoration: BoxDecoration(
-              color: Colors.white24,
+              color: AppColors.border,
               borderRadius: BorderRadius.circular(10),
             ),
           ),
@@ -144,7 +144,7 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
+                  Text(
                     'Unlock All Exclusive Remote PC Features',
                     style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                     textAlign: TextAlign.center,
@@ -249,15 +249,15 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(10),
+                        color: AppColors.surfaceElevated,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white12),
+                        border: Border.all(color: AppColors.border),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.lock_clock, color: AppColors.textMuted, size: 16),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Text(
                             '3-Minute Free Trial has already been used',
                             style: TextStyle(
@@ -295,7 +295,7 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                         }
                       }
                     },
-                    child: const Text(
+                    child: Text(
                       'Restore Purchases',
                       style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                     ),
@@ -331,15 +331,15 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -363,10 +363,12 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isPrimary ? AppColors.primary.withAlpha(30) : const Color(0xFF1E222A),
+          color: isPrimary
+              ? AppColors.primary.withAlpha(AppColors.palette.isLight ? 25 : 30)
+              : AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isPrimary ? AppColors.primary : const Color(0xFF2E3542),
+            color: isPrimary ? AppColors.primary : AppColors.border,
             width: isPrimary ? 2 : 1,
           ),
         ),
@@ -380,10 +382,10 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       if (badge != null) ...[
@@ -409,7 +411,7 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                   ),
                 ],
               ),
@@ -420,7 +422,11 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w900,
-                color: isPrimary ? const Color(0xFF00E5FF) : Colors.white,
+                color: isPrimary
+                    ? (AppColors.palette.isLight
+                        ? AppColors.primary
+                        : const Color(0xFF00E5FF))
+                    : AppColors.textPrimary,
               ),
             ),
           ],

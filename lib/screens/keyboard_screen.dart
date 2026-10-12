@@ -4,7 +4,6 @@ import '../services/bluetooth_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
-import '../widgets/banner_ad_widget.dart';
 
 class KeyboardScreen extends StatefulWidget {
   const KeyboardScreen({super.key});
@@ -91,9 +90,6 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
       child: SafeArea(
         child: Column(
           children: [
-            // Collapsible Banner Ad at Top of Keyboard
-            const CollapsibleBannerAdWidget(collapsiblePosition: 'top'),
-
             // ClickPad Keyboard Header Branding
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),

@@ -121,7 +121,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Text(
+                      Text(
                         'ClickPad',
                         style: TextStyle(
                           fontSize: 15,
@@ -289,7 +289,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Text(
             item.title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,
@@ -315,7 +315,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Text(
             item.description,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               height: 1.4,
               color: AppColors.textSecondary,
@@ -348,7 +348,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: Text(
                       tag,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         color: AppColors.textPrimary,
@@ -407,7 +407,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Touchpad Area',
                     style: TextStyle(
                       fontSize: 11,
@@ -442,7 +442,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
                 Container(width: 1, color: AppColors.border),
-                const Expanded(
+                Expanded(
                   child: Center(
                     child: Text(
                       'Right Click',
@@ -504,7 +504,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Joystick',
                   style: TextStyle(
                     fontSize: 11,
@@ -603,7 +603,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 'Phone',
                 style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
               ),
@@ -664,7 +664,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 'Computer',
                 style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
               ),

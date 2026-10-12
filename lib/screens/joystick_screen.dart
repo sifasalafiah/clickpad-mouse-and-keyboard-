@@ -104,7 +104,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
         Widget gamepadContent = Container(
           width: availableWidth,
           height: availableHeight,
-          color: const Color(0xFF0F1115),
+          color: AppColors.background,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           child: SafeArea(
             top: false,
@@ -202,12 +202,14 @@ class _JoystickScreenState extends State<JoystickScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFF161922),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF282F3E)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(80),
+            color: AppColors.palette.isLight
+                ? Colors.black.withAlpha(15)
+                : Colors.black.withAlpha(80),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -219,7 +221,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
           // WASD / ARROWS Mode Toggle
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF202633),
+              color: AppColors.surfaceElevated,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
@@ -233,7 +235,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
           const SizedBox(width: 8),
 
           // Divider
-          Container(width: 1, height: 16, color: const Color(0xFF2D3546)),
+          Container(width: 1, height: 16, color: AppColors.border),
           const SizedBox(width: 8),
 
           // Analog Stick vs D-Pad Toggle
@@ -246,17 +248,17 @@ class _JoystickScreenState extends State<JoystickScreen> {
             child: Container(
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
-                color: const Color(0xFF202633),
+                color: AppColors.surfaceElevated,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: _useAnalogStick
                       ? AppColors.primary.withAlpha(120)
-                      : const Color(0xFF333D50),
+                      : AppColors.border,
                 ),
               ),
               child: Icon(
                 _useAnalogStick ? Icons.radio_button_checked : Icons.grid_4x4,
-                color: _useAnalogStick ? AppColors.primary : Colors.white70,
+                color: _useAnalogStick ? AppColors.primary : AppColors.textSecondary,
                 size: 16,
               ),
             ),
@@ -348,7 +350,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.bold,
-            color: isSelected ? Colors.black : AppColors.textMuted,
+            color: isSelected ? Colors.white : AppColors.textMuted,
           ),
         ),
       ),
@@ -427,10 +429,10 @@ class _JoystickScreenState extends State<JoystickScreen> {
         duration: const Duration(milliseconds: 60),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isPressed ? AppColors.primary : const Color(0xFF1E222B),
+          color: isPressed ? AppColors.primary : AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isPressed ? Colors.white : const Color(0xFF333B49),
+            color: isPressed ? AppColors.primaryLight : AppColors.border,
             width: isPressed ? 1.5 : 1,
           ),
           boxShadow: isPressed
@@ -443,7 +445,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withAlpha(60),
+                    color: AppColors.palette.isLight
+                        ? Colors.black.withAlpha(15)
+                        : Colors.black.withAlpha(60),
                     blurRadius: 3,
                     offset: const Offset(0, 1),
                   ),
@@ -457,7 +461,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
-                color: isPressed ? Colors.black : Colors.white,
+                color: isPressed ? Colors.white : AppColors.textPrimary,
                 letterSpacing: 0.5,
               ),
             ),
@@ -466,8 +470,8 @@ class _JoystickScreenState extends State<JoystickScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
               decoration: BoxDecoration(
                 color: isPressed
-                    ? Colors.black.withAlpha(40)
-                    : const Color(0xFF2A313E),
+                    ? AppColors.primaryLight.withAlpha(60)
+                    : AppColors.surface,
                 borderRadius: BorderRadius.circular(5),
               ),
               child: Text(
@@ -475,7 +479,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
                 style: TextStyle(
                   fontSize: 9.5,
                   fontWeight: FontWeight.w700,
-                  color: isPressed ? Colors.black87 : AppColors.textMuted,
+                  color: isPressed ? Colors.white : AppColors.textMuted,
                   letterSpacing: 0.2,
                 ),
               ),
@@ -498,9 +502,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
         padding: const EdgeInsets.symmetric(vertical: 6),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isPressed ? AppColors.primary : const Color(0xFF1E222B),
+          color: isPressed ? AppColors.primary : AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF333B4B)),
+          border: Border.all(color: isPressed ? AppColors.primaryLight : AppColors.border),
         ),
         child: Text(
           label,
@@ -508,7 +512,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
           style: TextStyle(
             fontSize: 9.5,
             fontWeight: FontWeight.bold,
-            color: isPressed ? Colors.black : AppColors.textMuted,
+            color: isPressed ? Colors.white : AppColors.textMuted,
             letterSpacing: 0.5,
           ),
         ),
@@ -570,8 +574,8 @@ class _JoystickScreenState extends State<JoystickScreen> {
                 isPressed
                     ? [themeColor, Colors.white]
                     : [
-                      themeColor.withAlpha(50),
-                      const Color(0xFF1B1F27),
+                      themeColor.withAlpha(AppColors.palette.isLight ? 75 : 40),
+                      AppColors.surfaceElevated,
                     ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -585,7 +589,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
               color:
                   isPressed
                       ? themeColor.withAlpha(150)
-                      : Colors.black.withAlpha(100),
+                      : (AppColors.palette.isLight
+                          ? Colors.black.withAlpha(25)
+                          : Colors.black.withAlpha(100)),
               blurRadius: isPressed ? 12 : 4,
               offset: const Offset(0, 2),
             ),
@@ -597,7 +603,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
           style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w900,
-            color: isPressed ? Colors.black : themeColor,
+            color: isPressed ? (themeColor.computeLuminance() > 0.5 ? Colors.black : Colors.white) : themeColor,
           ),
         ),
       ),
@@ -664,13 +670,13 @@ class _JoystickScreenState extends State<JoystickScreen> {
           color:
               isPressed
                   ? AppColors.primary
-                  : const Color(0xFF222732),
+                  : AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color:
                 isPressed
-                    ? Colors.white
-                    : const Color(0xFF3B4456),
+                    ? AppColors.primaryLight
+                    : AppColors.border,
             width: 1.5,
           ),
         ),
@@ -680,7 +686,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: isPressed ? Colors.black : Colors.white,
+            color: isPressed ? Colors.white : AppColors.textPrimary,
           ),
         ),
       ),
@@ -697,16 +703,16 @@ class _JoystickScreenState extends State<JoystickScreen> {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF161920),
+          color: AppColors.touchpadCanvas,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF2B3240)),
+          border: Border.all(color: AppColors.border),
         ),
         alignment: Alignment.center,
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.touch_app, color: AppColors.textMuted, size: 24),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Camera Look (Touchpad)',
               style: TextStyle(fontSize: 11, color: AppColors.textMuted),
@@ -719,7 +725,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
 
   Widget _buildProLockOverlay() {
     return Container(
-      color: Colors.black.withAlpha(215),
+      color: AppColors.palette.isLight
+          ? Colors.black.withAlpha(140)
+          : Colors.black.withAlpha(215),
       alignment: Alignment.center,
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -727,7 +735,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
           margin: const EdgeInsets.symmetric(horizontal: 12),
           padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
           decoration: BoxDecoration(
-            color: const Color(0xFF171A21),
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: const Color(0xFFFFD700), width: 1.5),
             boxShadow: [
@@ -743,9 +751,10 @@ class _JoystickScreenState extends State<JoystickScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF2A2715),
+                  color: const Color(0xFFFFD700).withAlpha(
+                      AppColors.palette.isLight ? 45 : 30),
                 ),
                 child: const Icon(
                   Icons.sports_esports,
@@ -754,17 +763,17 @@ class _JoystickScreenState extends State<JoystickScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'PRO Exclusive Feature',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Unlock Virtual Gamepad Controller & 360° Joystick for the ultimate PC gaming experience.',
                 style: TextStyle(
                   fontSize: 13,
@@ -817,14 +826,15 @@ class _JoystickScreenState extends State<JoystickScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   margin: const EdgeInsets.only(top: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(10),
+                    color: AppColors.surfaceElevated,
                     borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.border),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.lock_clock, color: AppColors.textMuted, size: 14),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text(
                         'Free trial has expired',
                         style: TextStyle(

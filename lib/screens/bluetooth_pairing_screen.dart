@@ -3,9 +3,11 @@ import '../models/connection_type.dart';
 import '../models/device_model.dart';
 import '../services/bluetooth_service.dart';
 import '../services/connection_service.dart';
+import '../services/iap_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
+import '../widgets/banner_ad_widget.dart';
 
 class BluetoothPairingScreen extends StatefulWidget {
   const BluetoothPairingScreen({super.key});
@@ -19,6 +21,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
   final ConnectionService _connService = ConnectionService.instance;
   final BluetoothBleService _bleService = BluetoothBleService.instance;
   final SettingsService _settings = SettingsService.instance;
+  final IapService _iapService = IapService.instance;
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
@@ -34,6 +37,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
     super.initState();
 
     _connService.addListener(_onConnectionChanged);
+    _iapService.addListener(_onConnectionChanged);
 
     // Pulsing radar animation for "Waiting Connection" state
     _pulseController = AnimationController(
@@ -65,6 +69,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
   @override
   void dispose() {
     _connService.removeListener(_onConnectionChanged);
+    _iapService.removeListener(_onConnectionChanged);
     _pulseController.dispose();
     super.dispose();
   }
@@ -82,12 +87,18 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Banner
+        child: Column(
+          children: [
+            // Topbar Banner Ad (Free tier)
+            if (!_iapService.isPro)
+              const CollapsibleBannerAdWidget(collapsiblePosition: 'top'),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header Banner
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -104,11 +115,11 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                           ),
                         ),
                         const SizedBox(width: 14),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 'ClickPad',
                                 style: TextStyle(
                                   fontSize: 22,
@@ -282,7 +293,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                                 Text(
                                   _connService.statusMessage ??
                                       'Could not connect. Please make sure Bluetooth is ON on your computer.',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     color: AppColors.textMuted,
                                   ),
@@ -367,7 +378,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                             _connService.statusMessage ??
                                 'Establishing Bluetooth HID connection...',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               color: AppColors.textMuted,
                             ),
@@ -454,15 +465,15 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(color: AppColors.border),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.sensors,
                                   size: 14,
                                   color: AppColors.success,
                                 ),
-                                SizedBox(width: 6),
+                                const SizedBox(width: 6),
                                 Flexible(
                                   child: Text(
                                     'BT Name: ClickPad',
@@ -560,8 +571,11 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
           ),
         ),
       ),
-    );
-  }
+    ],
+  ),
+),
+);
+}
 
   Widget _buildPlatformChip(int index, String label, IconData icon) {
     final isSelected = _selectedPlatformTab == index;
@@ -724,7 +738,7 @@ class _StepRow extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                     color: AppColors.textPrimary,
@@ -733,7 +747,7 @@ class _StepRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   desc,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textMuted,
                   ),

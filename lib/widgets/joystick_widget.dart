@@ -169,21 +169,23 @@ class _VirtualJoystickWidgetState extends State<VirtualJoystickWidget>
           shape: BoxShape.circle,
           gradient: RadialGradient(
             colors: [
-              AppColors.surfaceElevated.withAlpha(200),
-              const Color(0xFF16191E),
+              AppColors.surfaceElevated,
+              AppColors.background,
             ],
           ),
           border: Border.all(
             color: _activeKeycodes.isNotEmpty
                 ? AppColors.primary
-                : AppColors.border.withAlpha(120),
+                : AppColors.border,
             width: 2.5,
           ),
           boxShadow: [
             BoxShadow(
               color: _activeKeycodes.isNotEmpty
                   ? AppColors.primary.withAlpha(40)
-                  : Colors.black.withAlpha(80),
+                  : (AppColors.palette.isLight
+                      ? Colors.black.withAlpha(20)
+                      : Colors.black.withAlpha(80)),
               blurRadius: 16,
               spreadRadius: 2,
             ),
@@ -256,20 +258,25 @@ class _VirtualJoystickWidgetState extends State<VirtualJoystickWidget>
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     colors: _activeKeycodes.isNotEmpty
-                        ? [AppColors.primary, const Color(0xFF00B0FF)]
-                        : [const Color(0xFF383E4B), const Color(0xFF22262E)],
+                        ? [AppColors.primary, AppColors.primaryLight]
+                        : [
+                            AppColors.surfaceElevated,
+                            AppColors.surface,
+                          ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   border: Border.all(
                     color: _activeKeycodes.isNotEmpty
                         ? Colors.white
-                        : const Color(0xFF4C5564),
+                        : AppColors.border,
                     width: 2,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withAlpha(120),
+                      color: AppColors.palette.isLight
+                          ? Colors.black.withAlpha(40)
+                          : Colors.black.withAlpha(120),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),

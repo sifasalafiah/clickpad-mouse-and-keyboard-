@@ -96,7 +96,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           // ClickPad PRO Membership Card
           Card(
-            color: isPro ? const Color(0xFF1E2215) : const Color(0xFF1C1E26),
+            color: isPro
+                ? (AppColors.palette.isLight
+                    ? const Color(0xFFFEFCE8)
+                    : const Color(0xFF1E2215))
+                : (AppColors.palette.isLight
+                    ? AppColors.surface
+                    : AppColors.surfaceElevated),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
               side: BorderSide(
@@ -113,13 +119,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: isPro
-                          ? const Color(0xFFFFD700).withAlpha(30)
+                          ? const Color(0xFFFFD700).withAlpha(
+                              AppColors.palette.isLight ? 45 : 30)
                           : AppColors.primary.withAlpha(30),
                     ),
                     child: Icon(
                       Icons.workspace_premium,
                       color: isPro
-                          ? const Color(0xFFFFD700)
+                          ? (AppColors.palette.isLight
+                              ? const Color(0xFFB45309)
+                              : const Color(0xFFFFD700))
                           : AppColors.primary,
                       size: 28,
                     ),
@@ -137,8 +146,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: isPro
-                                ? const Color(0xFFFFD700)
-                                : Colors.white,
+                                ? (AppColors.palette.isLight
+                                    ? const Color(0xFFB45309)
+                                    : const Color(0xFFFFD700))
+                                : AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -146,7 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           isPro
                               ? 'Virtual Gamepad, Zero Ads, & Premium Themes Unlocked'
                               : 'Unlock Joystick Gamepad, Motion Control, & Ad-Free UX',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             color: AppColors.textMuted,
                           ),
@@ -163,7 +174,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.black,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 8,
@@ -216,7 +227,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Your smartphone acts as a physical Bluetooth Mouse & Keyboard hardware device. Zero software or scripts required on your PC or Mac.',
                     style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                   ),
@@ -319,7 +330,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       'Cursor Acceleration',
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
-                    subtitle: const Text(
+                    subtitle: Text(
                       'Speeds up cursor when flicking finger quickly',
                       style: TextStyle(
                         fontSize: 12,
@@ -339,7 +350,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       'Tactile Haptic Feedback',
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
-                    subtitle: const Text(
+                    subtitle: Text(
                       'Vibrates on taps, clicks, and key presses',
                       style: TextStyle(
                         fontSize: 12,
@@ -387,7 +398,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Manage your consent preferences for personalized ads, measurement, and privacy under European GDPR / UK regulations and US State Privacy laws.',
                       style: TextStyle(
                         fontSize: 12,
@@ -453,18 +464,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                     const SizedBox(width: 14),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Feature Guide & Onboarding',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
                             'Review walkthrough for touchpad, keyboard, & PC connection',
                             style: TextStyle(
@@ -475,7 +486,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ],
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.arrow_forward_ios_rounded,
                       size: 14,
                       color: AppColors.textMuted,
@@ -662,17 +673,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Text(
-                                    palette.name,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.w600,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : AppColors.textPrimary,
+                                  Flexible(
+                                    child: Text(
+                                      palette.name,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.w600,
+                                        color: isSelected
+                                            ? palette.primary
+                                            : AppColors.textPrimary,
+                                      ),
                                     ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Icon(
+                                    palette.isLight
+                                        ? Icons.light_mode_rounded
+                                        : Icons.dark_mode_rounded,
+                                    size: 13,
+                                    color: palette.isLight
+                                        ? const Color(0xFFF59E0B)
+                                        : AppColors.textMuted,
                                   ),
                                   if (palette.isPro) ...[
                                     const SizedBox(width: 6),
@@ -706,7 +730,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               const SizedBox(height: 2),
                               Text(
                                 palette.subtitle,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
                                   color: AppColors.textMuted,
                                 ),

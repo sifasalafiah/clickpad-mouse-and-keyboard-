@@ -7,7 +7,6 @@ import '../services/iap_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
-import '../widgets/banner_ad_widget.dart';
 
 class TouchpadScreen extends StatefulWidget {
   const TouchpadScreen({super.key});
@@ -269,16 +268,16 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
   @override
   Widget build(BuildContext context) {
     final isDragActive = _isDragging || _isLeftButtonHeld;
+    final buttonHeight = _isNativeKeyboardOpen ? 40.0 : 54.0;
 
     return Column(
       children: [
-        // Collapsible AdMob Banner Ad at Top of Touchpad Screen (Hidden for PRO users)
-        if (!_iapService.isPro)
-          const CollapsibleBannerAdWidget(collapsiblePosition: 'top'),
-
         // Top Info & Quick Bar
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: _isNativeKeyboardOpen ? 2 : 8,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -356,10 +355,12 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                 onPointerUp: _onPointerUp,
                 onPointerCancel: _onPointerCancel,
                 behavior: HitTestBehavior.opaque,
-                child: Stack(
-                  children: [
-                    // Subdued Grid pattern lines
-                    CustomPaint(size: Size.infinite, painter: GridPainter()),
+                child: LayoutBuilder(
+                  builder: (context, canvasConstraints) {
+                    return Stack(
+                      children: [
+                        // Subdued Grid pattern lines
+                        CustomPaint(size: Size.infinite, painter: GridPainter()),
 
                     // Multi-Touch Ripple Visual Indicators (renders a circle for each finger)
                     for (final entry in _pointerPositions.entries)
@@ -416,31 +417,35 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                         ),
                       ),
 
-                    // Center gesture guide text
-                    Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isDragActive ? Icons.select_all : Icons.mouse,
-                            size: 32,
-                            color: isDragActive
-                                ? AppColors.primary
-                                : AppColors.textMuted.withAlpha(50),
+                    // Center gesture guide text (Hidden when keyboard is open or canvas is constrained)
+                    if (!_isNativeKeyboardOpen && canvasConstraints.maxHeight >= 100)
+                      Center(
+                        child: SingleChildScrollView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isDragActive ? Icons.select_all : Icons.mouse,
+                                size: 32,
+                                color: isDragActive
+                                    ? AppColors.primary
+                                    : AppColors.textMuted.withAlpha(50),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '1 Finger: Move  •  2 Fingers: Scroll\nDouble-Tap & Slide or Hold Left Click: Select / Block Text\n2-Finger Tap: Right Click',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  height: 1.5,
+                                  color: AppColors.textMuted.withAlpha(130),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '1 Finger: Move  •  2 Fingers: Scroll\nDouble-Tap & Slide or Hold Left Click: Select / Block Text\n2-Finger Tap: Right Click',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12,
-                              height: 1.5,
-                              color: AppColors.textMuted.withAlpha(130),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
 
                     // Floating Drag & Block Indicator Badge
                     if (isDragActive)
@@ -489,12 +494,14 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                         ),
                       ),
                   ],
-                ),
-              ),
+                );
+              },
             ),
           ),
         ),
-        const SizedBox(height: 12),
+      ),
+    ),
+    SizedBox(height: _isNativeKeyboardOpen ? 6 : 12),
 
         // Bottom Physical Mouse Click Bar
         Padding(
@@ -520,7 +527,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                     _connService.sendCommand(InputCommand.mouseUp('left'));
                   },
                   child: Container(
-                    height: 56,
+                    height: buttonHeight,
                     decoration: BoxDecoration(
                       color: _isLeftButtonHeld
                           ? AppColors.primary
@@ -591,7 +598,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                     _connService.sendCommand(InputCommand.mouseUp('middle'));
                   },
                   child: Container(
-                    height: 56,
+                    height: buttonHeight,
                     decoration: BoxDecoration(
                       color: _isMiddleButtonHeld
                           ? AppColors.surfaceElevated.withAlpha(200)
@@ -634,7 +641,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                     _connService.sendCommand(InputCommand.mouseUp('right'));
                   },
                   child: Container(
-                    height: 56,
+                    height: buttonHeight,
                     decoration: BoxDecoration(
                       color: _isRightButtonHeld
                           ? AppColors.accent
@@ -687,7 +694,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: _isNativeKeyboardOpen ? 4 : 8),
 
         // Native Keyboard Input Bar (Visible when Keyboard mode is active)
         if (_isNativeKeyboardOpen)
@@ -716,7 +723,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                       controller: _nativeTextController,
                       focusNode: _nativeKeyboardFocusNode,
                       autofocus: true,
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                      style: TextStyle(color: AppColors.textPrimary, fontSize: 13),
                       decoration: InputDecoration(
                         hintText: 'Type on native keyboard to send to PC...',
                         hintStyle: TextStyle(
@@ -846,7 +853,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: _isNativeKeyboardOpen ? 4 : 12),
       ],
     );
   }
@@ -1026,7 +1033,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: isActive ? AppColors.primary : Colors.white,
+                  color: isActive ? AppColors.primary : AppColors.textPrimary,
                   letterSpacing: 0.3,
                 ),
               ),

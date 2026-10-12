@@ -105,11 +105,14 @@ class _CollapsibleBannerAdWidgetState extends State<CollapsibleBannerAdWidget> {
     }
 
     return Container(
+      width: double.infinity,
       alignment: Alignment.center,
-      width: _bannerAd!.size.width.toDouble(),
-      height: _bannerAd!.size.height.toDouble(),
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: AdWidget(ad: _bannerAd!),
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: SizedBox(
+        width: _bannerAd!.size.width.toDouble(),
+        height: _bannerAd!.size.height.toDouble(),
+        child: AdWidget(ad: _bannerAd!),
+      ),
     );
   }
 }
