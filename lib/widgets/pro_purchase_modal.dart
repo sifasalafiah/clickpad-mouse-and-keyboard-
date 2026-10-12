@@ -34,10 +34,14 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
   final IapService _iapService = IapService.instance;
   bool _isProcessing = false;
   bool _hasPopped = false;
+  late final bool _initiallyHadPro;
+  late final bool _initiallyHadJoystick;
 
   @override
   void initState() {
     super.initState();
+    _initiallyHadPro = _iapService.isPro;
+    _initiallyHadJoystick = _iapService.isJoystickUnlocked;
     _iapService.addListener(_onIapChanged);
     if (_iapService.products.isEmpty && _iapService.isAvailable) {
       _iapService.queryProducts();
@@ -69,13 +73,14 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
 
   void _onIapChanged() {
     if (!mounted || _hasPopped) return;
-    if (_iapService.isPro) {
+    // Only auto-close if newly unlocked during this session
+    if (_iapService.isPro && !_initiallyHadPro) {
       _safeClose(
         successMessage:
             '🎉 ClickPad PRO Lifetime Successfully Activated! All features & Ad-Free unlocked.',
       );
       return;
-    } else if (_iapService.isJoystickUnlocked) {
+    } else if (_iapService.isJoystickUnlocked && !_initiallyHadJoystick) {
       _safeClose(
         successMessage:
             '🎮 Joystick Game Pass Successfully Activated! Virtual Gamepad unlocked.',
@@ -201,24 +206,31 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                       final isStoreLoading = _iapService.isLoading;
                       final proPrice = proProduct?.price ?? (isStoreLoading ? '...' : '-');
                       final joystickPrice = joystickProduct?.price ?? (isStoreLoading ? '...' : '-');
+                      final isJoystickOwned = _iapService.isJoystickUnlocked && !_iapService.isPro;
 
                       return Column(
                         children: [
                           _buildPricingCard(
-                            title: 'Pro Lifetime Pass',
-                            badge: 'BEST VALUE',
+                            title: isJoystickOwned ? 'Upgrade to Pro Lifetime' : 'Pro Lifetime Pass',
+                            badge: isJoystickOwned ? 'NO ADS' : 'BEST VALUE',
                             price: proPrice,
-                            subtitle: 'One-time purchase, unlock all features forever',
+                            subtitle: isJoystickOwned
+                                ? 'Remove all ads forever & unlock all exclusive themes'
+                                : 'One-time purchase, unlock all features forever',
                             isPrimary: true,
                             onTap: () => _handleUnlock(isLifetime: true),
                           ),
                           const SizedBox(height: 10),
                           _buildPricingCard(
                             title: 'Joystick Game Pass Only',
-                            price: joystickPrice,
-                            subtitle: 'Dedicated to Virtual Gamepad & Controller features',
+                            badge: isJoystickOwned ? 'OWNED' : null,
+                            price: isJoystickOwned ? 'Active' : joystickPrice,
+                            subtitle: isJoystickOwned
+                                ? 'Already unlocked on this device'
+                                : 'Dedicated to Virtual Gamepad & Controller features',
                             isPrimary: false,
-                            onTap: () => _handleUnlock(isLifetime: false),
+                            isOwned: isJoystickOwned,
+                            onTap: isJoystickOwned ? null : () => _handleUnlock(isLifetime: false),
                           ),
                         ],
                       );
@@ -244,11 +256,14 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                         );
                       },
                       icon: const Icon(Icons.ondemand_video_rounded, color: Color(0xFF00E5FF), size: 18),
-                      label: Text(
-                        _iapService.isTrialActive
-                            ? 'Extend Free Trial (+3 Min Free)'
-                            : 'Watch Video for 3-Min Free Trial',
-                        style: const TextStyle(color: Color(0xFF00E5FF), fontWeight: FontWeight.bold),
+                      label: Flexible(
+                        child: Text(
+                          _iapService.isTrialActive
+                              ? 'Extend Free Trial (+3 Min Free)'
+                              : 'Watch Video for 3-Min Free Trial',
+                          style: const TextStyle(color: Color(0xFF00E5FF), fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFF00E5FF)),
@@ -347,81 +362,94 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
     required String price,
     required String subtitle,
     required bool isPrimary,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
+    bool isOwned = false,
   }) {
+    final isInteractive = onTap != null && !_isProcessing;
     return InkWell(
-      onTap: _isProcessing ? null : onTap,
+      onTap: isInteractive ? onTap : null,
       borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isPrimary
-              ? AppColors.primary.withAlpha(AppColors.palette.isLight ? 25 : 30)
-              : AppColors.surfaceElevated,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isPrimary ? AppColors.primary : AppColors.border,
-            width: isPrimary ? 2 : 1,
+      child: Opacity(
+        opacity: isOwned ? 0.75 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isPrimary
+                ? AppColors.primary.withAlpha(AppColors.palette.isLight ? 25 : 30)
+                : AppColors.surfaceElevated,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isPrimary ? AppColors.primary : AppColors.border,
+              width: isPrimary ? 2 : 1,
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      if (badge != null) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFD700),
-                            borderRadius: BorderRadius.circular(6),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
                           ),
-                          child: Text(
-                            badge,
-                            style: const TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.black,
+                        ),
+                        if (badge != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: isOwned
+                                  ? AppColors.success.withAlpha(35)
+                                  : const Color(0xFFFFD700),
+                              borderRadius: BorderRadius.circular(6),
+                              border: isOwned
+                                  ? Border.all(color: AppColors.success, width: 1)
+                                  : null,
+                            ),
+                            child: Text(
+                              badge,
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                                color: isOwned ? AppColors.success : Colors.black,
+                              ),
                             ),
                           ),
-                        ),
                       ],
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(fontSize: 11, color: AppColors.textMuted),
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              price,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w900,
-                color: isPrimary
-                    ? (AppColors.palette.isLight
-                        ? AppColors.primary
-                        : const Color(0xFF00E5FF))
-                    : AppColors.textPrimary,
+              const SizedBox(width: 10),
+              Text(
+                price,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: isOwned
+                      ? AppColors.success
+                      : (isPrimary
+                          ? (AppColors.palette.isLight
+                              ? AppColors.primary
+                              : const Color(0xFF00E5FF))
+                          : AppColors.textPrimary),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

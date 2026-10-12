@@ -90,6 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final isPro = _iapService.isPro;
+    final isJoystickOnly = _iapService.isJoystickUnlocked && !_iapService.isPro;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -108,7 +109,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
               side: BorderSide(
-                color: isPro ? const Color(0xFFFFD700) : AppColors.primary,
+                color: (isPro || isJoystickOnly)
+                    ? const Color(0xFFFFD700)
+                    : AppColors.primary,
                 width: 1.5,
               ),
             ),
@@ -120,14 +123,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: isPro
+                      color: (isPro || isJoystickOnly)
                           ? const Color(0xFFFFD700).withAlpha(
                               AppColors.palette.isLight ? 45 : 30)
                           : AppColors.primary.withAlpha(30),
                     ),
                     child: Icon(
                       Icons.workspace_premium,
-                      color: isPro
+                      color: (isPro || isJoystickOnly)
                           ? (AppColors.palette.isLight
                               ? const Color(0xFFB45309)
                               : const Color(0xFFFFD700))
@@ -143,11 +146,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Text(
                           isPro
                               ? 'ClickPad PRO Active'
-                              : 'Upgrade to ClickPad PRO',
+                              : (isJoystickOnly
+                                  ? 'Joystick Pass Active'
+                                  : 'Upgrade to ClickPad PRO'),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: isPro
+                            color: (isPro || isJoystickOnly)
                                 ? (AppColors.palette.isLight
                                     ? const Color(0xFFB45309)
                                     : const Color(0xFFFFD700))
@@ -157,8 +162,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         const SizedBox(height: 2),
                         Text(
                           isPro
-                              ? 'Virtual Gamepad, Zero Ads, & Premium Themes Unlocked'
-                              : 'Unlock Joystick Gamepad, Motion Control, & Ad-Free UX',
+                              ? '100% Ad-Free, Virtual Gamepad, & Premium Themes Unlocked'
+                              : (isJoystickOnly
+                                  ? 'Virtual Gamepad Unlocked • Upgrade to PRO for 100% Ad-Free & Themes'
+                                  : 'Unlock Virtual Gamepad, 100% Ad-Free, & Premium Themes'),
                           style: TextStyle(
                             fontSize: 11,
                             color: AppColors.textMuted,
@@ -185,9 +192,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
-                        'Upgrade',
-                        style: TextStyle(
+                      child: Text(
+                        isJoystickOnly ? 'Upgrade PRO' : 'Upgrade',
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
