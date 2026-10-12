@@ -70,6 +70,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
   void initState() {
     super.initState();
     _iapService.addListener(_onIapChanged);
+    _settings.addListener(_onSettingsChanged);
     _nativeKeyboardFocusNode.addListener(_onKeyboardFocusChange);
     // Flush input deltas every 12ms (~83Hz smooth input frame rate)
     _flushTimer = Timer.periodic(const Duration(milliseconds: 12), (_) {
@@ -94,9 +95,14 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
     if (mounted) setState(() {});
   }
 
+  void _onSettingsChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
     _iapService.removeListener(_onIapChanged);
+    _settings.removeListener(_onSettingsChanged);
     _nativeKeyboardFocusNode.removeListener(_onKeyboardFocusChange);
     _nativeKeyboardFocusNode.dispose();
     _nativeTextController.dispose();
@@ -414,7 +420,10 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                     return Stack(
                       children: [
                         // Subdued Grid pattern lines
-                        CustomPaint(size: Size.infinite, painter: GridPainter()),
+                        CustomPaint(
+                          size: Size.infinite,
+                          painter: GridPainter(gridColor: AppColors.borderSubtle),
+                        ),
 
                     // Multi-Touch Ripple Visual Indicators (renders a circle for each finger)
                     for (final entry in _pointerPositions.entries)
@@ -1202,10 +1211,14 @@ _KeyStroke? _charToKeyStroke(String char) {
 }
 
 class GridPainter extends CustomPainter {
+  final Color gridColor;
+
+  const GridPainter({required this.gridColor});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.borderSubtle
+      ..color = gridColor
       ..strokeWidth = 1.0;
 
     const step = 40.0;
@@ -1218,5 +1231,6 @@ class GridPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant GridPainter oldDelegate) =>
+      oldDelegate.gridColor != gridColor;
 }
