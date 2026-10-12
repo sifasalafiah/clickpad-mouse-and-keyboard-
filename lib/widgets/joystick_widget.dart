@@ -175,27 +175,23 @@ class _VirtualJoystickWidgetState extends State<VirtualJoystickWidget>
         height: widget.size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [
-              AppColors.surfaceElevated,
-              AppColors.background,
-            ],
-          ),
+          color: AppColors.palette.isLight
+              ? AppColors.touchpadCanvas
+              : const Color(0xFF1E293B).withAlpha(180),
           border: Border.all(
             color: _activeKeycodes.isNotEmpty
                 ? AppColors.primary
                 : AppColors.border,
-            width: 2.5,
+            width: 2.0,
           ),
           boxShadow: [
             BoxShadow(
               color: _activeKeycodes.isNotEmpty
-                  ? AppColors.primary.withAlpha(40)
+                  ? AppColors.primary.withAlpha(60)
                   : (AppColors.palette.isLight
-                      ? Colors.black.withAlpha(20)
+                      ? Colors.black.withAlpha(15)
                       : Colors.black.withAlpha(80)),
-              blurRadius: 16,
-              spreadRadius: 2,
+              blurRadius: 14,
             ),
           ],
         ),
@@ -208,7 +204,7 @@ class _VirtualJoystickWidgetState extends State<VirtualJoystickWidget>
               child: Text(
                 widget.mode == JoystickMode.wasd ? 'W' : '▲',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
                   color: _activeKeycodes.contains(_keyUp)
                       ? AppColors.primary
@@ -221,7 +217,7 @@ class _VirtualJoystickWidgetState extends State<VirtualJoystickWidget>
               child: Text(
                 widget.mode == JoystickMode.wasd ? 'S' : '▼',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
                   color: _activeKeycodes.contains(_keyDown)
                       ? AppColors.primary
@@ -234,7 +230,7 @@ class _VirtualJoystickWidgetState extends State<VirtualJoystickWidget>
               child: Text(
                 widget.mode == JoystickMode.wasd ? 'A' : '◄',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
                   color: _activeKeycodes.contains(_keyLeft)
                       ? AppColors.primary
@@ -247,7 +243,7 @@ class _VirtualJoystickWidgetState extends State<VirtualJoystickWidget>
               child: Text(
                 widget.mode == JoystickMode.wasd ? 'D' : '►',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
                   color: _activeKeycodes.contains(_keyRight)
                       ? AppColors.primary
@@ -256,50 +252,28 @@ class _VirtualJoystickWidgetState extends State<VirtualJoystickWidget>
               ),
             ),
 
-            // Inner Thumb Knob
+            // Inner Thumb Knob (Matching Layout Model with Navigation Arrow)
             Transform.translate(
               offset: _thumbPosition,
               child: Container(
-                width: 64,
-                height: 64,
+                width: widget.size * 0.38,
+                height: widget.size * 0.38,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: _activeKeycodes.isNotEmpty
-                        ? [AppColors.primary, AppColors.primaryLight]
-                        : [
-                            AppColors.surfaceElevated,
-                            AppColors.surface,
-                          ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  border: Border.all(
-                    color: _activeKeycodes.isNotEmpty
-                        ? Colors.white
-                        : AppColors.border,
-                    width: 2,
-                  ),
+                  color: AppColors.primary,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.palette.isLight
-                          ? Colors.black.withAlpha(40)
-                          : Colors.black.withAlpha(120),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
+                      color: AppColors.primary
+                          .withAlpha(_activeKeycodes.isNotEmpty ? 170 : 100),
+                      blurRadius: _activeKeycodes.isNotEmpty ? 16 : 10,
                     ),
                   ],
                 ),
                 child: Center(
-                  child: Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _activeKeycodes.isNotEmpty
-                          ? Colors.white.withAlpha(200)
-                          : AppColors.primary.withAlpha(100),
-                    ),
+                  child: Icon(
+                    Icons.navigation,
+                    color: Colors.white,
+                    size: widget.size * 0.16,
                   ),
                 ),
               ),

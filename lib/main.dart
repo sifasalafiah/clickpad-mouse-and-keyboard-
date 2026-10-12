@@ -5,6 +5,7 @@ import 'screens/main_navigation_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'services/ad_service.dart';
 import 'services/connection_service.dart';
+import 'services/gamepad_layout_service.dart';
 import 'services/gamepad_mapping_service.dart';
 import 'services/iap_service.dart';
 import 'services/settings_service.dart';
@@ -21,9 +22,10 @@ void main() async {
     debugPrint('Wakelock error: $e');
   }
 
-  // Initialize persistent settings, connection, mapping, and IAP
+  // Initialize persistent settings, connection, mapping, layout, and IAP
   await SettingsService.instance.init();
   await GamepadMappingService.instance.init();
+  await GamepadLayoutService.instance.init();
   await IapService.instance.init();
   ConnectionService.instance.init();
 

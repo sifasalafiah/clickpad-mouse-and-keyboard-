@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../models/gamepad_layout.dart';
 import '../models/gamepad_mapping.dart';
 import '../models/input_command.dart';
 import '../services/ad_service.dart';
 import '../services/bluetooth_service.dart';
 import '../services/connection_service.dart';
+import '../services/gamepad_layout_service.dart';
 import '../services/gamepad_mapping_service.dart';
 import '../services/iap_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
+import '../widgets/gamepad_layout_editor.dart';
 import '../widgets/gamepad_remapping_modal.dart';
 import '../widgets/joystick_widget.dart';
 import '../widgets/pro_purchase_modal.dart';
@@ -26,6 +29,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
   final IapService _iapService = IapService.instance;
   final SettingsService _settings = SettingsService.instance;
   final GamepadMappingService _mappingService = GamepadMappingService.instance;
+  final GamepadLayoutService _layoutService = GamepadLayoutService.instance;
 
   JoystickMode _joystickMode = JoystickMode.wasd;
   bool _useAnalogStick = true;
@@ -40,6 +44,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
     _iapService.addListener(_onIapChanged);
     _settings.addListener(_onIapChanged);
     _mappingService.addListener(_onIapChanged);
+    _layoutService.addListener(_onIapChanged);
 
     // Prefer landscape for comfortable gaming grip
     SystemChrome.setPreferredOrientations([
@@ -54,6 +59,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
     _iapService.removeListener(_onIapChanged);
     _settings.removeListener(_onIapChanged);
     _mappingService.removeListener(_onIapChanged);
+    _layoutService.removeListener(_onIapChanged);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -149,19 +155,24 @@ class _JoystickScreenState extends State<JoystickScreen> {
           width: availableWidth,
           height: availableHeight,
           color: AppColors.background,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           child: SafeArea(
             top: false,
             bottom: false,
-            child: Column(
+            child: Stack(
               children: [
-                // Top Edge Row: Left Shoulder Buttons | Center Gaming HUD | Right Shoulder Buttons
-                _buildTopShoulderAndHudBar(isTrial, trialSeconds),
-                const SizedBox(height: 6),
-
-                // Main Gamepad Body: Left Thumb Stick | Center Touchpad & Menu | Right ABXY
-                Expanded(
+                // Main Gamepad Body with custom positioned & scaled HUD elements
+                Positioned.fill(
                   child: _buildMainGamepadBody(),
+                ),
+
+                // Floating Top Center HUD (WASD mode, analog toggle, Remap, HUD Layout, Pro/Trial)
+                Positioned(
+                  top: 6,
+                  left: 16,
+                  right: 16,
+                  child: Center(
+                    child: _buildTopCenterHud(isTrial, trialSeconds),
+                  ),
                 ),
               ],
             ),
@@ -191,60 +202,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
     );
   }
 
-  Widget _buildTopShoulderAndHudBar(bool isTrial, int trialSeconds) {
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Left Shoulders (L1, L2)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildShoulderButton(
-                label: 'L1',
-                subLabel: _mappingService.getShortLabel(GamepadButtonId.l1),
-                scancode: _mappingService.getScancode(GamepadButtonId.l1),
-              ),
-              const SizedBox(width: 6),
-              _buildShoulderButton(
-                label: 'L2',
-                subLabel: _mappingService.getShortLabel(GamepadButtonId.l2),
-                scancode: _mappingService.getScancode(GamepadButtonId.l2),
-              ),
-            ],
-          ),
-          const SizedBox(width: 12),
-
-          // Center HUD
-          _buildTopCenterHud(isTrial, trialSeconds),
-          const SizedBox(width: 12),
-
-          // Right Shoulders (R1, R2)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildShoulderButton(
-                label: 'R1',
-                subLabel: _mappingService.getShortLabel(GamepadButtonId.r1),
-                scancode: _mappingService.getScancode(GamepadButtonId.r1),
-              ),
-              const SizedBox(width: 6),
-              _buildShoulderButton(
-                label: 'R2',
-                subLabel: _mappingService.getShortLabel(GamepadButtonId.r2),
-                scancode: _mappingService.getScancode(GamepadButtonId.r2),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildTopCenterHud(bool isTrial, int trialSeconds) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
@@ -259,9 +219,11 @@ class _JoystickScreenState extends State<JoystickScreen> {
           ),
         ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           // WASD / ARROWS Mode Toggle
           Container(
             decoration: BoxDecoration(
@@ -339,34 +301,67 @@ class _JoystickScreenState extends State<JoystickScreen> {
               ),
             ),
           ),
+          const SizedBox(width: 6),
 
-          // PRO / Trial Badge
-          if (isTrial) ...[
-            const SizedBox(width: 8),
+            // HUD Layout Customizer Button
             InkWell(
               onTap: () {
-                AdService.instance.showRewardedTrialFlow(
-                  context,
-                  onSuccess: () {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('🎉 +3 Minutes added to your Free Trial!'),
-                          backgroundColor: AppColors.success,
-                        ),
-                      );
-                    }
-                  },
-                );
+                GamepadLayoutEditorScreen.open(context);
               },
-              borderRadius: BorderRadius.circular(10),
-              child: _buildTrialBadge(trialSeconds),
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceElevated,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.primary.withAlpha(150)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.dashboard_customize, color: AppColors.primary, size: 12),
+                    const SizedBox(width: 3),
+                    Text(
+                      'Layout',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ] else if (_iapService.isPro) ...[
-            const SizedBox(width: 8),
-            _buildProBadge(),
+
+            // PRO / Trial Badge
+            if (isTrial) ...[
+              const SizedBox(width: 6),
+              InkWell(
+                onTap: () {
+                  AdService.instance.showRewardedTrialFlow(
+                    context,
+                    onSuccess: () {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('🎉 +3 Minutes added to your Free Trial!'),
+                            backgroundColor: AppColors.success,
+                          ),
+                        );
+                      }
+                    },
+                  );
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: _buildTrialBadge(trialSeconds),
+              ),
+            ] else if (_iapService.isPro) ...[
+              const SizedBox(width: 6),
+              _buildProBadge(),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -375,27 +370,27 @@ class _JoystickScreenState extends State<JoystickScreen> {
     final trialText =
         '${(trialSeconds ~/ 60).toString().padLeft(2, '0')}:${(trialSeconds % 60).toString().padLeft(2, '0')}';
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: Colors.orange.withAlpha(40),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.orange),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.timer, color: Colors.orange, size: 12),
-          const SizedBox(width: 4),
+          const Icon(Icons.timer, color: Colors.orange, size: 11),
+          const SizedBox(width: 3),
           Text(
             trialText,
             style: const TextStyle(
-              fontSize: 10,
+              fontSize: 9.5,
               fontWeight: FontWeight.bold,
               color: Colors.orange,
             ),
           ),
-          const SizedBox(width: 4),
-          const Icon(Icons.add_circle_outline, color: Colors.orange, size: 11),
+          const SizedBox(width: 3),
+          const Icon(Icons.add_circle_outline, color: Colors.orange, size: 10),
         ],
       ),
     );
@@ -403,21 +398,21 @@ class _JoystickScreenState extends State<JoystickScreen> {
 
   Widget _buildProBadge() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: const Color(0xFFFFD700).withAlpha(40),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFFFD700)),
       ),
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 12),
-          SizedBox(width: 4),
+          Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 11),
+          SizedBox(width: 3),
           Text(
             'PRO',
             style: TextStyle(
-              fontSize: 10,
+              fontSize: 9.5,
               fontWeight: FontWeight.w900,
               color: Color(0xFFFFD700),
             ),
@@ -434,17 +429,17 @@ class _JoystickScreenState extends State<JoystickScreen> {
         HapticHelper.selectionClick();
         setState(() => _joystickMode = mode);
       },
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 10,
+            fontSize: 9,
             fontWeight: FontWeight.bold,
             color: isSelected ? Colors.white : AppColors.textMuted,
           ),
@@ -454,58 +449,190 @@ class _JoystickScreenState extends State<JoystickScreen> {
   }
 
   Widget _buildMainGamepadBody() {
-    return Row(
-      children: [
-        // Left Thumb Zone: 360° Joystick or D-Pad
-        Expanded(
-          flex: 5,
-          child: Center(
-            child: _useAnalogStick
-                ? VirtualJoystickWidget(
-                    size: 155,
-                    mode: _joystickMode,
-                    onDirectionChanged: _onJoystickDirectionChanged,
-                  )
-                : _buildDPadWidget(),
-          ),
-        ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final canvasSize = Size(constraints.maxWidth, constraints.maxHeight);
+        final stickBase = GamepadLayoutDimensions.getBaseSize(
+          GamepadHudElement.leftStick,
+          canvasSize,
+        );
+        final abxyBase = GamepadLayoutDimensions.getBaseSize(
+          GamepadHudElement.abxyCluster,
+          canvasSize,
+        );
+        final leftShoulderBase = GamepadLayoutDimensions.getBaseSize(
+          GamepadHudElement.leftShoulders,
+          canvasSize,
+        );
+        final rightShoulderBase = GamepadLayoutDimensions.getBaseSize(
+          GamepadHudElement.rightShoulders,
+          canvasSize,
+        );
+        final systemBase = GamepadLayoutDimensions.getBaseSize(
+          GamepadHudElement.systemButtons,
+          canvasSize,
+        );
+        final cameraBase = GamepadLayoutDimensions.getBaseSize(
+          GamepadHudElement.cameraTouchpad,
+          canvasSize,
+        );
 
-        // Center Zone: System Buttons (SELECT / START / ESC) & Camera Look Touchpad
-        Expanded(
-          flex: 4,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: Column(
-              children: [
-                // System Buttons Row
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildCenterButton('SELECT', _mappingService.getScancode(GamepadButtonId.select)),
-                      const SizedBox(width: 8),
-                      _buildCenterButton('START', _mappingService.getScancode(GamepadButtonId.start)),
-                      const SizedBox(width: 8),
-                      _buildCenterButton('ESC', _mappingService.getScancode(GamepadButtonId.esc)),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // Camera Look Touchpad
-                Expanded(child: _buildCameraLookPad()),
-              ],
+        return Stack(
+          children: [
+            // 1. Left Stick or D-Pad
+            _buildPositionedHudItem(
+              GamepadHudElement.leftStick,
+              canvasSize,
+              child: _useAnalogStick
+                  ? VirtualJoystickWidget(
+                      size: stickBase.width,
+                      mode: _joystickMode,
+                      onDirectionChanged: _onJoystickDirectionChanged,
+                    )
+                  : _buildDPadWidget(),
             ),
-          ),
-        ),
 
-        // Right Thumb Zone: ABXY Diamond Action Cluster
-        Expanded(
-          flex: 5,
-          child: Center(
-            child: _buildABXYCluster(),
-          ),
+            // 2. Action Buttons (ABXY Cluster)
+            _buildPositionedHudItem(
+              GamepadHudElement.abxyCluster,
+              canvasSize,
+              child: _buildABXYCluster(abxyBase),
+            ),
+
+            // 3. Camera Look Touchpad
+            _buildPositionedHudItem(
+              GamepadHudElement.cameraTouchpad,
+              canvasSize,
+              child: _buildCameraLookPad(cameraBase),
+            ),
+
+            // 4. Left Shoulders (L1 & L2)
+            _buildPositionedHudItem(
+              GamepadHudElement.leftShoulders,
+              canvasSize,
+              child: _buildLeftShoulders(leftShoulderBase),
+            ),
+
+            // 5. Right Shoulders (R1 & R2)
+            _buildPositionedHudItem(
+              GamepadHudElement.rightShoulders,
+              canvasSize,
+              child: _buildRightShoulders(rightShoulderBase),
+            ),
+
+            // 6. System Buttons (Select, Start, Esc)
+            _buildPositionedHudItem(
+              GamepadHudElement.systemButtons,
+              canvasSize,
+              child: _buildSystemButtons(systemBase),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPositionedHudItem(
+    GamepadHudElement element,
+    Size canvasSize, {
+    required Widget child,
+  }) {
+    final config = _layoutService.layout.getConfig(element);
+    final baseSize = GamepadLayoutDimensions.getBaseSize(element, canvasSize);
+
+    final scaledWidth = baseSize.width * config.scale;
+    final scaledHeight = baseSize.height * config.scale;
+
+    final left = (config.relX * canvasSize.width - scaledWidth / 2)
+        .clamp(2.0, canvasSize.width - scaledWidth - 2.0);
+    final top = (config.relY * canvasSize.height - scaledHeight / 2)
+        .clamp(2.0, canvasSize.height - scaledHeight - 2.0);
+
+    return Positioned(
+      left: left,
+      top: top,
+      width: scaledWidth,
+      height: scaledHeight,
+      child: FittedBox(
+        fit: BoxFit.contain,
+        child: SizedBox(
+          width: baseSize.width,
+          height: baseSize.height,
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeftShoulders(Size baseSize) {
+    final itemW = (baseSize.width - 8) / 2.0;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildShoulderButton(
+          label: 'L1',
+          scancode: _mappingService.getScancode(GamepadButtonId.l1),
+          width: itemW,
+          height: baseSize.height,
+        ),
+        const SizedBox(width: 8),
+        _buildShoulderButton(
+          label: 'L2',
+          scancode: _mappingService.getScancode(GamepadButtonId.l2),
+          width: itemW,
+          height: baseSize.height,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRightShoulders(Size baseSize) {
+    final itemW = (baseSize.width - 8) / 2.0;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildShoulderButton(
+          label: 'R1',
+          scancode: _mappingService.getScancode(GamepadButtonId.r1),
+          width: itemW,
+          height: baseSize.height,
+        ),
+        const SizedBox(width: 8),
+        _buildShoulderButton(
+          label: 'R2',
+          scancode: _mappingService.getScancode(GamepadButtonId.r2),
+          width: itemW,
+          height: baseSize.height,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSystemButtons(Size baseSize) {
+    final itemW = (baseSize.width - 12) / 3.0;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildCenterButton(
+          'SELECT',
+          _mappingService.getScancode(GamepadButtonId.select),
+          itemW,
+          baseSize.height,
+        ),
+        const SizedBox(width: 6),
+        _buildCenterButton(
+          'START',
+          _mappingService.getScancode(GamepadButtonId.start),
+          itemW,
+          baseSize.height,
+        ),
+        const SizedBox(width: 6),
+        _buildCenterButton(
+          'ESC',
+          _mappingService.getScancode(GamepadButtonId.esc),
+          itemW,
+          baseSize.height,
         ),
       ],
     );
@@ -513,8 +640,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
 
   Widget _buildShoulderButton({
     required String label,
-    required String subLabel,
     required int scancode,
+    required double width,
+    required double height,
   }) {
     final isPressed = _activeHeldKeys.contains(scancode);
     return Listener(
@@ -523,70 +651,43 @@ class _JoystickScreenState extends State<JoystickScreen> {
       onPointerCancel: (_) => _onButtonTouchUp(scancode),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 60),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        width: width,
+        height: height,
         decoration: BoxDecoration(
           color: isPressed ? AppColors.primary : AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isPressed ? AppColors.primaryLight : AppColors.border,
-            width: isPressed ? 1.5 : 1,
+            width: isPressed ? 1.5 : 1.0,
           ),
           boxShadow: isPressed
               ? [
                   BoxShadow(
                     color: AppColors.primary.withAlpha(120),
                     blurRadius: 8,
-                    offset: const Offset(0, 1),
                   ),
                 ]
-              : [
-                  BoxShadow(
-                    color: AppColors.palette.isLight
-                        ? Colors.black.withAlpha(15)
-                        : Colors.black.withAlpha(60),
-                    blurRadius: 3,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
+              : null,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                color: isPressed ? Colors.white : AppColors.textPrimary,
-                letterSpacing: 0.5,
-              ),
-            ),
-            const SizedBox(width: 5),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              decoration: BoxDecoration(
-                color: isPressed
-                    ? AppColors.primaryLight.withAlpha(60)
-                    : AppColors.surface,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Text(
-                subLabel,
-                style: TextStyle(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w700,
-                  color: isPressed ? Colors.white : AppColors.textMuted,
-                  letterSpacing: 0.2,
-                ),
-              ),
-            ),
-          ],
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: (height * 0.32).clamp(10.0, 14.0),
+            fontWeight: FontWeight.w900,
+            color: isPressed ? Colors.white : AppColors.textPrimary,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildCenterButton(String label, int scancode) {
+  Widget _buildCenterButton(
+    String label,
+    int scancode,
+    double width,
+    double height,
+  ) {
     final isPressed = _activeHeldKeys.contains(scancode);
     return Listener(
       onPointerDown: (_) => _onButtonTouchDown(scancode),
@@ -594,63 +695,64 @@ class _JoystickScreenState extends State<JoystickScreen> {
       onPointerCancel: (_) => _onButtonTouchUp(scancode),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 60),
-        width: 56,
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        width: width,
+        height: height,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: isPressed ? AppColors.primary : AppColors.surfaceElevated,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isPressed ? AppColors.primaryLight : AppColors.border),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isPressed ? AppColors.primaryLight : AppColors.border,
+          ),
         ),
         child: Text(
           label,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 9.5,
+            fontSize: (height * 0.28).clamp(8.0, 11.0),
             fontWeight: FontWeight.bold,
-            color: isPressed ? Colors.white : AppColors.textMuted,
-            letterSpacing: 0.5,
+            color: isPressed ? Colors.white : AppColors.textPrimary,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildABXYCluster() {
+  Widget _buildABXYCluster(Size baseSize) {
+    final btnSize = (baseSize.width * 0.32).clamp(36.0, 52.0);
     return SizedBox(
-      width: 155,
-      height: 155,
+      width: baseSize.width,
+      height: baseSize.height,
       child: Stack(
         alignment: Alignment.center,
         children: [
           // Y Button (Top / Yellow)
           Positioned(
             top: 0,
-            child: _buildABXYButton('Y', GamepadButtonId.buttonY, const Color(0xFFFFD700)),
+            child: _buildABXYButton('Y', GamepadButtonId.buttonY, const Color(0xFFFFD700), btnSize),
           ),
           // X Button (Left / Blue)
           Positioned(
             left: 0,
-            child: _buildABXYButton('X', GamepadButtonId.buttonX, const Color(0xFF00E5FF)),
+            child: _buildABXYButton('X', GamepadButtonId.buttonX, const Color(0xFF00E5FF), btnSize),
           ),
           // B Button (Right / Red)
           Positioned(
             right: 0,
-            child: _buildABXYButton('B', GamepadButtonId.buttonB, const Color(0xFFFF5252)),
+            child: _buildABXYButton('B', GamepadButtonId.buttonB, const Color(0xFFFF5252), btnSize),
           ),
           // A Button (Bottom / Green)
           Positioned(
             bottom: 0,
-            child: _buildABXYButton('A', GamepadButtonId.buttonA, const Color(0xFF00E676)),
+            child: _buildABXYButton('A', GamepadButtonId.buttonA, const Color(0xFF00E676), btnSize),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildABXYButton(String label, GamepadButtonId buttonId, Color themeColor) {
+  Widget _buildABXYButton(String label, GamepadButtonId buttonId, Color themeColor, double size) {
     final scancode = _mappingService.getScancode(buttonId);
-    final shortLabel = _mappingService.getShortLabel(buttonId);
     final isPressed = _activeHeldKeys.contains(scancode);
 
     return Listener(
@@ -659,64 +761,36 @@ class _JoystickScreenState extends State<JoystickScreen> {
       onPointerCancel: (_) => _onButtonTouchUp(scancode),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 60),
-        width: 48,
-        height: 48,
+        width: size,
+        height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(
-            colors:
-                isPressed
-                    ? [themeColor, Colors.white]
-                    : [
-                      themeColor.withAlpha(AppColors.palette.isLight ? 75 : 40),
-                      AppColors.surfaceElevated,
-                    ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: isPressed
+              ? themeColor
+              : themeColor.withAlpha(AppColors.palette.isLight ? 55 : 35),
           border: Border.all(
             color: isPressed ? Colors.white : themeColor,
-            width: 2,
+            width: 2.0,
           ),
           boxShadow: [
             BoxShadow(
-              color:
-                  isPressed
-                      ? themeColor.withAlpha(150)
-                      : (AppColors.palette.isLight
-                          ? Colors.black.withAlpha(25)
-                          : Colors.black.withAlpha(100)),
-              blurRadius: isPressed ? 12 : 4,
-              offset: const Offset(0, 2),
+              color: isPressed
+                  ? themeColor.withAlpha(160)
+                  : themeColor.withAlpha(50),
+              blurRadius: isPressed ? 12 : 5,
             ),
           ],
         ),
         alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w900,
-                color: isPressed ? (themeColor.computeLuminance() > 0.5 ? Colors.black : Colors.white) : themeColor,
-                height: 1.0,
-              ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              shortLabel,
-              style: TextStyle(
-                fontSize: 8.5,
-                fontWeight: FontWeight.bold,
-                color: isPressed ? Colors.white : AppColors.textMuted,
-                height: 1.0,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: size * 0.38,
+            fontWeight: FontWeight.w900,
+            color: isPressed
+                ? (themeColor.computeLuminance() > 0.5 ? Colors.black : Colors.white)
+                : themeColor,
+          ),
         ),
       ),
     );
@@ -826,7 +900,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
     );
   }
 
-  Widget _buildCameraLookPad() {
+  Widget _buildCameraLookPad(Size baseSize) {
     return GestureDetector(
       onPanUpdate: (details) {
         // Send relative mouse movement for camera look in PC games
@@ -835,20 +909,27 @@ class _JoystickScreenState extends State<JoystickScreen> {
         );
       },
       child: Container(
+        width: baseSize.width,
+        height: baseSize.height,
         decoration: BoxDecoration(
           color: AppColors.touchpadCanvas,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.border, width: 1.5),
         ),
         alignment: Alignment.center,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.touch_app, color: AppColors.textMuted, size: 24),
-            const SizedBox(height: 4),
+            Icon(Icons.touch_app, color: AppColors.textMuted, size: 16),
+            const SizedBox(height: 2),
             Text(
-              'Camera Look (Touchpad)',
-              style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+              'Camera Look',
+              style: TextStyle(
+                fontSize: 8.0,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textMuted,
+                letterSpacing: 0.3,
+              ),
             ),
           ],
         ),

@@ -28,6 +28,14 @@ WHAT'S NEW:
      * Realtime sublabel indicators on buttons reflecting current key assignments.
      * Accessible directly from the Gamepad HUD and Settings screen.
      * Persistent custom profile storage via SharedPreferences.
+   - PUBG-Style HUD Layout & Button Size Customizer (GamepadLayoutEditorScreen):
+     * Responsive Adaptive Sizing: Automatically scales default button sizes proportionally to any screen height and width (never too big on small phones, never too small on tablets).
+     * Direct On-Button Resize: No sliders or clumsy toolbars needed. When a button is selected, tap direct [+] and [-] buttons or drag the corner handle right on the button itself.
+     * Clean Top Bar Controls: Simplified top bar with quick size +/- buttons, selected item badge, Reset, and Save (no bottom card blocking the screen).
+     * Clean Solid Visuals: Pure solid rendering without distraction of opacity controls.
+     * Free drag-and-drop repositioning for all 6 modular HUD components (Movement Stick, ABXY, Camera Pad, L1/L2, R1/R2, System buttons).
+     * Realtime WYSIWYG synchronization directly on JoystickScreen with SharedPreferences persistence.
+     * One-tap 'Reset' to return to balanced default tactical layout anytime.
    - Repeatable 3-Minute Free Trial unlocked via AdMob Rewarded Video Ads, with
      ability to stack/extend time (+3 mins) directly during gameplay.
 
