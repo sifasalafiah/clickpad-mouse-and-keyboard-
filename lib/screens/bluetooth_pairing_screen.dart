@@ -7,7 +7,6 @@ import '../services/iap_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
-import '../widgets/banner_ad_widget.dart';
 
 class BluetoothPairingScreen extends StatefulWidget {
   const BluetoothPairingScreen({super.key});
@@ -89,9 +88,6 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // Topbar Banner Ad (Free tier)
-            if (!_iapService.isPro)
-              const CollapsibleBannerAdWidget(collapsiblePosition: 'top'),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
@@ -99,483 +95,500 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header Banner
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Row(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.asset(
-                            'assets/icon/app_icon.png',
-                            width: 44,
-                            height: 44,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Row(
                             children: [
-                              const Text(
-                                'ClickPad',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: -0.5,
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.asset(
+                                  'assets/icon/app_icon.png',
+                                  width: 44,
+                                  height: 44,
+                                  fit: BoxFit.cover,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
-                              Text(
-                                'PC Mouse, Keyboard & Joystick',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.textMuted,
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'ClickPad',
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: -0.5,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      'PC Mouse, Keyboard & Joystick',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.textMuted,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  OutlinedButton.icon(
-                    onPressed: () => _bleService.openSystemBluetoothSettings(),
-                    icon: const Icon(Icons.settings_bluetooth, size: 16),
-                    label: const Text(
-                      'BT Settings',
-                      style: TextStyle(fontSize: 11),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // Last Connected Device Quick Reconnect Card
-              if (_settings.hasLastConnectedDevice && !isConnecting) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: Card(
-                    color: AppColors.surfaceElevated,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: AppColors.primaryLight,
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withAlpha(40),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.history,
-                              color: AppColors.primaryLight,
-                              size: 22,
+                        const SizedBox(width: 8),
+                        OutlinedButton.icon(
+                          onPressed: () =>
+                              _bleService.openSystemBluetoothSettings(),
+                          icon: const Icon(Icons.settings_bluetooth, size: 16),
+                          label: const Text(
+                            'BT Settings',
+                            style: TextStyle(fontSize: 11),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
                             ),
                           ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Last Connected Device Quick Reconnect Card
+                    if (_settings.hasLastConnectedDevice && !isConnecting) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: Card(
+                          color: AppColors.surfaceElevated,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: AppColors.primaryLight,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
                               children: [
-                                Text(
-                                  'LAST CONNECTED DEVICE',
-                                  style: TextStyle(
-                                    fontSize: 10,
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withAlpha(40),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.history,
                                     color: AppColors.primaryLight,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
+                                    size: 22,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  _settings.lastDeviceName,
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'LAST CONNECTED DEVICE',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: AppColors.primaryLight,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        _settings.lastDeviceName,
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ),
-                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    HapticHelper.mediumImpact();
+                                    _connService.connect(
+                                      DiscoveredDevice(
+                                        id: _settings.lastDeviceId,
+                                        name: _settings.lastDeviceName,
+                                        type: ConnectionType.bluetoothHid,
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.bolt, size: 16),
+                                  label: const Text(
+                                    'Connect',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 10,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              HapticHelper.mediumImpact();
-                              _connService.connect(
-                                DiscoveredDevice(
-                                  id: _settings.lastDeviceId,
-                                  name: _settings.lastDeviceName,
-                                  type: ConnectionType.bluetoothHid,
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.bolt, size: 16),
-                            label: const Text(
-                              'Connect',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
+                      const SizedBox(height: 16),
+                    ],
 
-              // Connection Failed Alert Card
-              if (status == ConnectionStateStatus.failed && !isConnecting) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: Card(
-                    color: AppColors.error.withAlpha(25),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: AppColors.error.withAlpha(120),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            color: AppColors.error,
-                            size: 24,
+                    // Connection Failed Alert Card
+                    if (status == ConnectionStateStatus.failed &&
+                        !isConnecting) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: Card(
+                          color: AppColors.error.withAlpha(25),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: AppColors.error.withAlpha(120),
+                              width: 1.5,
+                            ),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
                               children: [
-                                const Text(
-                                  'Connection Failed',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.error,
+                                const Icon(
+                                  Icons.error_outline,
+                                  color: AppColors.error,
+                                  size: 24,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Connection Failed',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.error,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        _connService.statusMessage ??
+                                            'Could not connect. Please make sure Bluetooth is ON on your computer.',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.textMuted,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 2),
+                                if (_settings.hasLastConnectedDevice) ...[
+                                  const SizedBox(width: 8),
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      HapticHelper.mediumImpact();
+                                      _connService.connect(
+                                        DiscoveredDevice(
+                                          id: _settings.lastDeviceId,
+                                          name: _settings.lastDeviceName,
+                                          type: ConnectionType.bluetoothHid,
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.refresh,
+                                      size: 16,
+                                      color: AppColors.error,
+                                    ),
+                                    label: const Text(
+                                      'Retry',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.error,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // Dynamic Main Card (Connecting Loading vs Waiting Radar)
+                    if (isConnecting) ...[
+                      // Loading State Card
+                      SizedBox(
+                        width: double.infinity,
+                        child: Card(
+                          color: AppColors.surfaceElevated,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: BorderSide(
+                              color: AppColors.primaryLight,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 48,
+                                  height: 48,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3.5,
+                                    color: AppColors.primaryLight,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  'Connecting to ${_settings.lastDeviceName.isNotEmpty ? _settings.lastDeviceName : "Desktop"}...',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
                                 Text(
                                   _connService.statusMessage ??
-                                      'Could not connect. Please make sure Bluetooth is ON on your computer.',
+                                      'Establishing Bluetooth HID connection...',
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 13,
                                     color: AppColors.textMuted,
                                   ),
                                 ),
+                                const SizedBox(height: 16),
+                                OutlinedButton.icon(
+                                  onPressed: () {
+                                    HapticHelper.selectionClick();
+                                    _connService.disconnect();
+                                  },
+                                  icon: const Icon(Icons.close, size: 16),
+                                  label: const Text(
+                                    'Cancel Connection',
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AppColors.textMuted,
+                                    side: BorderSide(color: AppColors.border),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                          if (_settings.hasLastConnectedDevice) ...[
-                            const SizedBox(width: 8),
-                            TextButton.icon(
-                              onPressed: () {
-                                HapticHelper.mediumImpact();
-                                _connService.connect(
-                                  DiscoveredDevice(
-                                    id: _settings.lastDeviceId,
-                                    name: _settings.lastDeviceName,
-                                    type: ConnectionType.bluetoothHid,
+                        ),
+                      ),
+                    ] else ...[
+                      // Radar Pulsing Waiting Screen
+                      SizedBox(
+                        width: double.infinity,
+                        child: Card(
+                          color: AppColors.surfaceElevated,
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              children: [
+                                // Animated Pulsing Beacon Icon
+                                ScaleTransition(
+                                  scale: _pulseAnimation,
+                                  child: Container(
+                                    width: 84,
+                                    height: 84,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: AppColors.primary.withAlpha(30),
+                                      border: Border.all(
+                                        color: AppColors.primaryLight,
+                                        width: 2,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.primary.withAlpha(
+                                            60,
+                                          ),
+                                          blurRadius: 20,
+                                          spreadRadius: 4,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Icon(
+                                      Icons.bluetooth_searching,
+                                      size: 42,
+                                      color: AppColors.primaryLight,
+                                    ),
                                   ),
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.refresh,
-                                size: 16,
-                                color: AppColors.error,
-                              ),
-                              label: const Text(
-                                'Retry',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.error,
                                 ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              // Dynamic Main Card (Connecting Loading vs Waiting Radar)
-              if (isConnecting) ...[
-                // Loading State Card
-                SizedBox(
-                  width: double.infinity,
-                  child: Card(
-                    color: AppColors.surfaceElevated,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(
-                        color: AppColors.primaryLight,
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: 48,
-                            height: 48,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3.5,
-                              color: AppColors.primaryLight,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            'Connecting to ${_settings.lastDeviceName.isNotEmpty ? _settings.lastDeviceName : "Desktop"}...',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _connService.statusMessage ??
-                                'Establishing Bluetooth HID connection...',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textMuted,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          OutlinedButton.icon(
-                            onPressed: () {
-                              HapticHelper.selectionClick();
-                              _connService.disconnect();
-                            },
-                            icon: const Icon(Icons.close, size: 16),
-                            label: const Text(
-                              'Cancel Connection',
-                              style: TextStyle(fontSize: 12),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.textMuted,
-                              side: BorderSide(color: AppColors.border),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ] else ...[
-                // Radar Pulsing Waiting Screen
-                SizedBox(
-                  width: double.infinity,
-                  child: Card(
-                    color: AppColors.surfaceElevated,
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        children: [
-                          // Animated Pulsing Beacon Icon
-                          ScaleTransition(
-                            scale: _pulseAnimation,
-                            child: Container(
-                              width: 84,
-                              height: 84,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.primary.withAlpha(30),
-                                border: Border.all(
-                                  color: AppColors.primaryLight,
-                                  width: 2,
+                                const SizedBox(height: 20),
+                                const Text(
+                                  'Waiting for Bluetooth Connection...',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.primary.withAlpha(60),
-                                    blurRadius: 20,
-                                    spreadRadius: 4,
+                                const SizedBox(height: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.background,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: AppColors.border),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.sensors,
+                                        size: 14,
+                                        color: AppColors.success,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Flexible(
+                                        child: Text(
+                                          'BT Name: ClickPad',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.textPrimary,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (_isDiscoverabilityDenied) ...[
+                                  const SizedBox(height: 12),
+                                  ElevatedButton.icon(
+                                    onPressed: _isRequestingDiscoverability
+                                        ? null
+                                        : () {
+                                            HapticHelper.mediumImpact();
+                                            _requestDiscoverability();
+                                          },
+                                    icon: const Icon(
+                                      Icons.visibility,
+                                      size: 16,
+                                    ),
+                                    label: Text(
+                                      _isRequestingDiscoverability
+                                          ? 'Requesting Visibility...'
+                                          : 'Make your BT Visible For Pairing',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary
+                                          .withAlpha(40),
+                                      foregroundColor: AppColors.primaryLight,
+                                      elevation: 0,
+                                      side: BorderSide(
+                                        color: AppColors.primaryLight,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 8,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                    ),
                                   ),
                                 ],
-                              ),
-                              child: Icon(
-                                Icons.bluetooth_searching,
-                                size: 42,
-                                color: AppColors.primaryLight,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          const Text(
-                            'Waiting for Bluetooth Connection...',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.background,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: AppColors.border),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.sensors,
-                                  size: 14,
-                                  color: AppColors.success,
-                                ),
-                                const SizedBox(width: 6),
-                                Flexible(
-                                  child: Text(
-                                    'BT Name: ClickPad',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
                               ],
                             ),
                           ),
-                          if (_isDiscoverabilityDenied) ...[
-                            const SizedBox(height: 12),
-                            ElevatedButton.icon(
-                              onPressed: _isRequestingDiscoverability
-                                  ? null
-                                  : () {
-                                      HapticHelper.mediumImpact();
-                                      _requestDiscoverability();
-                                    },
-                              icon: const Icon(Icons.visibility, size: 16),
-                              label: Text(
-                                _isRequestingDiscoverability
-                                    ? 'Requesting Visibility...'
-                                    : 'Make your BT Visible For Pairing',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary.withAlpha(
-                                  40,
-                                ),
-                                foregroundColor: AppColors.primaryLight,
-                                elevation: 0,
-                                side: BorderSide(color: AppColors.primaryLight),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 8,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                            ),
-                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+
+                    // Instruction Tabs Header for macOS, Windows, Linux, Tablet
+                    const Text(
+                      'How to Connect on Your Device',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildPlatformChip(0, 'macOS', Icons.apple),
+                          const SizedBox(width: 8),
+                          _buildPlatformChip(1, 'Windows', Icons.window),
+                          const SizedBox(width: 8),
+                          _buildPlatformChip(2, 'Linux', Icons.terminal),
+                          const SizedBox(width: 8),
+                          _buildPlatformChip(
+                            3,
+                            'iPad / Tablet',
+                            Icons.tablet_mac,
+                          ),
                         ],
                       ),
                     ),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 24),
+                    const SizedBox(height: 12),
 
-              // Instruction Tabs Header for macOS, Windows, Linux, Tablet
-              const Text(
-                'How to Connect on Your Device',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildPlatformChip(0, 'macOS', Icons.apple),
-                    const SizedBox(width: 8),
-                    _buildPlatformChip(1, 'Windows', Icons.window),
-                    const SizedBox(width: 8),
-                    _buildPlatformChip(2, 'Linux', Icons.terminal),
-                    const SizedBox(width: 8),
-                    _buildPlatformChip(3, 'iPad / Tablet', Icons.tablet_mac),
+                    // Step-by-Step Instructions Card
+                    Card(
+                      color: AppColors.background,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(color: AppColors.border),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: _buildInstructionContent(_selectedPlatformTab),
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
-
-              // Step-by-Step Instructions Card
-              Card(
-                color: AppColors.background,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: AppColors.border),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _buildInstructionContent(_selectedPlatformTab),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    ],
-  ),
-),
-);
-}
+    );
+  }
 
   Widget _buildPlatformChip(int index, String label, IconData icon) {
     final isSelected = _selectedPlatformTab == index;
@@ -747,10 +760,7 @@ class _StepRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   desc,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ],
             ),

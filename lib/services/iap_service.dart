@@ -34,7 +34,7 @@ class IapService extends ChangeNotifier {
   bool get isTrialActive => _isTrialActive;
   int get trialSecondsLeft => _trialSecondsLeft;
   bool get hasUsedTrial => _hasUsedTrial;
-  bool get canStartTrial => !_hasUsedTrial && !_isPro && !_isJoystickUnlocked;
+  bool get canStartTrial => !_isPro && !_isJoystickUnlocked;
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -48,9 +48,12 @@ class IapService extends ChangeNotifier {
     if (trialEndTime > now) {
       final remaining = ((trialEndTime - now) / 1000).ceil();
       _startTrialTimer(remaining);
-    } else if (trialEndTime > 0) {
-      _hasUsedTrial = true;
-      await prefs.setBool('hasUsedTrial', true);
+    } else {
+      _isTrialActive = false;
+      _trialSecondsLeft = 0;
+      if (trialEndTime > 0) {
+        await prefs.remove('trialEndTime');
+      }
     }
 
     notifyListeners();
@@ -178,16 +181,17 @@ class IapService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Start 3-Minute Free Trial (One-Time Only)
+  // Start or Extend 3-Minute Free Trial via Rewarded Ad (Repeatable)
   bool startFreeTrial({int durationSeconds = 180}) {
-    if (_hasUsedTrial || isPro) return false;
+    if (_isPro || _isJoystickUnlocked) return false;
 
     _hasUsedTrial = true;
-    _startTrialTimer(durationSeconds);
+    final newSeconds = _isTrialActive ? (_trialSecondsLeft + durationSeconds) : durationSeconds;
+    _startTrialTimer(newSeconds);
 
     SharedPreferences.getInstance().then((prefs) {
       prefs.setBool('hasUsedTrial', true);
-      final endTime = DateTime.now().millisecondsSinceEpoch + (durationSeconds * 1000);
+      final endTime = DateTime.now().millisecondsSinceEpoch + (newSeconds * 1000);
       prefs.setInt('trialEndTime', endTime);
     });
 
@@ -207,8 +211,10 @@ class IapService extends ChangeNotifier {
       } else {
         _isTrialActive = false;
         _trialSecondsLeft = 0;
-        _hasUsedTrial = true;
         _trialTimer?.cancel();
+        SharedPreferences.getInstance().then((prefs) {
+          prefs.remove('trialEndTime');
+        });
         notifyListeners();
       }
     });

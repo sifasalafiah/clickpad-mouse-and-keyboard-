@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../theme/app_colors.dart';
+import '../utils/haptic_helper.dart';
 import 'iap_service.dart';
 
 class AdService extends ChangeNotifier with WidgetsBindingObserver {
@@ -192,6 +194,24 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
     return 'ca-app-pub-3940256099942544/9257395921'; // Android App Open Test ID
   }
 
+  /// Platform-specific Rewarded Ad Unit ID
+  /// Uses Production Ad Unit IDs in Release Mode (`kReleaseMode`), and Test IDs in Debug/Profile Mode.
+  String get rewardedAdUnitId {
+    if (kReleaseMode) {
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        return 'ca-app-pub-4676075129526023/9846434887'; // Android Reward Production ID
+      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+        return 'ca-app-pub-4676075129526023/3221316784'; // iOS Reward Production ID
+      }
+    }
+
+    // Debug & Profile Test IDs
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return 'ca-app-pub-3940256099942544/1712485313'; // iOS Rewarded Test ID
+    }
+    return 'ca-app-pub-3940256099942544/5224354917'; // Android Rewarded Test ID
+  }
+
   /// Load App Open Ad
   void loadAppOpenAd() {
     if (IapService.instance.isPro) return;
@@ -302,5 +322,240 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
 
       showAppOpenAdIfAvailable();
     }
+  }
+
+  /// Show Confirmation Dialog, load Rewarded Ad with loading indicator, and activate 3-minute trial on reward.
+  Future<void> showRewardedTrialFlow(
+    BuildContext context, {
+    VoidCallback? onSuccess,
+  }) async {
+    HapticHelper.mediumImpact();
+
+    // 1. Confirmation Modal First
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withAlpha(30),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.ondemand_video_rounded,
+                color: AppColors.primary,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                IapService.instance.isTrialActive
+                    ? 'Extend Free Trial (+3 Mins)'
+                    : '3-Minute Free Trial',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          IapService.instance.isTrialActive
+              ? 'Watch a short sponsored video to add 3 more minutes to your active session.'
+              : 'Watch a short sponsored video to unlock full access to the Virtual Gamepad & Joystick for 3 minutes for free. You can use this anytime!',
+          style: TextStyle(
+            fontSize: 13.5,
+            height: 1.45,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(
+              'Not Now',
+              style: TextStyle(color: AppColors.textMuted),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            icon: const Icon(Icons.play_arrow_rounded, size: 18),
+            label: Text(
+              IapService.instance.isTrialActive
+                  ? 'Watch Video (+3 Mins)'
+                  : 'Watch Video & Unlock',
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    // 2. Show Loading Dialog
+    isSuppressingAppOpenAd = true;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => PopScope(
+        canPop: false,
+        child: Dialog(
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Flexible(
+                  child: Text(
+                    'Loading reward video...',
+                    style: TextStyle(fontSize: 14, color: AppColors.textPrimary),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // 3. Request Rewarded Ad with timeout
+    RewardedAd? loadedAd;
+    try {
+      final completer = Completer<RewardedAd?>();
+
+      RewardedAd.load(
+        adUnitId: rewardedAdUnitId,
+        request: const AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          onAdLoaded: (ad) {
+            if (!completer.isCompleted) completer.complete(ad);
+          },
+          onAdFailedToLoad: (error) {
+            debugPrint('RewardedAd failed to load: $error');
+            if (!completer.isCompleted) completer.complete(null);
+          },
+        ),
+      );
+
+      loadedAd = await completer.future.timeout(
+        const Duration(seconds: 12),
+        onTimeout: () => null,
+      );
+    } catch (e) {
+      debugPrint('Exception while loading rewarded ad: $e');
+      loadedAd = null;
+    }
+
+    // Dismiss Loading Dialog
+    if (context.mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+
+    // 4. If ad is not filled, show unavailable modal
+    if (loadedAd == null) {
+      isSuppressingAppOpenAd = false;
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: AppColors.surface,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            title: Row(
+              children: [
+                Icon(Icons.info_outline_rounded, color: AppColors.warning, size: 22),
+                const SizedBox(width: 10),
+                Text(
+                  'Ad Unavailable',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            content: Text(
+              'An ad is currently not available. Please try again later.',
+              style: TextStyle(
+                fontSize: 13.5,
+                height: 1.45,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
+    // 5. If filled, show Rewarded Ad & apply trial on reward
+    bool userEarnedReward = false;
+
+    loadedAd.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (ad) {
+        isSuppressingAppOpenAd = true;
+      },
+      onAdDismissedFullScreenContent: (ad) {
+        ad.dispose();
+        Future.delayed(const Duration(seconds: 2), () {
+          isSuppressingAppOpenAd = false;
+        });
+
+        if (userEarnedReward) {
+          onSuccess?.call();
+        }
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        debugPrint('RewardedAd failed to show: $error');
+        ad.dispose();
+        isSuppressingAppOpenAd = false;
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to play reward video. Please try again.'),
+            ),
+          );
+        }
+      },
+    );
+
+    loadedAd.show(
+      onUserEarnedReward: (ad, reward) {
+        userEarnedReward = true;
+        IapService.instance.startFreeTrial(durationSeconds: 180);
+      },
+    );
   }
 }

@@ -12,7 +12,8 @@ class CollapsibleBannerAdWidget extends StatefulWidget {
   });
 
   @override
-  State<CollapsibleBannerAdWidget> createState() => _CollapsibleBannerAdWidgetState();
+  State<CollapsibleBannerAdWidget> createState() =>
+      _CollapsibleBannerAdWidgetState();
 }
 
 class _CollapsibleBannerAdWidgetState extends State<CollapsibleBannerAdWidget> {
@@ -39,13 +40,18 @@ class _CollapsibleBannerAdWidgetState extends State<CollapsibleBannerAdWidget> {
           _isAdLoaded = false;
         });
       }
-    } else if (!_isAdLoaded && _bannerAd == null && AdService.instance.canRequestAds) {
+    } else if (!_isAdLoaded &&
+        _bannerAd == null &&
+        AdService.instance.canRequestAds) {
       _loadCollapsibleBannerAd();
     }
   }
 
   void _onAdServiceChanged() {
-    if (!_iapService.isPro && AdService.instance.canRequestAds && !_isAdLoaded && _bannerAd == null) {
+    if (!_iapService.isPro &&
+        AdService.instance.canRequestAds &&
+        !_isAdLoaded &&
+        _bannerAd == null) {
       _loadCollapsibleBannerAd();
     }
   }
@@ -56,11 +62,7 @@ class _CollapsibleBannerAdWidgetState extends State<CollapsibleBannerAdWidget> {
     _bannerAd = BannerAd(
       adUnitId: AdService.instance.bannerAdUnitId,
       size: AdSize.banner,
-      request: AdRequest(
-        extras: {
-          'collapsible': widget.collapsiblePosition,
-        },
-      ),
+      request: AdRequest(extras: {'collapsible': widget.collapsiblePosition}),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           if (_iapService.isPro) {
@@ -107,7 +109,6 @@ class _CollapsibleBannerAdWidgetState extends State<CollapsibleBannerAdWidget> {
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(vertical: 2),
       child: SizedBox(
         width: _bannerAd!.size.width.toDouble(),
         height: _bannerAd!.size.height.toDouble(),

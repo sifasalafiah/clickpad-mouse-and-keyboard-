@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/input_command.dart';
+import '../services/ad_service.dart';
 import '../services/bluetooth_service.dart';
 import '../services/connection_service.dart';
 import '../services/iap_service.dart';
@@ -267,7 +268,25 @@ class _JoystickScreenState extends State<JoystickScreen> {
           // PRO / Trial Badge
           if (isTrial) ...[
             const SizedBox(width: 8),
-            _buildTrialBadge(trialSeconds),
+            InkWell(
+              onTap: () {
+                AdService.instance.showRewardedTrialFlow(
+                  context,
+                  onSuccess: () {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('🎉 +3 Minutes added to your Free Trial!'),
+                          backgroundColor: AppColors.success,
+                        ),
+                      );
+                    }
+                  },
+                );
+              },
+              borderRadius: BorderRadius.circular(10),
+              child: _buildTrialBadge(trialSeconds),
+            ),
           ] else if (_iapService.isPro) ...[
             const SizedBox(width: 8),
             _buildProBadge(),
@@ -300,6 +319,8 @@ class _JoystickScreenState extends State<JoystickScreen> {
               color: Colors.orange,
             ),
           ),
+          const SizedBox(width: 4),
+          const Icon(Icons.add_circle_outline, color: Colors.orange, size: 11),
         ],
       ),
     );
@@ -804,46 +825,32 @@ class _JoystickScreenState extends State<JoystickScreen> {
               if (_iapService.canStartTrial)
                 TextButton.icon(
                   onPressed: () {
-                    HapticHelper.selectionClick();
-                    _iapService.startFreeTrial(durationSeconds: 180);
+                    AdService.instance.showRewardedTrialFlow(
+                      context,
+                      onSuccess: () {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('🎉 3-Minute Free Trial activated! Gamepad unlocked.'),
+                              backgroundColor: AppColors.success,
+                            ),
+                          );
+                        }
+                      },
+                    );
                   },
                   icon: const Icon(
-                    Icons.timer,
+                    Icons.ondemand_video_rounded,
                     color: Color(0xFF00E5FF),
                     size: 16,
                   ),
                   label: const Text(
-                    'Try 3-Minute Free Trial',
+                    'Watch Video for 3-Min Free Trial',
                     style: TextStyle(
                       color: Color(0xFF00E5FF),
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                     ),
-                  ),
-                )
-              else if (_iapService.hasUsedTrial && !_iapService.isPro)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  margin: const EdgeInsets.only(top: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceElevated,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.lock_clock, color: AppColors.textMuted, size: 14),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Free trial has expired',
-                        style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
             ],
