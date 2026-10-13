@@ -44,6 +44,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
   bool _isRequestingDiscoverability = false;
   int _selectedPlatformTab =
       0; // 0: macOS, 1: Windows, 2: Linux, 3: iPad/Tablet
+  Timer? _pruneTimer;
 
   @override
   void initState() {
@@ -62,11 +63,37 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
+    // Periodically remove stale/expired nearby devices (Filter 3: Auto-Expire)
+    _pruneTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      _pruneExpiredDevices();
+    });
+
     // Hook real-time device discovery listener
     _bleService.onDeviceDiscovered = _handleDeviceDiscovered;
 
     // Load initial device name and bonded devices, then start auto-scan
     _initTwoWayPairing();
+  }
+
+  void _pruneExpiredDevices() {
+    if (!mounted || _discoveredDevices.isEmpty) return;
+    final now = DateTime.now();
+    bool changed = false;
+
+    // Remove devices not seen in the last 15 seconds
+    _discoveredDevices.removeWhere((id, dev) {
+      if (id == _connectingDeviceId) return false;
+      final ageSeconds = now.difference(dev.lastSeen).inSeconds;
+      if (ageSeconds > 15) {
+        changed = true;
+        return true;
+      }
+      return false;
+    });
+
+    if (changed && mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> _initTwoWayPairing() async {
@@ -79,6 +106,9 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
   void _handleDeviceDiscovered(DiscoveredDevice device) {
     if (!mounted) return;
     if (device.name.trim().isEmpty) return;
+
+    // Filter 1: Ignore very weak / distant signals (< -80 dBm)
+    if (device.rssi != 0 && device.rssi < -80) return;
 
     // Check if this device is already in paired list
     if (_pairedDevices.containsKey(device.id)) {
@@ -154,6 +184,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
 
   @override
   void dispose() {
+    _pruneTimer?.cancel();
     _bleService.onDeviceDiscovered = null;
     _connService.removeListener(_onConnectionChanged);
     _iapService.removeListener(_onConnectionChanged);

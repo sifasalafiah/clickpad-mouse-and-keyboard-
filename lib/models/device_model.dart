@@ -8,6 +8,7 @@ class DiscoveredDevice {
   final String? ipAddress;
   final int? port;
   final dynamic nativeDeviceHandle; // BluetoothDevice object if BLE
+  final DateTime lastSeen;
 
   DiscoveredDevice({
     required this.id,
@@ -17,14 +18,17 @@ class DiscoveredDevice {
     this.ipAddress,
     this.port = 8888,
     this.nativeDeviceHandle,
-  });
+    DateTime? lastSeen,
+  }) : lastSeen = lastSeen ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'type': type.name,
+        'rssi': rssi,
         'ipAddress': ipAddress,
         'port': port,
+        'lastSeen': lastSeen.millisecondsSinceEpoch,
       };
 
   factory DiscoveredDevice.fromJson(Map<String, dynamic> json) {
@@ -35,8 +39,12 @@ class DiscoveredDevice {
         (e) => e.name == json['type'],
         orElse: () => ConnectionType.bluetoothHid,
       ),
+      rssi: json['rssi'] as int? ?? -60,
       ipAddress: json['ipAddress'] as String?,
       port: json['port'] as int?,
+      lastSeen: json['lastSeen'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['lastSeen'] as int)
+          : null,
     );
   }
 }

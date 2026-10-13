@@ -181,12 +181,16 @@ class BluetoothBleService {
         for (ScanResult r in results) {
           final name = r.device.platformName.isNotEmpty ? r.device.platformName : r.device.advName;
           if (name.isNotEmpty) {
+            // Filter 1: Filter out weak/distant signals (< -80 dBm)
+            if (r.rssi != 0 && r.rssi < -80) continue;
+
             final dev = DiscoveredDevice(
               id: r.device.remoteId.str,
               name: name,
               type: ConnectionType.bluetoothHid,
               rssi: r.rssi,
               nativeDeviceHandle: r.device,
+              lastSeen: DateTime.now(),
             );
             foundDevices[r.device.remoteId.str] = dev;
             onDeviceDiscovered?.call(dev);
