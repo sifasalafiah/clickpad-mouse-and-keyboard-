@@ -31,6 +31,7 @@ class MainActivity : FlutterActivity() {
     // Pre-allocated ByteArray to eliminate GC pressure during rapid mouse/keyboard inputs
     private val mouseReportBuffer = ByteArray(4)
     private val keyboardReportBuffer = ByteArray(8)
+    private val consumerReportBuffer = ByteArray(1)
 
     private val discoveredDevicesMap = HashMap<String, String>()
 
@@ -145,6 +146,28 @@ class MainActivity : FlutterActivity() {
         0x19.toByte(), 0x00.toByte(), //   USAGE_MINIMUM (0)
         0x29.toByte(), 0x65.toByte(), //   USAGE_MAXIMUM (101) -> 0x65
         0x81.toByte(), 0x00.toByte(), //   INPUT (Data,Ary,Abs)
+        0xc0.toByte(),                // END_COLLECTION
+
+        // --- CONSUMER CONTROL / MEDIA KEYS (Report ID 3) ---
+        0x05.toByte(), 0x0c.toByte(), // USAGE_PAGE (Consumer Devices)
+        0x09.toByte(), 0x01.toByte(), // USAGE (Consumer Control)
+        0xa1.toByte(), 0x01.toByte(), // COLLECTION (Application)
+        0x85.toByte(), 0x03.toByte(), //   REPORT_ID (3)
+        0x15.toByte(), 0x00.toByte(), //   LOGICAL_MINIMUM (0)
+        0x25.toByte(), 0x01.toByte(), //   LOGICAL_MAXIMUM (1)
+        0x75.toByte(), 0x01.toByte(), //   REPORT_SIZE (1)
+        0x95.toByte(), 0x07.toByte(), //   REPORT_COUNT (7)
+        0x09.toByte(), 0xb5.toByte(), //   USAGE (Scan Next Track)      - bit 0 (0x01)
+        0x09.toByte(), 0xb6.toByte(), //   USAGE (Scan Previous Track)  - bit 1 (0x02)
+        0x09.toByte(), 0xb7.toByte(), //   USAGE (Stop)                 - bit 2 (0x04)
+        0x09.toByte(), 0xcd.toByte(), //   USAGE (Play/Pause)           - bit 3 (0x08)
+        0x09.toByte(), 0xe2.toByte(), //   USAGE (Mute)                 - bit 4 (0x10)
+        0x09.toByte(), 0xe9.toByte(), //   USAGE (Volume Increment)     - bit 5 (0x20)
+        0x09.toByte(), 0xea.toByte(), //   USAGE (Volume Decrement)     - bit 6 (0x40)
+        0x81.toByte(), 0x02.toByte(), //   INPUT (Data,Var,Abs)
+        0x75.toByte(), 0x01.toByte(), //   REPORT_SIZE (1)
+        0x95.toByte(), 0x01.toByte(), //   REPORT_COUNT (1)
+        0x81.toByte(), 0x03.toByte(), //   INPUT (Cnst,Var,Abs) - bit 7 padding
         0xc0.toByte()                 // END_COLLECTION
     )
 
@@ -366,6 +389,18 @@ class MainActivity : FlutterActivity() {
                         keyboardReportBuffer[2 + i] = if (i < keycodes.size) keycodes[i].toByte() else 0
                     }
                     sendHidReport(2, keyboardReportBuffer)
+                    result.success(true)
+                }
+                "sendConsumerReport" -> {
+                    val mask = call.argument<Int>("mask") ?: 0
+                    consumerReportBuffer[0] = mask.toByte()
+                    sendHidReport(3, consumerReportBuffer)
+
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        consumerReportBuffer[0] = 0
+                        sendHidReport(3, consumerReportBuffer)
+                    }, 35)
+
                     result.success(true)
                 }
                 else -> result.notImplemented()

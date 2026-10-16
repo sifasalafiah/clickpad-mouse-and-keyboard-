@@ -9,6 +9,7 @@ import '../widgets/pro_purchase_modal.dart';
 import 'joystick_screen.dart';
 import 'keyboard_screen.dart';
 import 'settings_screen.dart';
+import 'tools_screen.dart';
 import 'touchpad_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -28,6 +29,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     TouchpadScreen(),
     KeyboardScreen(),
     JoystickScreen(),
+    ToolsScreen(),
     SettingsScreen(),
   ];
 
@@ -224,7 +226,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           HapticHelper.selectionClick();
           setState(() {
             _currentIndex = index;
-            if (index == 3 && isFullScreen) {
+            if (index >= 3 && isFullScreen) {
               _settings.setFullScreen(false);
             }
           });
@@ -272,6 +274,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
             activeIcon: const Icon(Icons.sports_esports),
             label: 'Joystick',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.handyman_outlined),
+            activeIcon: Icon(Icons.handyman_rounded),
+            label: 'Tools',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),

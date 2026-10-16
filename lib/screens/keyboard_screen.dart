@@ -212,22 +212,66 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                           isEasySwitch: true,
                           switchNum: '3',
                         ),
-                        _PebbleKey('F4', 0x3D, flex: 1, icon: Icons.volume_off),
+                        _PebbleKey(
+                          'F4',
+                          0x3D,
+                          flex: 1,
+                          icon: Icons.volume_off,
+                          onTapOverride: () {
+                            HapticHelper.mediumImpact();
+                            _bleService.sendConsumerKey(0x10); // Mute
+                          },
+                        ),
                         _PebbleKey(
                           'F5',
                           0x3E,
                           flex: 1,
                           icon: Icons.volume_down,
+                          onTapOverride: () {
+                            HapticHelper.lightImpact();
+                            _bleService.sendConsumerKey(0x40); // Vol Down
+                          },
                         ),
-                        _PebbleKey('F6', 0x3F, flex: 1, icon: Icons.volume_up),
+                        _PebbleKey(
+                          'F6',
+                          0x3F,
+                          flex: 1,
+                          icon: Icons.volume_up,
+                          onTapOverride: () {
+                            HapticHelper.lightImpact();
+                            _bleService.sendConsumerKey(0x20); // Vol Up
+                          },
+                        ),
                         _PebbleKey(
                           'F7',
                           0x40,
                           flex: 1,
                           icon: Icons.skip_previous,
+                          onTapOverride: () {
+                            HapticHelper.lightImpact();
+                            _bleService.sendConsumerKey(0x02); // Prev Track
+                          },
                         ),
-                        _PebbleKey('F8', 0x41, flex: 1, icon: Icons.play_arrow),
-                        _PebbleKey('F9', 0x42, flex: 1, icon: Icons.skip_next),
+                        _PebbleKey(
+                          'F8',
+                          0x41,
+                          flex: 1,
+                          icon: Icons.play_arrow,
+                          onTapOverride: () {
+                            HapticHelper.mediumImpact();
+                            _bleService.sendConsumerKey(0x08); // Play/Pause
+                          },
+                        ),
+                        _PebbleKey(
+                          'F9',
+                          0x42,
+                          flex: 1,
+                          icon: Icons.skip_next,
+                          onTapOverride: () {
+                            HapticHelper.lightImpact();
+                            _bleService.sendConsumerKey(0x01); // Next Track
+                          },
+                        ),
                         _PebbleKey('F10', 0x43, flex: 1, icon: Icons.search),
                         _PebbleKey('F11', 0x44, flex: 1, icon: Icons.mic),
                         _PebbleKey('F12', 0x45, flex: 1, icon: Icons.lock),

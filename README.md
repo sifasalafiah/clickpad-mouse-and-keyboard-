@@ -22,6 +22,14 @@
   - [7. Tema Eksklusif & OLED Dark Mode](#7-tema-eksklusif--oled-dark-mode)
   - [8. Pengaturan & Input Tuning](#8-pengaturan--input-tuning)
   - [9. ClickPad PRO & Reward Trial](#9-clickpad-pro--reward-trial)
+  - [10. Tools Hub (Koleksi 7 Alat Produktivitas & Remote)](#10-tools-hub-koleksi-7-alat-produktivitas--remote)
+    - [10.1 Barcode & QR Scanner to Keystroke](#101-barcode--qr-scanner-to-keystroke)
+    - [10.2 Accounting Numpad (10-Key)](#102-accounting-numpad-10-key)
+    - [10.3 Presentation Clicker & Remote](#103-presentation-clicker--remote)
+    - [10.4 Media Controller (Couch Remote)](#104-media-controller-couch-remote)
+    - [10.5 Macro Shortcuts Deck (Stream Deck)](#105-macro-shortcuts-deck-stream-deck)
+    - [10.6 Mouse Jiggler (Anti-Sleep Utility)](#106-mouse-jiggler-anti-sleep-utility)
+    - [10.7 Quick Text Snippets (Template Sender)](#107-quick-text-snippets-template-sender)
 - [Gesture Touchpad Cheat Sheet](#-gesture-touchpad-cheat-sheet)
 - [Kompatibilitas Sistem Operasi](#-kompatibilitas-sistem-operasi)
 - [Panduan Cara Menghubungkan](#-panduan-cara-menghubungkan)
@@ -187,6 +195,55 @@ Tersedia 10 palet tema modern yang didesain secara teliti:
 
 ---
 
+### 10. Tools Hub (Koleksi 7 Alat Produktivitas & Remote)
+Menu baru yang mengubah smartphone Anda menjadi pusat peralatan multifungsi yang berinteraksi langsung dengan komputer secara nirkabel:
+
+#### 10.1 Barcode & QR Scanner to Keystroke
+* **Hardware-Grade Scanner:** Memindai berbagai barcode (EAN-13, UPC, Code 128) dan QR Code menggunakan kamera HP.
+* **Auto Keystroke Injection:** Hasil pemindaian langsung otomatis diketikkan ke kolom aktif di PC (Excel, browser, software kasir POS, Notepad, ERP).
+* **Suffix Cerdas:** Opsi penambahan tombol otomatis setelah pemindaian: `Enter ↵`, `Tab ⇥`, atau `None`.
+* **Fitur Tambahan:** Senter/flashlight toggle, switch kamera depan/belakang, input manual fallback, serta riwayat scan dengan tombol kirim ulang 1-ketuk.
+
+#### 10.2 Accounting Numpad (10-Key)
+* **Papan Angka Khusus:** Solusi sempurna untuk laptop 13-14 inch atau MacBook yang tidak memiliki numpad fisik.
+* **Layout Akuntansi Ergonomis:** Angka `0-9`, tombol ganda `00`, tanda koma/titik `.`, operator hitung (`+`, `-`, `*`, `/`), `Esc`, `Tab`, `Backspace ⌫`, dan `Enter`.
+* **Layar Digital Display:** Menampilkan ekspresi angka yang sedang diketikkan ke PC secara real-time.
+* Sangat optimal untuk akuntan, data entry Excel, perbankan, dan shortcut navigasi Blender 3D.
+
+#### 10.3 Presentation Clicker & Remote
+* **Remote Slide Profesional:** Pengendali presentasi untuk PowerPoint, Google Slides, Keynote, dan dokumen PDF.
+* **Tombol Raksasa:** Next Slide (`Right Arrow`/`Space`) dan Previous Slide (`Left Arrow`).
+* **Kontrol Pertunjukan Lengkap:**
+  - `F5`: Memulai slideshow dari awal.
+  - `Shift + F5`: Memulai slideshow dari slide aktif saat ini.
+  - `B`: Layar hitam (*Black Screen*) untuk mengalihkan fokus audiens ke pembicara.
+  - `W`: Layar putih (*White Screen*).
+  - `Esc`: Keluar dari mode presentasi.
+* **Stopwatch & Timer Terintegrasi:** Dilengkapi timer durasi presentasi dan penghitung jumlah slide (*Slide Counter*).
+
+#### 10.4 Media Controller (Couch Remote)
+* **Remote Santai Sofa & Kasur:** Mengendalikan pemutaran YouTube, Netflix, Spotify, VLC, dan pemutar video lainnya dari jarak jauh.
+* **Pusat Navigasi Cakram (Disc Hub):** Kontrol Volume Up, Volume Down, Lagu Sebelumnya, Lagu Berikutnya, serta tombol Play/Pause utama di tengah.
+* **Fitur Lanjutan:** Tombol lompat waktu `-10 Detik` (J) dan `+10 Detik` (L), Toggle Mute/Unmute instan, Fullscreen (`F`), dan Subtitle/Captions (`C`).
+
+#### 10.5 Macro Shortcuts Deck (Stream Deck)
+* **Grid Pintasan Satu Ketukan:**
+  - **Pintasan Sistem:** Kunci PC (`Win+L` / `Ctrl+Cmd+Q`), Screenshot Area (`Win+Shift+S` / `Cmd+Shift+4`), Buka Task Manager / Activity Monitor, Pengalih Aplikasi (*Alt+Tab* / *Cmd+Tab*), Tampilkan Desktop, Buka File Explorer, dan Tutup Jendela.
+  - **Pintasan Browser & Editing:** Buka Tab Baru (`Ctrl/Cmd + T`), Tutup Tab, Buka Kembali Tab yang Tertutup (*Reopen Tab*), Refresh Halaman, Undo Cepat, dan Simpan Berkas (`Ctrl/Cmd + S`).
+
+#### 10.6 Mouse Jiggler (Anti-Sleep Utility)
+* **Cegah PC Sleep & Lock Screen:** Menggerakkan kursor mouse 1-pixel secara mikro dan berkala tanpa mengganggu pandangan mata atau pekerjaan di komputer Anda.
+* **Frekuensi Dinamis:** Pilihan jeda waktu 10 detik, 30 detik, atau 60 detik.
+* **Animasi Radar Aktif:** Tombol status berpendar dengan penghitung mundur (*countdown*) visual.
+* **Statistik Sesi:** Menghitung total micro-jiggle yang dikirim dan durasi aktif sesi. Otomatis mengaktifkan *wakelock* HP.
+
+#### 10.7 Quick Text Snippets (Template Sender)
+* **Kirim Template Teks Instan:** Simpan teks salam pembuka, format alamat pengiriman, konfirmasi terima dokumen, penutup email resmi, atau catatan penting lainnya.
+* **Ketik Satu Ketuk:** Tekan tombol kirim dan seluruh teks akan langsung terketik ke PC huruf demi huruf secara otomatis.
+* **Manajemen Fleksibel:** Tambah, edit, dan hapus snippet dengan penyimpanan lokal persisten (*SharedPreferences*).
+
+---
+
 ## 🖐️ Gesture Touchpad Cheat Sheet
 
 | Gesture | Aksi di Komputer |
@@ -250,6 +307,15 @@ mouse_and_keyboard_for_desktop/
 │   │   ├── main_navigation_screen.dart # Navigasi bawah, banner ad, dan status koneksi
 │   │   ├── onboarding_screen.dart  # Panduan interaktif awal pengguna baru
 │   │   ├── settings_screen.dart    # Tuning sensitivitas, tema, dan profil PRO
+│   │   ├── tools_screen.dart       # Dashboard utama Hub Tools
+│   │   ├── tools/
+│   │   │   ├── macro_deck_screen.dart   # Stream deck pintasan sistem & browser
+│   │   │   ├── media_remote_screen.dart # Remote media cakram & volume
+│   │   │   ├── mouse_jiggler_screen.dart# Utilitas jiggler kursor anti-sleep
+│   │   │   ├── numpad_screen.dart       # Numpad akuntansi 10-key
+│   │   │   ├── presentation_screen.dart # Clicker slide & timer presentasi
+│   │   │   ├── scanner_screen.dart      # Pemindai Barcode/QR ke PC
+│   │   │   └── snippets_screen.dart     # Pengirim template teks tersimpan
 │   │   └── touchpad_screen.dart    # Kanvas mouse multi-touch, gesture engine & shortcut
 │   ├── services/
 │   │   ├── ad_service.dart         # Google Mobile Ads (Banner, Rewarded Interstitials)
@@ -262,7 +328,8 @@ mouse_and_keyboard_for_desktop/
 │   ├── theme/
 │   │   └── app_colors.dart         # 10 Palet tema, warna responsif, & typography
 │   ├── utils/
-│   │   └── haptic_helper.dart      # Haptic feedback tactile vibration
+│   │   ├── haptic_helper.dart      # Haptic feedback tactile vibration
+│   │   └── hid_helper.dart         # Helper terpusat pengiriman keystroke & shortcut
 │   └── widgets/
 │       ├── banner_ad_widget.dart   # Widget banner iklan AdMob
 │       ├── gamepad_layout_editor.dart # Editor seret & ubah ukuran kontroler (PUBG-Style)

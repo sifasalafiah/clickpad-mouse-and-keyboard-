@@ -477,4 +477,19 @@ class BluetoothBleService {
       }
     }
   }
+
+  /// Send Consumer Control media report (Report ID 3):
+  /// mask: bit0=Next(0x01), bit1=Prev(0x02), bit2=Stop(0x04), bit3=Play/Pause(0x08),
+  /// bit4=Mute(0x10), bit5=VolUp(0x20), bit6=VolDown(0x40)
+  void sendConsumerKey(int mask) {
+    if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) {
+      try {
+        _nativeHidChannel.invokeMethod('sendConsumerReport', {
+          'mask': mask,
+        });
+      } catch (e) {
+        debugPrint("Native Consumer HID Error: $e");
+      }
+    }
+  }
 }
