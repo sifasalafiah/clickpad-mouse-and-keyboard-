@@ -185,9 +185,9 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                     'Stay fully focused without any banners or popup ads',
                   ),
                   _buildFeatureTile(
-                    Icons.palette,
-                    'Exclusive Themes & OLED Dark Mode',
-                    'Access all Pebble themes and save phone battery life',
+                    Icons.handyman_rounded,
+                    'Complete Desktop Tools',
+                    'Unlock Macro Deck, Mouse Jiggler, Media Remote, & Numpad',
                   ),
                   const SizedBox(height: 20),
 
@@ -215,7 +215,7 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                             badge: isJoystickOwned ? 'NO ADS' : 'BEST VALUE',
                             price: proPrice,
                             subtitle: isJoystickOwned
-                                ? 'Remove all ads forever & unlock all exclusive themes'
+                                ? 'Remove all ads forever & unlock complete desktop tools'
                                 : 'One-time purchase, unlock all features forever',
                             isPrimary: true,
                             onTap: () => _handleUnlock(isLifetime: true),
