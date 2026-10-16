@@ -186,12 +186,11 @@ class _VirtualJoystickWidgetState extends State<VirtualJoystickWidget>
           ),
           boxShadow: [
             BoxShadow(
-              color: _activeKeycodes.isNotEmpty
-                  ? AppColors.primary.withAlpha(60)
-                  : (AppColors.palette.isLight
-                      ? Colors.black.withAlpha(15)
-                      : Colors.black.withAlpha(80)),
-              blurRadius: 14,
+              color: AppColors.palette.isLight
+                  ? Colors.black.withAlpha(10)
+                  : Colors.black.withAlpha(50),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -263,9 +262,11 @@ class _VirtualJoystickWidgetState extends State<VirtualJoystickWidget>
                   color: AppColors.primary,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary
-                          .withAlpha(_activeKeycodes.isNotEmpty ? 170 : 100),
-                      blurRadius: _activeKeycodes.isNotEmpty ? 16 : 10,
+                      color: AppColors.palette.isLight
+                          ? Colors.black.withAlpha(20)
+                          : Colors.black.withAlpha(60),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),

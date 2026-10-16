@@ -399,11 +399,11 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: isDragActive
-                      ? AppColors.primary.withAlpha(60)
-                      : Colors.black.withAlpha(80),
-                  blurRadius: isDragActive ? 16 : 12,
-                  offset: const Offset(0, 4),
+                  color: AppColors.palette.isLight
+                      ? Colors.black.withAlpha(12)
+                      : Colors.black.withAlpha(50),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
@@ -453,18 +453,6 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                                     ? 2.5
                                     : 2,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withAlpha(
-                                    (_isDragging &&
-                                            entry.key == _activeDragPointer)
-                                        ? 140
-                                        : 70,
-                                  ),
-                                  blurRadius: 10,
-                                  spreadRadius: 2,
-                                ),
-                              ],
                             ),
                             child:
                                 (_isDragging && entry.key == _activeDragPointer)
@@ -525,13 +513,6 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                             decoration: BoxDecoration(
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withAlpha(140),
-                                  blurRadius: 10,
-                                  spreadRadius: 1,
-                                ),
-                              ],
                             ),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
@@ -604,15 +585,6 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                             : AppColors.border,
                         width: _isLeftButtonHeld ? 2 : 1,
                       ),
-                      boxShadow: _isLeftButtonHeld
-                          ? [
-                              BoxShadow(
-                                color: AppColors.primary.withAlpha(90),
-                                blurRadius: 10,
-                                spreadRadius: 1,
-                              ),
-                            ]
-                          : null,
                     ),
                     alignment: Alignment.center,
                     child: Row(
@@ -718,15 +690,6 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
                             : AppColors.border,
                         width: _isRightButtonHeld ? 2 : 1,
                       ),
-                      boxShadow: _isRightButtonHeld
-                          ? [
-                              BoxShadow(
-                                color: AppColors.accent.withAlpha(90),
-                                blurRadius: 10,
-                                spreadRadius: 1,
-                              ),
-                            ]
-                          : null,
                     ),
                     alignment: Alignment.center,
                     child: Row(
@@ -769,13 +732,7 @@ class _TouchpadScreenState extends State<TouchpadScreen> {
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primary, width: 1.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withAlpha(50),
-                    blurRadius: 8,
-                  ),
-                ],
+                border: Border.all(color: AppColors.border, width: 1.5),
               ),
               child: Row(
                 children: [

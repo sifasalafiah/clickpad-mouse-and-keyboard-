@@ -404,15 +404,6 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withAlpha(100),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -550,15 +541,6 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: _isAutoScanning ? AppColors.primary : AppColors.success,
-              boxShadow: [
-                BoxShadow(
-                  color:
-                      (_isAutoScanning ? AppColors.primary : AppColors.success)
-                          .withAlpha(120),
-                  blurRadius: 6,
-                  spreadRadius: 2,
-                ),
-              ],
             ),
           ),
           const SizedBox(width: 10),
@@ -868,12 +850,12 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
       decoration: BoxDecoration(
         color: AppColors.surfaceElevated,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primaryLight, width: 1.5),
+        border: Border.all(color: AppColors.border, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withAlpha(40),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: Colors.black.withAlpha(AppColors.palette.isLight ? 10 : 50),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -1027,15 +1009,8 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
               height: 76,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withAlpha(30),
-                border: Border.all(color: AppColors.primaryLight, width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withAlpha(70),
-                    blurRadius: 18,
-                    spreadRadius: 3,
-                  ),
-                ],
+                color: AppColors.primary.withAlpha(20),
+                border: Border.all(color: AppColors.primary, width: 1.5),
               ),
               child: Icon(
                 Icons.sensors_rounded,

@@ -769,14 +769,6 @@ class _JoystickScreenState extends State<JoystickScreen> {
             color: isPressed ? AppColors.primaryLight : AppColors.border,
             width: isPressed ? 1.5 : 1.0,
           ),
-          boxShadow: isPressed
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withAlpha(120),
-                    blurRadius: 8,
-                  ),
-                ]
-              : null,
         ),
         alignment: Alignment.center,
         child: Text(
@@ -881,10 +873,11 @@ class _JoystickScreenState extends State<JoystickScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: isPressed
-                  ? themeColor.withAlpha(160)
-                  : themeColor.withAlpha(50),
-              blurRadius: isPressed ? 12 : 5,
+              color: AppColors.palette.isLight
+                  ? Colors.black.withAlpha(15)
+                  : Colors.black.withAlpha(50),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
             ),
           ],
         ),

@@ -579,11 +579,11 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: key.isPrimary
-                            ? AppColors.primary.withAlpha(90)
-                            : Colors.black.withAlpha(60),
-                        blurRadius: key.isPrimary ? 8 : 2,
-                        offset: const Offset(0, 2),
+                        color: AppColors.palette.isLight
+                            ? Colors.black.withAlpha(15)
+                            : Colors.black.withAlpha(50),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
                       ),
                     ],
                   ),

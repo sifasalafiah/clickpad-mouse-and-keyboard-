@@ -3,13 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 class AppTheme {
-  static ThemeData get lightTheme => getTheme(AppThemeMode.midnightSlateLight);
-  static ThemeData get darkTheme => getTheme(AppThemeMode.midnightSlateDark);
+  static ThemeData get lightTheme => getTheme(AppThemeMode.light);
+  static ThemeData get darkTheme => getTheme(AppThemeMode.dark);
 
   static ThemeData getTheme(AppThemeMode mode) {
     AppColors.applyTheme(mode);
     final palette = AppColors.palettes[mode] ??
-        AppColors.palettes[AppThemeMode.midnightSlateDark]!;
+        AppColors.palettes[AppThemeMode.dark]!;
 
     final baseTextTheme = palette.isLight
         ? ThemeData.light().textTheme

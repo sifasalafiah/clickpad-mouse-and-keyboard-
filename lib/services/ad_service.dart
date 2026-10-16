@@ -339,9 +339,9 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
             border: Border.all(color: AppColors.primary, width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withAlpha(40),
-                blurRadius: 24,
-                spreadRadius: 2,
+                color: Colors.black.withAlpha(40),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
               ),
             ],
           ),

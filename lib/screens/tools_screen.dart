@@ -142,7 +142,6 @@ class _ToolsScreenState extends State<ToolsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isConnected = _connService.isConnected;
     final isTrial = _iapService.isTrialActive;
     final trialSeconds = _iapService.trialSecondsLeft;
 
@@ -155,79 +154,6 @@ class _ToolsScreenState extends State<ToolsScreen> {
 
             return CustomScrollView(
               slivers: [
-                // Top Header Banner
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppColors.primary.withAlpha(200),
-                            AppColors.accent.withAlpha(160),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withAlpha(60),
-                            blurRadius: 14,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withAlpha(40),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.handyman_rounded,
-                              color: Colors.white,
-                              size: 26,
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'ClickPad Tools Hub',
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
-                                    letterSpacing: 0.3,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  isConnected
-                                      ? 'Connected to ${_connService.connectedDevice?.name ?? "Host"} (HID Active)'
-                                      : 'Connect via Bluetooth to start using tools',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white.withAlpha(220),
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
                 // Free Trial Active Countdown Notice
                 if (isTrial)
                   SliverToBoxAdapter(
@@ -242,7 +168,9 @@ class _ToolsScreenState extends State<ToolsScreen> {
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('🎉 +3 Minutes added to your Free Trial!'),
+                                    content: Text(
+                                      '🎉 +3 Minutes added to your Free Trial!',
+                                    ),
                                     backgroundColor: AppColors.success,
                                   ),
                                 );
@@ -252,15 +180,24 @@ class _ToolsScreenState extends State<ToolsScreen> {
                         },
                         borderRadius: BorderRadius.circular(14),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.orange.withAlpha(25),
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: Colors.orange.withAlpha(120)),
+                            border: Border.all(
+                              color: Colors.orange.withAlpha(120),
+                            ),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.timer_outlined, color: Colors.orange, size: 18),
+                              const Icon(
+                                Icons.timer_outlined,
+                                color: Colors.orange,
+                                size: 18,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
@@ -276,7 +213,10 @@ class _ToolsScreenState extends State<ToolsScreen> {
                               ),
                               const SizedBox(width: 6),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.orange,
                                   borderRadius: BorderRadius.circular(8),
@@ -299,30 +239,34 @@ class _ToolsScreenState extends State<ToolsScreen> {
 
                 // Responsive Tools Grid / List
                 SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
                   sliver: isWide
                       ? SliverGrid(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 2.8,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                          ),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 2.8,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                              ),
                           delegate: SliverChildBuilderDelegate(
                             (context, index) => _buildToolCard(_tools[index]),
                             childCount: _tools.length,
                           ),
                         )
                       : SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: _buildToolCard(_tools[index]),
-                              );
-                            },
-                            childCount: _tools.length,
-                          ),
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _buildToolCard(_tools[index]),
+                            );
+                          }, childCount: _tools.length),
                         ),
                 ),
                 const SliverToBoxAdapter(child: SizedBox(height: 16)),
@@ -492,7 +436,9 @@ class _ToolsScreenState extends State<ToolsScreen> {
 
               // Chevron or Lock arrow
               Icon(
-                isLocked ? Icons.lock_outline_rounded : Icons.chevron_right_rounded,
+                isLocked
+                    ? Icons.lock_outline_rounded
+                    : Icons.chevron_right_rounded,
                 color: isLocked ? const Color(0xFFFFD700) : AppColors.textMuted,
                 size: 20,
               ),
@@ -519,9 +465,9 @@ class _ToolsScreenState extends State<ToolsScreen> {
             border: Border.all(color: const Color(0xFFFFD700), width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFD700).withAlpha(45),
-                blurRadius: 24,
-                spreadRadius: 2,
+                color: Colors.black.withAlpha(40),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -533,9 +479,9 @@ class _ToolsScreenState extends State<ToolsScreen> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFFFFD700).withAlpha(
-                    AppColors.palette.isLight ? 45 : 30,
-                  ),
+                  color: const Color(
+                    0xFFFFD700,
+                  ).withAlpha(AppColors.palette.isLight ? 45 : 30),
                 ),
                 child: Icon(
                   tool.icon,
@@ -605,7 +551,9 @@ class _ToolsScreenState extends State<ToolsScreen> {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('🎉 3-Minute Free Trial activated! ${tool.title} unlocked.'),
+                              content: Text(
+                                '🎉 3-Minute Free Trial activated! ${tool.title} unlocked.',
+                              ),
                               backgroundColor: AppColors.success,
                             ),
                           );

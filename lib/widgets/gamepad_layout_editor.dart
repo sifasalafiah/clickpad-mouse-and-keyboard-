@@ -321,9 +321,9 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withAlpha(140),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: Colors.black.withAlpha(AppColors.palette.isLight ? 15 : 60),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
             ),
           ],
         ),
@@ -383,15 +383,6 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
               color: isSelected ? AppColors.primary : Colors.transparent,
               width: isSelected ? 2 : 0,
             ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: AppColors.primary.withAlpha(140),
-                      blurRadius: 14,
-                      spreadRadius: 2,
-                    ),
-                  ]
-                : null,
           ),
           child: FittedBox(
             fit: BoxFit.contain,
@@ -635,8 +626,9 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
               color: AppColors.primary,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withAlpha(100),
-                  blurRadius: 10,
+                  color: Colors.black.withAlpha(AppColors.palette.isLight ? 20 : 60),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -690,8 +682,9 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
         border: Border.all(color: color, width: 2.0),
         boxShadow: [
           BoxShadow(
-            color: color.withAlpha(50),
-            blurRadius: 5,
+            color: Colors.black.withAlpha(AppColors.palette.isLight ? 15 : 50),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),

@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/connection_type.dart';
 import '../theme/app_colors.dart';
 import '../utils/haptic_helper.dart';
-import 'iap_service.dart';
 
 class SettingsService extends ChangeNotifier {
   static final SettingsService instance = SettingsService._internal();
@@ -14,7 +13,7 @@ class SettingsService extends ChangeNotifier {
   bool _enableAcceleration = true;
   bool _enableHaptics = true;
   ConnectionType _preferredConnectionType = ConnectionType.bluetoothHid;
-  AppThemeMode _currentThemeMode = AppThemeMode.midnightSlateDark;
+  AppThemeMode _currentThemeMode = AppThemeMode.dark;
   String _lastServerIp = '192.168.1.100';
   int _lastServerPort = 8888;
   String _lastDeviceName = '';
@@ -73,32 +72,16 @@ class SettingsService extends ChangeNotifier {
 
     final themeStr = prefs.getString('appThemeMode');
     if (themeStr != null) {
-      if (themeStr == 'midnightSlate') {
-        _currentThemeMode = AppThemeMode.midnightSlateDark;
-      } else if (themeStr == 'emeraldPebble') {
-        _currentThemeMode = AppThemeMode.emeraldPebbleDark;
-      } else if (themeStr == 'sunsetAmber') {
-        _currentThemeMode = AppThemeMode.sunsetAmberDark;
+      if (themeStr.toLowerCase().contains('light')) {
+        _currentThemeMode = AppThemeMode.light;
       } else {
-        _currentThemeMode = AppThemeMode.values.firstWhere(
-          (e) => e.name == themeStr,
-          orElse: () => AppThemeMode.midnightSlateDark,
-        );
+        _currentThemeMode = AppThemeMode.dark;
       }
     } else {
-      _currentThemeMode = AppThemeMode.midnightSlateDark;
+      _currentThemeMode = AppThemeMode.dark;
     }
 
-    if (!IapService.instance.isPro && (AppColors.palettes[_currentThemeMode]?.isPro ?? false)) {
-      _currentThemeMode = AppThemeMode.midnightSlateDark;
-    }
     AppColors.applyTheme(_currentThemeMode);
-
-    IapService.instance.addListener(() {
-      if (!IapService.instance.isPro && (AppColors.palettes[_currentThemeMode]?.isPro ?? false)) {
-        setThemeMode(AppThemeMode.midnightSlateDark);
-      }
-    });
     
     HapticHelper.enabled = _enableHaptics;
     notifyListeners();

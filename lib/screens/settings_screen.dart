@@ -335,8 +335,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 20),
 
-          // 3. Appearance & Exclusive Themes (1 Card with Sekat between themes)
-          _buildThemeSection(isPro),
+          // 3. Appearance (1 Card with Dark / Light Mode Switch)
+          _buildThemeSection(),
           const SizedBox(height: 20),
 
           // 4. Mouse & Touchpad Controls (1 Card with Sekat between each control)
@@ -786,199 +786,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildThemeSection(bool isPro) {
-    final currentMode = _settings.currentThemeMode;
+  Widget _buildThemeSection() {
+    final isDark = _settings.currentThemeMode == AppThemeMode.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(
-          'Appearance & Themes',
-          trailing: !isPro
-              ? Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFD700).withAlpha(25),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: const Color(0xFFFFD700).withAlpha(80),
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.workspace_premium,
-                        size: 12,
-                        color: Color(0xFFFFD700),
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        'PRO Themes',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFFFD700),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : null,
-        ),
+        _buildSectionHeader('Appearance'),
         _buildSectionCard(
           children: [
-            for (int i = 0; i < AppThemeMode.values.length; i++) ...[
-              if (i > 0) _buildDivider(indent: 68),
-              _buildThemeTile(AppThemeMode.values[i], currentMode, isPro),
-            ],
+            SwitchListTile(
+              value: isDark,
+              onChanged: (val) {
+                HapticHelper.selectionClick();
+                _settings.setThemeMode(
+                  val ? AppThemeMode.dark : AppThemeMode.light,
+                );
+              },
+              activeThumbColor: AppColors.primary,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 4,
+              ),
+              secondary: Container(
+                padding: const EdgeInsets.all(9),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(25),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                  color: isDark ? const Color(0xFFF59E0B) : AppColors.primary,
+                  size: 20,
+                ),
+              ),
+              title: const Text(
+                'Dark Mode',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              subtitle: Text(
+                isDark
+                    ? 'Midnight Slate dark theme'
+                    : 'Crisp Slate light theme',
+                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+              ),
+            ),
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildThemeTile(
-    AppThemeMode mode,
-    AppThemeMode currentMode,
-    bool isPro,
-  ) {
-    final palette = AppColors.palettes[mode]!;
-    final isSelected = currentMode == mode;
-    final isLocked = palette.isPro && !isPro;
-
-    return InkWell(
-      onTap: () {
-        if (isLocked) {
-          HapticHelper.mediumImpact();
-          ProPurchaseModal.show(context);
-        } else {
-          HapticHelper.selectionClick();
-          _settings.setThemeMode(mode);
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            // Color Swatch Preview
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: palette.background,
-                border: Border.all(
-                  color: isSelected ? palette.primary : palette.border,
-                  width: isSelected ? 2 : 1,
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: palette.primary.withAlpha(100),
-                          blurRadius: 8,
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Center(
-                child: Container(
-                  width: 14,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: palette.primary,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 14),
-
-            // Title & Subtitle
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          palette.name,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.w600,
-                            color: isSelected
-                                ? palette.primary
-                                : AppColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Icon(
-                        palette.isLight
-                            ? Icons.light_mode_rounded
-                            : Icons.dark_mode_rounded,
-                        size: 13,
-                        color: palette.isLight
-                            ? const Color(0xFFF59E0B)
-                            : AppColors.textMuted,
-                      ),
-                      if (palette.isPro) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 1,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isLocked
-                                ? const Color(0xFFFFD700).withAlpha(30)
-                                : AppColors.success.withAlpha(30),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            isLocked ? 'PRO' : 'UNLOCKED',
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
-                              color: isLocked
-                                  ? const Color(0xFFFFD700)
-                                  : AppColors.success,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    palette.subtitle,
-                    style: TextStyle(fontSize: 11, color: AppColors.textMuted),
-                  ),
-                ],
-              ),
-            ),
-
-            // Right Status Indicator
-            if (isLocked)
-              const Icon(Icons.lock_outline, color: Color(0xFFFFD700), size: 18)
-            else if (isSelected)
-              Icon(Icons.check_circle, color: palette.primary, size: 20)
-            else
-              Icon(
-                Icons.radio_button_unchecked,
-                color: AppColors.textMuted.withAlpha(120),
-                size: 18,
-              ),
-          ],
-        ),
-      ),
     );
   }
 }
