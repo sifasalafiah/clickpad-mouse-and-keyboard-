@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../services/connection_service.dart';
+import '../../services/settings_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/haptic_helper.dart';
 import '../../utils/hid_helper.dart';
@@ -20,6 +21,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     facing: CameraFacing.back,
     torchEnabled: false,
   );
+  final SettingsService _settings = SettingsService.instance;
 
   ScanSuffix _selectedSuffix = ScanSuffix.enter;
   bool _isSending = false;
@@ -29,10 +31,21 @@ class _ScannerScreenState extends State<ScannerScreen> {
   final TextEditingController _manualTextController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _settings.addListener(_onSettingsUpdate);
+  }
+
+  @override
   void dispose() {
+    _settings.removeListener(_onSettingsUpdate);
     _scannerController.dispose();
     _manualTextController.dispose();
     super.dispose();
+  }
+
+  void _onSettingsUpdate() {
+    if (mounted) setState(() {});
   }
 
   void _onDetect(BarcodeCapture capture) {
@@ -251,9 +264,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Suffix Option & Mode
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // Suffix Option & Mode (Overflow-safe Wrap)
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 6,
                   children: [
                     const Text('After Scan Send:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                     Row(

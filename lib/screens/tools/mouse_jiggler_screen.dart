@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../models/input_command.dart';
 import '../../services/connection_service.dart';
+import '../../services/iap_service.dart';
+import '../../services/settings_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/haptic_helper.dart';
 
@@ -15,6 +17,8 @@ class MouseJigglerScreen extends StatefulWidget {
 
 class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTickerProviderStateMixin {
   final ConnectionService _connService = ConnectionService.instance;
+  final SettingsService _settings = SettingsService.instance;
+  final IapService _iapService = IapService.instance;
 
   bool _isActive = false;
   int _intervalSeconds = 30;
@@ -30,6 +34,8 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
   @override
   void initState() {
     super.initState();
+    _settings.addListener(_onServiceUpdate);
+    _iapService.addListener(_onServiceUpdate);
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
@@ -41,9 +47,15 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
 
   @override
   void dispose() {
+    _settings.removeListener(_onServiceUpdate);
+    _iapService.removeListener(_onServiceUpdate);
     _stopJiggler();
     _pulseController.dispose();
     super.dispose();
+  }
+
+  void _onServiceUpdate() {
+    if (mounted) setState(() {});
   }
 
   void _toggleJiggler() {
@@ -85,7 +97,6 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
     _statsTimer?.cancel();
     _pulseController.stop();
     _pulseController.reset();
-    WakelockPlus.disable();
   }
 
   void _performJiggle() {
@@ -110,6 +121,37 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Mouse Jiggler (Anti-Sleep)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+        actions: [
+          if (_iapService.isTrialActive)
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withAlpha(35),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.orange),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.timer, color: Colors.orange, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${(_iapService.trialSecondsLeft ~/ 60).toString().padLeft(2, '0')}:${(_iapService.trialSecondsLeft % 60).toString().padLeft(2, '0')}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -124,8 +166,11 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     const Text('Jiggle Frequency:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                     Row(

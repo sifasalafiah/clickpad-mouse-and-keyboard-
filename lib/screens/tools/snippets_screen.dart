@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/settings_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/haptic_helper.dart';
 import '../../utils/hid_helper.dart';
@@ -28,7 +29,8 @@ class SnippetsScreen extends StatefulWidget {
 }
 
 class _SnippetsScreenState extends State<SnippetsScreen> {
-  static const String _prefsKey = 'clickpad_saved_snippets_v2';
+  static const String _prefsKey = 'clickpad_saved_snippets_en_v3';
+  final SettingsService _settings = SettingsService.instance;
   List<SnippetItem> _snippets = [];
   bool _isLoading = true;
   String? _sendingId;
@@ -36,7 +38,18 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
   @override
   void initState() {
     super.initState();
+    _settings.addListener(_onSettingsUpdate);
     _loadSnippets();
+  }
+
+  @override
+  void dispose() {
+    _settings.removeListener(_onSettingsUpdate);
+    super.dispose();
+  }
+
+  void _onSettingsUpdate() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadSnippets() async {
@@ -45,37 +58,42 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
     if (raw != null && raw.isNotEmpty) {
       _snippets = raw.map((s) => SnippetItem.fromJson(jsonDecode(s))).toList();
     } else {
-      // Default snippets praktis untuk orang umum / pekerjaan sehari-hari
+      // Default practical everyday English templates for general users
       _snippets = [
         SnippetItem(
           id: '1',
-          title: 'Salam Pembuka Formal',
-          text: 'Selamat pagi / siang Bapak/Ibu, semoga dalam keadaan sehat selalu.',
+          title: 'Professional Email Greeting',
+          text: 'Dear Sir/Madam,\nI hope this email finds you well.',
         ),
         SnippetItem(
           id: '2',
-          title: 'Konfirmasi Penerimaan',
-          text: 'Baik, dokumen dan informasi sudah saya terima dengan baik. Terima kasih banyak!',
+          title: 'Status Follow-up',
+          text: 'Hi team, just following up on this matter. Looking forward to your update. Thank you!',
         ),
         SnippetItem(
           id: '3',
-          title: 'Format Alamat Pengiriman',
-          text: 'Nama:\nNo. HP/WA:\nAlamat Lengkap:\nKota/Kabupaten:\nKode Pos:',
+          title: 'Receipt Confirmation',
+          text: 'Thank you for sharing. I have received the files and details in good order.',
         ),
         SnippetItem(
           id: '4',
-          title: 'Salam Penutup Email',
-          text: 'Demikian yang dapat saya sampaikan. Terima kasih atas perhatian dan kerja samanya.\n\nSalam hormat,',
+          title: 'Shipping Address Template',
+          text: 'Full Name:\nPhone / WhatsApp:\nStreet Address:\nCity / State:\nZip / Postal Code:',
         ),
         SnippetItem(
           id: '5',
-          title: 'Pemberitahuan Sedang Rapat',
-          text: 'Mohon maaf saat ini saya sedang berada di luar / rapat. Akan segera saya hubungi kembali.',
+          title: 'Professional Email Sign-off',
+          text: 'Thank you for your time and assistance.\n\nBest regards,',
         ),
         SnippetItem(
           id: '6',
-          title: 'Ucapan Terima Kasih',
-          text: 'Terima kasih banyak atas bantuan dan kerja samanya!',
+          title: 'Away / Meeting Notice',
+          text: 'Currently away from my desk in a meeting. I will get back to you as soon as possible.',
+        ),
+        SnippetItem(
+          id: '7',
+          title: 'Appreciation & Thanks',
+          text: 'Thank you very much for your great support and partnership!',
         ),
       ];
       _saveSnippets();
@@ -270,22 +288,31 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                               icon: const Icon(Icons.edit_outlined, size: 18),
                               onPressed: () => _showAddEditModal(existing: item),
                             ),
                             IconButton(
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                               icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.redAccent),
                               tooltip: 'Delete',
                               onPressed: () => _deleteSnippet(idx),
                             ),
                             IconButton(
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                               icon: isSending
                                   ? const SizedBox(
-                                      width: 18,
-                                      height: 18,
+                                      width: 16,
+                                      height: 16,
                                       child: CircularProgressIndicator(strokeWidth: 2),
                                     )
-                                  : const Icon(Icons.send_rounded, color: Colors.greenAccent),
+                                  : const Icon(Icons.send_rounded, color: Colors.greenAccent, size: 18),
                               tooltip: 'Send to PC',
                               onPressed: isSending ? null : () => _sendSnippet(item),
                             ),

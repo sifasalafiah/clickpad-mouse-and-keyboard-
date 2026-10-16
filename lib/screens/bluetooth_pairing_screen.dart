@@ -1245,7 +1245,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             const _StepRow(
               number: '1',
               title: 'Open macOS Bluetooth Settings',
-              desc: 'Click Apple Menu () -> System Settings -> Bluetooth.',
+              desc: 'Click Apple Menu -> System Settings -> Bluetooth.',
             ),
             _StepRow(
               number: '2',

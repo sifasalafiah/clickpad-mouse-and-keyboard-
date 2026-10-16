@@ -59,7 +59,7 @@ class AppRootWrapper extends StatefulWidget {
   State<AppRootWrapper> createState() => _AppRootWrapperState();
 }
 
-class _AppRootWrapperState extends State<AppRootWrapper> {
+class _AppRootWrapperState extends State<AppRootWrapper> with WidgetsBindingObserver {
   final ConnectionService _connService = ConnectionService.instance;
   final SettingsService _settings = SettingsService.instance;
   bool _adServiceInitialized = false;
@@ -67,12 +67,29 @@ class _AppRootWrapperState extends State<AppRootWrapper> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _keepScreenAwake();
     _connService.addListener(_onStateChanged);
     _settings.addListener(_onStateChanged);
 
     // Only initialize AdMob and GDPR consent if onboarding is already completed
     if (_settings.hasSeenOnboarding) {
       _initAdService();
+    }
+  }
+
+  void _keepScreenAwake() {
+    try {
+      WakelockPlus.enable();
+    } catch (e) {
+      debugPrint('Wakelock error: $e');
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _keepScreenAwake();
     }
   }
 
@@ -101,12 +118,16 @@ class _AppRootWrapperState extends State<AppRootWrapper> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _connService.removeListener(_onStateChanged);
     _settings.removeListener(_onStateChanged);
     super.dispose();
   }
 
   void _onStateChanged() {
+    // Keep screen on whenever connected or active
+    _keepScreenAwake();
+
     // If onboarding just finished, initialize AdService now
     if (_settings.hasSeenOnboarding && !_adServiceInitialized) {
       _initAdService();

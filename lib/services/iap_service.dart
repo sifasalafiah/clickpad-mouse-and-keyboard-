@@ -43,7 +43,7 @@ class IapService extends ChangeNotifier {
   bool get isTrialActive => _isTrialActive;
   int get trialSecondsLeft => _trialSecondsLeft;
   bool get hasUsedTrial => _hasUsedTrial;
-  bool get canStartTrial => !_isPro && !_isJoystickUnlocked;
+  bool get canStartTrial => !_isPro;
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -192,7 +192,7 @@ class IapService extends ChangeNotifier {
 
   // Start or Extend 3-Minute Free Trial via Rewarded Ad (Repeatable)
   bool startFreeTrial({int durationSeconds = 180}) {
-    if (_isPro || _isJoystickUnlocked) return false;
+    if (_isPro) return false;
 
     _hasUsedTrial = true;
     final newSeconds = _isTrialActive ? (_trialSecondsLeft + durationSeconds) : durationSeconds;

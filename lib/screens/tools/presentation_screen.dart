@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../services/bluetooth_service.dart';
+import '../../services/settings_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/haptic_helper.dart';
 
@@ -13,6 +14,7 @@ class PresentationScreen extends StatefulWidget {
 
 class _PresentationScreenState extends State<PresentationScreen> {
   final BluetoothBleService _bleService = BluetoothBleService.instance;
+  final SettingsService _settings = SettingsService.instance;
 
   // Stopwatch / Timer
   Timer? _stopwatchTimer;
@@ -21,9 +23,20 @@ class _PresentationScreenState extends State<PresentationScreen> {
   int _slideClickCount = 1;
 
   @override
+  void initState() {
+    super.initState();
+    _settings.addListener(_onSettingsUpdate);
+  }
+
+  @override
   void dispose() {
+    _settings.removeListener(_onSettingsUpdate);
     _stopwatchTimer?.cancel();
     super.dispose();
+  }
+
+  void _onSettingsUpdate() {
+    if (mounted) setState(() {});
   }
 
   void _toggleTimer() {

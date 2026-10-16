@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../services/connection_service.dart';
 import '../services/iap_service.dart';
 import '../services/settings_service.dart';
@@ -50,6 +51,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   void _onStateChanged() {
+    try {
+      WakelockPlus.enable();
+    } catch (_) {}
     if (mounted) setState(() {});
   }
 

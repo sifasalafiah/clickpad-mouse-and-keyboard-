@@ -29,14 +29,14 @@ class HidHelper {
     _bleService.sendKeyboardScancode(modifier, keycode);
   }
 
-  /// Send key with held modifiers (e.g. Ctrl+Shift+Esc, Cmd+Opt+Esc, Win+L)
-  Future<void> sendShortcutChord(int modifier, int keycode, {int holdMs = 80}) async {
+  /// Send key with held modifiers (e.g. Ctrl+Shift+Esc, Cmd+Opt+Esc, Win+L, F11)
+  Future<void> sendShortcutChord(int modifier, int keycode, {int holdMs = 120}) async {
     _bleService.sendKeyboardState(modifier, []);
-    await Future.delayed(const Duration(milliseconds: 25));
+    await Future.delayed(const Duration(milliseconds: 40));
     _bleService.sendKeyboardState(modifier, [keycode]);
     await Future.delayed(Duration(milliseconds: holdMs));
     _bleService.sendKeyboardState(modifier, []);
-    await Future.delayed(const Duration(milliseconds: 25));
+    await Future.delayed(const Duration(milliseconds: 30));
     _bleService.sendKeyboardState(0, []);
   }
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../services/bluetooth_service.dart';
 import '../../services/connection_service.dart';
+import '../../services/iap_service.dart';
+import '../../services/settings_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/haptic_helper.dart';
 
@@ -19,9 +21,29 @@ class _QueuedNumpadKey {
 
 class _NumpadScreenState extends State<NumpadScreen> {
   final BluetoothBleService _bleService = BluetoothBleService.instance;
+  final SettingsService _settings = SettingsService.instance;
+  final IapService _iapService = IapService.instance;
   final List<_QueuedNumpadKey> _keyQueue = [];
   bool _isQueueProcessing = false;
   String _liveExpression = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _settings.addListener(_onServiceUpdate);
+    _iapService.addListener(_onServiceUpdate);
+  }
+
+  @override
+  void dispose() {
+    _settings.removeListener(_onServiceUpdate);
+    _iapService.removeListener(_onServiceUpdate);
+    super.dispose();
+  }
+
+  void _onServiceUpdate() {
+    if (mounted) setState(() {});
+  }
 
   void _enqueueKey(int scancode, {int modifier = 0}) {
     _keyQueue.add(_QueuedNumpadKey(modifier, scancode));
@@ -86,6 +108,35 @@ class _NumpadScreenState extends State<NumpadScreen> {
       appBar: AppBar(
         title: const Text('Accounting Numpad', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
         actions: [
+          if (_iapService.isTrialActive)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withAlpha(35),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.orange),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.timer, color: Colors.orange, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${(_iapService.trialSecondsLeft ~/ 60).toString().padLeft(2, '0')}:${(_iapService.trialSecondsLeft % 60).toString().padLeft(2, '0')}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Center(
@@ -127,12 +178,22 @@ class _NumpadScreenState extends State<NumpadScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.calculate_outlined, color: AppColors.primary, size: 20),
-                      const SizedBox(width: 8),
-                      Text('PC Keystroke Stream', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                    ],
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.calculate_outlined, color: AppColors.primary, size: 20),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            'PC Stream',
+                            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   Expanded(
                     child: Text(

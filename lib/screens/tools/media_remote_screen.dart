@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/bluetooth_service.dart';
+import '../../services/iap_service.dart';
+import '../../services/settings_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/haptic_helper.dart';
 
@@ -12,8 +14,28 @@ class MediaRemoteScreen extends StatefulWidget {
 
 class _MediaRemoteScreenState extends State<MediaRemoteScreen> {
   final BluetoothBleService _bleService = BluetoothBleService.instance;
+  final SettingsService _settings = SettingsService.instance;
+  final IapService _iapService = IapService.instance;
   bool _isPlaying = true;
   bool _isMuted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _settings.addListener(_onServiceUpdate);
+    _iapService.addListener(_onServiceUpdate);
+  }
+
+  @override
+  void dispose() {
+    _settings.removeListener(_onServiceUpdate);
+    _iapService.removeListener(_onServiceUpdate);
+    super.dispose();
+  }
+
+  void _onServiceUpdate() {
+    if (mounted) setState(() {});
+  }
 
   void _playPause() {
     HapticHelper.mediumImpact();
@@ -81,6 +103,37 @@ class _MediaRemoteScreenState extends State<MediaRemoteScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Media Controller', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+        actions: [
+          if (_iapService.isTrialActive)
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withAlpha(35),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.orange),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.timer, color: Colors.orange, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${(_iapService.trialSecondsLeft ~/ 60).toString().padLeft(2, '0')}:${(_iapService.trialSecondsLeft % 60).toString().padLeft(2, '0')}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -264,12 +317,17 @@ class _MediaRemoteScreenState extends State<MediaRemoteScreen> {
             children: [
               Icon(icon, size: 24, color: color ?? AppColors.primaryLight),
               const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: color ?? AppColors.textPrimary,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: color ?? AppColors.textPrimary,
+                  ),
                 ),
               ),
             ],
