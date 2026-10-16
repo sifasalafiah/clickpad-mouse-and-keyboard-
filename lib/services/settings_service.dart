@@ -20,6 +20,7 @@ class SettingsService extends ChangeNotifier {
   String _lastDeviceId = '';
   bool _hasSeenOnboarding = false;
   bool _hasShownFirstInstallProModal = false;
+  bool _hasShownFirstConnectPaywall = false;
   bool _isFullScreen = false;
 
   double get mouseSensitivity => _mouseSensitivity;
@@ -35,6 +36,7 @@ class SettingsService extends ChangeNotifier {
   bool get hasLastConnectedDevice => _lastDeviceName.isNotEmpty && _lastDeviceId.isNotEmpty;
   bool get hasSeenOnboarding => _hasSeenOnboarding;
   bool get hasShownFirstInstallProModal => _hasShownFirstInstallProModal;
+  bool get hasShownFirstConnectPaywall => _hasShownFirstConnectPaywall;
   bool get isFullScreen => _isFullScreen;
 
   void toggleFullScreen() {
@@ -61,6 +63,7 @@ class SettingsService extends ChangeNotifier {
     _lastDeviceId = prefs.getString('lastDeviceId') ?? '';
     _hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
     _hasShownFirstInstallProModal = prefs.getBool('hasShownFirstInstallProModal') ?? false;
+    _hasShownFirstConnectPaywall = prefs.getBool('hasShownFirstConnectPaywall') ?? false;
     
     final connStr = prefs.getString('preferredConnectionType');
     if (connStr != null) {
@@ -165,12 +168,21 @@ class SettingsService extends ChangeNotifier {
     await prefs.setBool('hasShownFirstInstallProModal', true);
   }
 
+  Future<void> markFirstConnectPaywallShown() async {
+    _hasShownFirstConnectPaywall = true;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasShownFirstConnectPaywall', true);
+  }
+
   Future<void> resetOnboarding() async {
     _hasSeenOnboarding = false;
     _hasShownFirstInstallProModal = false;
+    _hasShownFirstConnectPaywall = false;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasSeenOnboarding', false);
     await prefs.setBool('hasShownFirstInstallProModal', false);
+    await prefs.setBool('hasShownFirstConnectPaywall', false);
   }
 }

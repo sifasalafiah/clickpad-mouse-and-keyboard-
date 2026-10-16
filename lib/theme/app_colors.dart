@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum AppThemeMode {
-  light,
-  dark,
-}
+enum AppThemeMode { light, dark }
 
 class ThemePalette {
   final String name;
@@ -47,24 +44,24 @@ class AppColors {
   static AppThemeMode currentTheme = AppThemeMode.dark;
 
   static const Map<AppThemeMode, ThemePalette> palettes = {
-    // 1. Light Mode - Clean, crisp, high-contrast Slate & Indigo
+    // 1. Light Mode - Clean, crisp, bright white & indigo light mode
     AppThemeMode.light: ThemePalette(
       name: 'Slate Light',
-      subtitle: 'Crisp clean slate & indigo light mode',
+      subtitle: 'Crisp clean bright white & indigo light mode',
       isPro: false,
       isLight: true,
-      background: Color(0xFFF1F5F9),
+      background: Color(0xFFF8FAFC),
       surface: Color(0xFFFFFFFF),
-      surfaceElevated: Color(0xFFE2E8F0),
+      surfaceElevated: Color(0xFFFFFFFF),
       primary: Color(0xFF4F46E5),
       primaryLight: Color(0xFF6366F1),
       accent: Color(0xFF4338CA),
-      border: Color(0xFFCBD5E1),
-      touchpadCanvas: Color(0xFFE8EEF5),
+      border: Color(0xFFE2E8F0),
+      touchpadCanvas: Color(0xFFF8FAFC),
       touchRipple: Color(0x264F46E5),
       textPrimary: Color(0xFF0F172A),
-      textSecondary: Color(0xFF334155),
-      textMuted: Color(0xFF64748B),
+      textSecondary: Color(0xFF475569),
+      textMuted: Color(0xFF94A3B8),
     ),
 
     // 2. Dark Mode - Deep, sharp Midnight Slate with vivid Indigo accents (Default)

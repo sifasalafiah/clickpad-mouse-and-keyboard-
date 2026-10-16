@@ -56,7 +56,11 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
     setState(() => _selectedElement = element);
   }
 
-  void _onElementDrag(GamepadHudElement element, Offset delta, Size canvasSize) {
+  void _onElementDrag(
+    GamepadHudElement element,
+    Offset delta,
+    Size canvasSize,
+  ) {
     final current = _draftLayout.getConfig(element);
     final deltaRelX = delta.dx / canvasSize.width;
     final deltaRelY = delta.dy / canvasSize.height;
@@ -149,8 +153,10 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
             Positioned.fill(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final canvasSize =
-                      Size(constraints.maxWidth, constraints.maxHeight);
+                  final canvasSize = Size(
+                    constraints.maxWidth,
+                    constraints.maxHeight,
+                  );
                   return Stack(
                     children: [
                       // Background Alignment & Symmetry Grid
@@ -175,8 +181,7 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
                       _buildDraggableItem(
                         GamepadHudElement.abxyCluster,
                         canvasSize,
-                        childBuilder: (baseSize) =>
-                            _buildPreviewABXY(baseSize),
+                        childBuilder: (baseSize) => _buildPreviewABXY(baseSize),
                       ),
                       _buildDraggableItem(
                         GamepadHudElement.cameraTouchpad,
@@ -321,7 +326,9 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(AppColors.palette.isLight ? 15 : 60),
+              color: Colors.black.withAlpha(
+                AppColors.palette.isLight ? 15 : 60,
+              ),
               blurRadius: 4,
               offset: const Offset(0, 1),
             ),
@@ -358,10 +365,14 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
     final scaledWidth = baseSize.width * config.scale;
     final scaledHeight = baseSize.height * config.scale;
 
-    final left = (config.relX * canvasSize.width - scaledWidth / 2)
-        .clamp(4.0, canvasSize.width - scaledWidth - 4.0);
-    final top = (config.relY * canvasSize.height - scaledHeight / 2)
-        .clamp(4.0, canvasSize.height - scaledHeight - 4.0);
+    final left = (config.relX * canvasSize.width - scaledWidth / 2).clamp(
+      4.0,
+      canvasSize.width - scaledWidth - 4.0,
+    );
+    final top = (config.relY * canvasSize.height - scaledHeight / 2).clamp(
+      4.0,
+      canvasSize.height - scaledHeight - 4.0,
+    );
 
     return Positioned(
       left: left,
@@ -399,23 +410,32 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
 
   Widget _buildSelectedResizeBadge(Size canvasSize) {
     final config = _draftLayout.getConfig(_selectedElement);
-    final baseSize =
-        GamepadLayoutDimensions.getBaseSize(_selectedElement, canvasSize);
+    final baseSize = GamepadLayoutDimensions.getBaseSize(
+      _selectedElement,
+      canvasSize,
+    );
     final scaledWidth = baseSize.width * config.scale;
     final scaledHeight = baseSize.height * config.scale;
 
-    final left = (config.relX * canvasSize.width - scaledWidth / 2)
-        .clamp(4.0, canvasSize.width - scaledWidth - 4.0);
-    final top = (config.relY * canvasSize.height - scaledHeight / 2)
-        .clamp(4.0, canvasSize.height - scaledHeight - 4.0);
+    final left = (config.relX * canvasSize.width - scaledWidth / 2).clamp(
+      4.0,
+      canvasSize.width - scaledWidth - 4.0,
+    );
+    final top = (config.relY * canvasSize.height - scaledHeight / 2).clamp(
+      4.0,
+      canvasSize.height - scaledHeight - 4.0,
+    );
 
     const badgeWidth = 142.0;
     const badgeHeight = 36.0;
-    final badgeLeft = (left + scaledWidth / 2 - badgeWidth / 2)
-        .clamp(8.0, canvasSize.width - badgeWidth - 8.0);
+    final badgeLeft = (left + scaledWidth / 2 - badgeWidth / 2).clamp(
+      8.0,
+      canvasSize.width - badgeWidth - 8.0,
+    );
     final showBadgeBelow = top < 44;
-    final badgeTop =
-        showBadgeBelow ? (top + scaledHeight + 8) : (top - badgeHeight - 8);
+    final badgeTop = showBadgeBelow
+        ? (top + scaledHeight + 8)
+        : (top - badgeHeight - 8);
 
     return Positioned(
       left: badgeLeft,
@@ -451,7 +471,9 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
                   width: 30,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: Colors.redAccent.withAlpha(AppColors.palette.isLight ? 45 : 35),
+                    color: AppColors.error.withAlpha(
+                      AppColors.palette.isLight ? 30 : 35,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   alignment: Alignment.center,
@@ -482,15 +504,13 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
                   width: 30,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(AppColors.palette.isLight ? 55 : 40),
+                    color: AppColors.primary.withAlpha(
+                      AppColors.palette.isLight ? 55 : 40,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   alignment: Alignment.center,
-                  child: Icon(
-                    Icons.add,
-                    size: 16,
-                    color: AppColors.primary,
-                  ),
+                  child: Icon(Icons.add, size: 16, color: AppColors.primary),
                 ),
               ),
             ],
@@ -502,15 +522,21 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
 
   Widget _buildSelectedResizeCornerHandle(Size canvasSize) {
     final config = _draftLayout.getConfig(_selectedElement);
-    final baseSize =
-        GamepadLayoutDimensions.getBaseSize(_selectedElement, canvasSize);
+    final baseSize = GamepadLayoutDimensions.getBaseSize(
+      _selectedElement,
+      canvasSize,
+    );
     final scaledWidth = baseSize.width * config.scale;
     final scaledHeight = baseSize.height * config.scale;
 
-    final left = (config.relX * canvasSize.width - scaledWidth / 2)
-        .clamp(4.0, canvasSize.width - scaledWidth - 4.0);
-    final top = (config.relY * canvasSize.height - scaledHeight / 2)
-        .clamp(4.0, canvasSize.height - scaledHeight - 4.0);
+    final left = (config.relX * canvasSize.width - scaledWidth / 2).clamp(
+      4.0,
+      canvasSize.width - scaledWidth - 4.0,
+    );
+    final top = (config.relY * canvasSize.height - scaledHeight / 2).clamp(
+      4.0,
+      canvasSize.height - scaledHeight - 4.0,
+    );
 
     final handleLeft = left + scaledWidth - 14;
     final handleTop = top + scaledHeight - 14;
@@ -532,18 +558,11 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white, width: 2),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(120),
-                blurRadius: 6,
-              ),
+              BoxShadow(color: Colors.black.withAlpha(120), blurRadius: 6),
             ],
           ),
           alignment: Alignment.center,
-          child: const Icon(
-            Icons.open_in_full,
-            size: 14,
-            color: Colors.white,
-          ),
+          child: const Icon(Icons.open_in_full, size: 14, color: Colors.white),
         ),
       ),
     );
@@ -626,7 +645,9 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
               color: AppColors.primary,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(AppColors.palette.isLight ? 20 : 60),
+                  color: Colors.black.withAlpha(
+                    AppColors.palette.isLight ? 20 : 60,
+                  ),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -653,19 +674,19 @@ class _GamepadLayoutEditorScreenState extends State<GamepadLayoutEditorScreen> {
         children: [
           Positioned(
             top: 0,
-            child: _buildMiniActionBtn('Y', const Color(0xFFFFD700), btnSize),
+            child: _buildMiniActionBtn('Y', const Color(0xFFF59E0B), btnSize),
           ),
           Positioned(
             left: 0,
-            child: _buildMiniActionBtn('X', const Color(0xFF00E5FF), btnSize),
+            child: _buildMiniActionBtn('X', const Color(0xFF3B82F6), btnSize),
           ),
           Positioned(
             right: 0,
-            child: _buildMiniActionBtn('B', const Color(0xFFFF5252), btnSize),
+            child: _buildMiniActionBtn('B', const Color(0xFFEF4444), btnSize),
           ),
           Positioned(
             bottom: 0,
-            child: _buildMiniActionBtn('A', const Color(0xFF00E676), btnSize),
+            child: _buildMiniActionBtn('A', const Color(0xFF10B981), btnSize),
           ),
         ],
       ),

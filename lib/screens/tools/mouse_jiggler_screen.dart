@@ -15,7 +15,8 @@ class MouseJigglerScreen extends StatefulWidget {
   State<MouseJigglerScreen> createState() => _MouseJigglerScreenState();
 }
 
-class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTickerProviderStateMixin {
+class _MouseJigglerScreenState extends State<MouseJigglerScreen>
+    with SingleTickerProviderStateMixin {
   final ConnectionService _connService = ConnectionService.instance;
   final SettingsService _settings = SettingsService.instance;
   final IapService _iapService = IapService.instance;
@@ -120,14 +121,20 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Mouse Jiggler (Anti-Sleep)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+        title: const Text(
+          'Mouse Jiggler (Anti-Sleep)',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+        ),
         actions: [
           if (_iapService.isTrialActive)
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.orange.withAlpha(35),
                     borderRadius: BorderRadius.circular(10),
@@ -160,7 +167,10 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
             children: [
               // Interval Selector Row
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceElevated,
                   borderRadius: BorderRadius.circular(16),
@@ -172,7 +182,13 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    const Text('Jiggle Frequency:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    const Text(
+                      'Jiggle Frequency:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -203,16 +219,20 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
                     height: 200,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: _isActive ? AppColors.success.withAlpha(25) : AppColors.surfaceElevated,
+                      color: _isActive
+                          ? AppColors.success.withAlpha(25)
+                          : AppColors.surfaceElevated,
                       border: Border.all(
                         color: _isActive ? AppColors.success : AppColors.border,
                         width: 3,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: _isActive ? AppColors.success.withAlpha(100) : Colors.black.withAlpha(30),
-                          blurRadius: _isActive ? 30 : 10,
-                          spreadRadius: _isActive ? 4 : 0,
+                          color: Colors.black.withAlpha(
+                            AppColors.palette.isLight ? 12 : 30,
+                          ),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -225,9 +245,13 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              _isActive ? Icons.power_settings_new_rounded : Icons.play_arrow_rounded,
+                              _isActive
+                                  ? Icons.power_settings_new_rounded
+                                  : Icons.play_arrow_rounded,
                               size: 56,
-                              color: _isActive ? AppColors.success : AppColors.textPrimary,
+                              color: _isActive
+                                  ? AppColors.success
+                                  : AppColors.textPrimary,
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -235,7 +259,9 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w900,
-                                color: _isActive ? AppColors.success : AppColors.textPrimary,
+                                color: _isActive
+                                    ? AppColors.success
+                                    : AppColors.textPrimary,
                                 letterSpacing: 1.2,
                               ),
                             ),
@@ -243,7 +269,10 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
                               const SizedBox(height: 4),
                               Text(
                                 'Next in ${_countdownSeconds}s',
-                                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textMuted,
+                                ),
                               ),
                             ],
                           ],
@@ -257,7 +286,10 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
 
               // Stats Card
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceElevated,
                   borderRadius: BorderRadius.circular(16),
@@ -266,9 +298,17 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildStatItem('JIGGLES SENT', '$_jigglesCount', Icons.mouse_rounded),
+                    _buildStatItem(
+                      'JIGGLES SENT',
+                      '$_jigglesCount',
+                      Icons.mouse_rounded,
+                    ),
                     Container(width: 1, height: 36, color: AppColors.border),
-                    _buildStatItem('ACTIVE TIME', _formatDuration(_totalActiveSeconds), Icons.timer_outlined),
+                    _buildStatItem(
+                      'ACTIVE TIME',
+                      _formatDuration(_totalActiveSeconds),
+                      Icons.timer_outlined,
+                    ),
                   ],
                 ),
               ),
@@ -294,11 +334,25 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
           children: [
             Icon(icon, size: 14, color: AppColors.primaryLight),
             const SizedBox(width: 4),
-            Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textMuted)),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textMuted,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'monospace',
+          ),
+        ),
       ],
     );
   }
@@ -319,7 +373,9 @@ class _MouseJigglerScreenState extends State<MouseJigglerScreen> with SingleTick
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : AppColors.surface,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.border,
+          ),
         ),
         child: Text(
           '${seconds}s',

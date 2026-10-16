@@ -117,7 +117,10 @@ class _JoystickScreenState extends State<JoystickScreen> {
     }
 
     // Send multi-key report to native HID with modifier byte
-    _bleService.sendKeyboardState(modifierMask, regularKeycodes.take(6).toList());
+    _bleService.sendKeyboardState(
+      modifierMask,
+      regularKeycodes.take(6).toList(),
+    );
   }
 
   void _onJoystickDirectionChanged(List<int> keys) {
@@ -147,10 +150,12 @@ class _JoystickScreenState extends State<JoystickScreen> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final availableWidth =
-            isPortrait ? constraints.maxHeight : constraints.maxWidth;
-        final availableHeight =
-            isPortrait ? constraints.maxWidth : constraints.maxHeight;
+        final availableWidth = isPortrait
+            ? constraints.maxHeight
+            : constraints.maxWidth;
+        final availableHeight = isPortrait
+            ? constraints.maxWidth
+            : constraints.maxHeight;
 
         Widget gamepadContent = Container(
           width: availableWidth,
@@ -162,9 +167,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
             child: Stack(
               children: [
                 // Main Gamepad Body with custom positioned & scaled HUD elements
-                Positioned.fill(
-                  child: _buildMainGamepadBody(),
-                ),
+                Positioned.fill(child: _buildMainGamepadBody()),
 
                 // Floating Top Center HUD (WASD mode, analog toggle, Remap, HUD Layout, Pro/Trial)
                 Positioned(
@@ -196,7 +199,8 @@ class _JoystickScreenState extends State<JoystickScreen> {
             gamepadView,
 
             // Pro Locked Glass Overlay in natural screen orientation (Portrait when phone is held vertically)
-            if (!isJoystickUnlocked) Positioned.fill(child: _buildProLockOverlay()),
+            if (!isJoystickUnlocked)
+              Positioned.fill(child: _buildProLockOverlay()),
           ],
         );
       },
@@ -225,84 +229,86 @@ class _JoystickScreenState extends State<JoystickScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-          // WASD / ARROWS Mode Toggle
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surfaceElevated,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildModeChip('WASD', JoystickMode.wasd),
-                _buildModeChip('ARROWS', JoystickMode.arrows),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-
-          // Divider
-          Container(width: 1, height: 16, color: AppColors.border),
-          const SizedBox(width: 8),
-
-          // Analog Stick vs D-Pad Toggle
-          InkWell(
-            onTap: () {
-              HapticHelper.selectionClick();
-              setState(() => _useAnalogStick = !_useAnalogStick);
-            },
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              padding: const EdgeInsets.all(5),
+            // WASD / ARROWS Mode Toggle
+            Container(
               decoration: BoxDecoration(
                 color: AppColors.surfaceElevated,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: _useAnalogStick
-                      ? AppColors.primary.withAlpha(120)
-                      : AppColors.border,
-                ),
-              ),
-              child: Icon(
-                _useAnalogStick ? Icons.radio_button_checked : Icons.grid_4x4,
-                color: _useAnalogStick ? AppColors.primary : AppColors.textSecondary,
-                size: 16,
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-
-          // Gamepad Key Remapper Button
-          InkWell(
-            onTap: () {
-              GamepadRemappingModal.show(context);
-            },
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceElevated,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.border),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.tune, color: AppColors.primary, size: 13),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Remap',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
+                  _buildModeChip('WASD', JoystickMode.wasd),
+                  _buildModeChip('ARROWS', JoystickMode.arrows),
                 ],
               ),
             ),
-          ),
-          const SizedBox(width: 6),
+            const SizedBox(width: 8),
+
+            // Divider
+            Container(width: 1, height: 16, color: AppColors.border),
+            const SizedBox(width: 8),
+
+            // Analog Stick vs D-Pad Toggle
+            InkWell(
+              onTap: () {
+                HapticHelper.selectionClick();
+                setState(() => _useAnalogStick = !_useAnalogStick);
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceElevated,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: _useAnalogStick
+                        ? AppColors.primary.withAlpha(120)
+                        : AppColors.border,
+                  ),
+                ),
+                child: Icon(
+                  _useAnalogStick ? Icons.radio_button_checked : Icons.grid_4x4,
+                  color: _useAnalogStick
+                      ? AppColors.primary
+                      : AppColors.textSecondary,
+                  size: 16,
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+
+            // Gamepad Key Remapper Button
+            InkWell(
+              onTap: () {
+                GamepadRemappingModal.show(context);
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceElevated,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.tune, color: AppColors.primary, size: 13),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Remap',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
 
             // HUD Layout Customizer Button
             InkWell(
@@ -320,7 +326,11 @@ class _JoystickScreenState extends State<JoystickScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.dashboard_customize, color: AppColors.primary, size: 12),
+                    Icon(
+                      Icons.dashboard_customize,
+                      color: AppColors.primary,
+                      size: 12,
+                    ),
                     const SizedBox(width: 3),
                     Text(
                       'Layout',
@@ -348,11 +358,15 @@ class _JoystickScreenState extends State<JoystickScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 decoration: BoxDecoration(
                   color: _settings.isFullScreen
-                      ? AppColors.primary.withAlpha(AppColors.palette.isLight ? 40 : 30)
+                      ? AppColors.primary.withAlpha(
+                          AppColors.palette.isLight ? 40 : 30,
+                        )
                       : AppColors.surfaceElevated,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: _settings.isFullScreen ? AppColors.primary : AppColors.border,
+                    color: _settings.isFullScreen
+                        ? AppColors.primary
+                        : AppColors.border,
                     width: 1.0,
                   ),
                 ),
@@ -363,7 +377,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
                       _settings.isFullScreen
                           ? Icons.fullscreen_exit_rounded
                           : Icons.fullscreen_rounded,
-                      color: _settings.isFullScreen ? AppColors.primary : AppColors.textPrimary,
+                      color: _settings.isFullScreen
+                          ? AppColors.primary
+                          : AppColors.textPrimary,
                       size: 13,
                     ),
                     const SizedBox(width: 3),
@@ -372,7 +388,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
                       style: TextStyle(
                         fontSize: 9.5,
                         fontWeight: FontWeight.bold,
-                        color: _settings.isFullScreen ? AppColors.primary : AppColors.textPrimary,
+                        color: _settings.isFullScreen
+                            ? AppColors.primary
+                            : AppColors.textPrimary,
                       ),
                     ),
                   ],
@@ -391,7 +409,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('🎉 +3 Minutes added to your Free Trial!'),
+                            content: Text(
+                              '🎉 +3 Minutes added to your Free Trial!',
+                            ),
                             backgroundColor: AppColors.success,
                           ),
                         );
@@ -654,10 +674,14 @@ class _JoystickScreenState extends State<JoystickScreen> {
     final scaledWidth = baseSize.width * effScale;
     final scaledHeight = baseSize.height * effScale;
 
-    final left = (config.relX * canvasSize.width - scaledWidth / 2)
-        .clamp(2.0, canvasSize.width - scaledWidth - 2.0);
-    final top = (config.relY * canvasSize.height - scaledHeight / 2)
-        .clamp(2.0, canvasSize.height - scaledHeight - 2.0);
+    final left = (config.relX * canvasSize.width - scaledWidth / 2).clamp(
+      2.0,
+      canvasSize.width - scaledWidth - 2.0,
+    );
+    final top = (config.relY * canvasSize.height - scaledHeight / 2).clamp(
+      2.0,
+      canvasSize.height - scaledHeight - 2.0,
+    );
 
     return Positioned(
       left: left,
@@ -783,11 +807,7 @@ class _JoystickScreenState extends State<JoystickScreen> {
     );
   }
 
-  Widget _buildCenterButton(
-    String label,
-    int scancode,
-    double height,
-  ) {
+  Widget _buildCenterButton(String label, int scancode, double height) {
     final isPressed = _activeHeldKeys.contains(scancode);
     return Listener(
       onPointerDown: (_) => _onButtonTouchDown(scancode),
@@ -825,32 +845,57 @@ class _JoystickScreenState extends State<JoystickScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Y Button (Top / Yellow)
+          // Y Button (Top / Amber)
           Positioned(
             top: 0,
-            child: _buildABXYButton('Y', GamepadButtonId.buttonY, const Color(0xFFFFD700), btnSize),
+            child: _buildABXYButton(
+              'Y',
+              GamepadButtonId.buttonY,
+              const Color(0xFFF59E0B),
+              btnSize,
+            ),
           ),
           // X Button (Left / Blue)
           Positioned(
             left: 0,
-            child: _buildABXYButton('X', GamepadButtonId.buttonX, const Color(0xFF00E5FF), btnSize),
+            child: _buildABXYButton(
+              'X',
+              GamepadButtonId.buttonX,
+              const Color(0xFF3B82F6),
+              btnSize,
+            ),
           ),
           // B Button (Right / Red)
           Positioned(
             right: 0,
-            child: _buildABXYButton('B', GamepadButtonId.buttonB, const Color(0xFFFF5252), btnSize),
+            child: _buildABXYButton(
+              'B',
+              GamepadButtonId.buttonB,
+              const Color(0xFFEF4444),
+              btnSize,
+            ),
           ),
-          // A Button (Bottom / Green)
+          // A Button (Bottom / Emerald)
           Positioned(
             bottom: 0,
-            child: _buildABXYButton('A', GamepadButtonId.buttonA, const Color(0xFF00E676), btnSize),
+            child: _buildABXYButton(
+              'A',
+              GamepadButtonId.buttonA,
+              const Color(0xFF10B981),
+              btnSize,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildABXYButton(String label, GamepadButtonId buttonId, Color themeColor, double size) {
+  Widget _buildABXYButton(
+    String label,
+    GamepadButtonId buttonId,
+    Color themeColor,
+    double size,
+  ) {
     final scancode = _mappingService.getScancode(buttonId);
     final isPressed = _activeHeldKeys.contains(scancode);
 
@@ -888,7 +933,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
             fontSize: size * 0.38,
             fontWeight: FontWeight.w900,
             color: isPressed
-                ? (themeColor.computeLuminance() > 0.5 ? Colors.black : Colors.white)
+                ? (themeColor.computeLuminance() > 0.5
+                      ? Colors.black
+                      : Colors.white)
                 : themeColor,
           ),
         ),
@@ -930,34 +977,10 @@ class _JoystickScreenState extends State<JoystickScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Positioned(
-            top: 0,
-            child: _buildDPadButton(
-              upLabel,
-              upKey,
-            ),
-          ),
-          Positioned(
-            left: 0,
-            child: _buildDPadButton(
-              leftLabel,
-              leftKey,
-            ),
-          ),
-          Positioned(
-            right: 0,
-            child: _buildDPadButton(
-              rightLabel,
-              rightKey,
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            child: _buildDPadButton(
-              downLabel,
-              downKey,
-            ),
-          ),
+          Positioned(top: 0, child: _buildDPadButton(upLabel, upKey)),
+          Positioned(left: 0, child: _buildDPadButton(leftLabel, leftKey)),
+          Positioned(right: 0, child: _buildDPadButton(rightLabel, rightKey)),
+          Positioned(bottom: 0, child: _buildDPadButton(downLabel, downKey)),
         ],
       ),
     );
@@ -974,16 +997,10 @@ class _JoystickScreenState extends State<JoystickScreen> {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color:
-              isPressed
-                  ? AppColors.primary
-                  : AppColors.surfaceElevated,
+          color: isPressed ? AppColors.primary : AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color:
-                isPressed
-                    ? AppColors.primaryLight
-                    : AppColors.border,
+            color: isPressed ? AppColors.primaryLight : AppColors.border,
             width: 1.5,
           ),
         ),
@@ -1067,8 +1084,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFFFFD700).withAlpha(
-                      AppColors.palette.isLight ? 45 : 30),
+                  color: const Color(
+                    0xFFFFD700,
+                  ).withAlpha(AppColors.palette.isLight ? 45 : 30),
                 ),
                 child: const Icon(
                   Icons.sports_esports,
@@ -1111,7 +1129,10 @@ class _JoystickScreenState extends State<JoystickScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -1124,7 +1145,9 @@ class _JoystickScreenState extends State<JoystickScreen> {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('🎉 3-Minute Free Trial activated! Gamepad unlocked.'),
+                              content: Text(
+                                '🎉 3-Minute Free Trial activated! Gamepad unlocked.',
+                              ),
                               backgroundColor: AppColors.success,
                             ),
                           );
@@ -1132,15 +1155,15 @@ class _JoystickScreenState extends State<JoystickScreen> {
                       },
                     );
                   },
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.ondemand_video_rounded,
-                    color: Color(0xFF00E5FF),
+                    color: AppColors.primary,
                     size: 16,
                   ),
-                  label: const Text(
+                  label: Text(
                     'Watch Video for 3-Min Free Trial',
                     style: TextStyle(
-                      color: Color(0xFF00E5FF),
+                      color: AppColors.primary,
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                     ),

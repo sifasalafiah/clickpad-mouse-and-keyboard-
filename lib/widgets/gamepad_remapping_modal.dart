@@ -74,9 +74,7 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(
-          top: BorderSide(color: AppColors.primary, width: 2),
-        ),
+        border: Border(top: BorderSide(color: AppColors.primary, width: 2)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(120),
@@ -113,11 +111,7 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                       color: AppColors.primary.withAlpha(30),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      Icons.tune,
-                      color: AppColors.primary,
-                      size: 22,
-                    ),
+                    child: Icon(Icons.tune, color: AppColors.primary, size: 22),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -159,7 +153,10 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceElevated,
                   borderRadius: BorderRadius.circular(12),
@@ -210,7 +207,9 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                             _mappingService.resetToDefaults();
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Mappings reset to standard default.'),
+                                content: Text(
+                                  'Mappings reset to standard default.',
+                                ),
                                 duration: Duration(seconds: 2),
                               ),
                             );
@@ -232,7 +231,8 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                       child: Row(
                         children: [
                           ...GamepadProfilePreset.allPresets.map((preset) {
-                            final isSelected = _mappingService.activePresetId == preset.id;
+                            final isSelected =
+                                _mappingService.activePresetId == preset.id;
                             return Padding(
                               padding: const EdgeInsets.only(right: 8),
                               child: ChoiceChip(
@@ -245,8 +245,12 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                                 selectedColor: AppColors.primary,
                                 labelStyle: TextStyle(
                                   fontSize: 11.5,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                  color: isSelected ? Colors.white : AppColors.textSecondary,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.w500,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppColors.textSecondary,
                                 ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -277,11 +281,12 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                       _mappingService.activePresetId == 'custom'
                           ? 'Personalized layout: Custom keyboard key bindings'
                           : GamepadProfilePreset.allPresets
-                              .firstWhere(
-                                (p) => p.id == _mappingService.activePresetId,
-                                orElse: () => GamepadProfilePreset.standardFps,
-                              )
-                              .description,
+                                .firstWhere(
+                                  (p) => p.id == _mappingService.activePresetId,
+                                  orElse: () =>
+                                      GamepadProfilePreset.standardFps,
+                                )
+                                .description,
                       style: TextStyle(
                         fontSize: 11,
                         color: AppColors.textMuted,
@@ -300,7 +305,10 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
             // Scrollable List of Gamepad Zones
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 4,
+                ),
                 children: [
                   // 1. Shoulders & Triggers
                   _buildSectionHeader('SHOULDERS & TRIGGERS', Icons.touch_app),
@@ -344,21 +352,24 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                   const SizedBox(height: 18),
 
                   // 2. Action Buttons (ABXY)
-                  _buildSectionHeader('ACTION BUTTONS (ABXY)', Icons.grid_view_rounded),
+                  _buildSectionHeader(
+                    'ACTION BUTTONS (ABXY)',
+                    Icons.grid_view_rounded,
+                  ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       Expanded(
                         child: _buildRemapTile(
                           GamepadButtonId.buttonY,
-                          accentColor: const Color(0xFFFFD700),
+                          accentColor: const Color(0xFFF59E0B),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: _buildRemapTile(
                           GamepadButtonId.buttonX,
-                          accentColor: const Color(0xFF00E5FF),
+                          accentColor: const Color(0xFF3B82F6),
                         ),
                       ),
                     ],
@@ -369,14 +380,14 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                       Expanded(
                         child: _buildRemapTile(
                           GamepadButtonId.buttonB,
-                          accentColor: const Color(0xFFFF5252),
+                          accentColor: const Color(0xFFEF4444),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: _buildRemapTile(
                           GamepadButtonId.buttonA,
-                          accentColor: const Color(0xFF00E676),
+                          accentColor: const Color(0xFF10B981),
                         ),
                       ),
                     ],
@@ -385,7 +396,10 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                   const SizedBox(height: 18),
 
                   // 3. System & Menu Buttons
-                  _buildSectionHeader('SYSTEM & MENU BUTTONS', Icons.menu_rounded),
+                  _buildSectionHeader(
+                    'SYSTEM & MENU BUTTONS',
+                    Icons.menu_rounded,
+                  ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -421,7 +435,10 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
                   const SizedBox(height: 18),
 
                   // 4. Directional D-Pad
-                  _buildSectionHeader('DIRECTIONAL D-PAD', Icons.control_camera_rounded),
+                  _buildSectionHeader(
+                    'DIRECTIONAL D-PAD',
+                    Icons.control_camera_rounded,
+                  ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -534,7 +551,8 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
         break;
     }
 
-    final isRound = buttonId == GamepadButtonId.buttonA ||
+    final isRound =
+        buttonId == GamepadButtonId.buttonA ||
         buttonId == GamepadButtonId.buttonB ||
         buttonId == GamepadButtonId.buttonX ||
         buttonId == GamepadButtonId.buttonY;
@@ -625,11 +643,7 @@ class _GamepadRemappingModalState extends State<GamepadRemappingModal> {
               ),
             ),
             const SizedBox(width: 4),
-            Icon(
-              Icons.edit_outlined,
-              size: 14,
-              color: AppColors.textMuted,
-            ),
+            Icon(Icons.edit_outlined, size: 14, color: AppColors.textMuted),
           ],
         ),
       ),
@@ -671,7 +685,8 @@ class _KeyPickerSheetState extends State<_KeyPickerSheet> {
     final size = MediaQuery.of(context).size;
 
     final filteredKeys = HidKeyDefinition.allKeys.where((key) {
-      final matchesQuery = _searchQuery.isEmpty ||
+      final matchesQuery =
+          _searchQuery.isEmpty ||
           key.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           key.shortLabel.toLowerCase().contains(_searchQuery.toLowerCase());
       final matchesCategory =
@@ -746,11 +761,21 @@ class _KeyPickerSheetState extends State<_KeyPickerSheet> {
                 onChanged: (val) => setState(() => _searchQuery = val),
                 decoration: InputDecoration(
                   hintText: 'Search key (e.g., Space, Shift, E, Enter)...',
-                  hintStyle: TextStyle(fontSize: 13, color: AppColors.textMuted),
-                  prefixIcon: Icon(Icons.search, size: 20, color: AppColors.textMuted),
+                  hintStyle: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textMuted,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    size: 20,
+                    color: AppColors.textMuted,
+                  ),
                   filled: true,
                   fillColor: AppColors.surfaceElevated,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(color: AppColors.border),
@@ -761,7 +786,10 @@ class _KeyPickerSheetState extends State<_KeyPickerSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+                    borderSide: BorderSide(
+                      color: AppColors.primary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
               ),
@@ -781,12 +809,17 @@ class _KeyPickerSheetState extends State<_KeyPickerSheet> {
                     child: ChoiceChip(
                       label: Text(cat),
                       selected: isSelected,
-                      onSelected: (_) => setState(() => _selectedCategory = cat),
+                      onSelected: (_) =>
+                          setState(() => _selectedCategory = cat),
                       selectedColor: AppColors.primary,
                       labelStyle: TextStyle(
                         fontSize: 11,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                        color: isSelected ? Colors.white : AppColors.textSecondary,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.w500,
+                        color: isSelected
+                            ? Colors.white
+                            : AppColors.textSecondary,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -810,16 +843,18 @@ class _KeyPickerSheetState extends State<_KeyPickerSheet> {
                     )
                   : GridView.builder(
                       padding: const EdgeInsets.all(20),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 10,
-                        childAspectRatio: 2.1,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
+                            childAspectRatio: 2.1,
+                          ),
                       itemCount: filteredKeys.length,
                       itemBuilder: (context, index) {
                         final keyDef = filteredKeys[index];
-                        final isSelected = keyDef.scancode == widget.currentScancode;
+                        final isSelected =
+                            keyDef.scancode == widget.currentScancode;
 
                         return InkWell(
                           onTap: () {
@@ -834,11 +869,16 @@ class _KeyPickerSheetState extends State<_KeyPickerSheet> {
                                   : AppColors.surfaceElevated,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isSelected ? AppColors.primary : AppColors.border,
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : AppColors.border,
                                 width: isSelected ? 2 : 1,
                               ),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 6,
+                            ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -847,7 +887,9 @@ class _KeyPickerSheetState extends State<_KeyPickerSheet> {
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w900,
-                                    color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : AppColors.textPrimary,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,

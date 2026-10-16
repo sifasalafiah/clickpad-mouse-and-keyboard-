@@ -15,11 +15,12 @@ class ProPurchaseModal extends StatefulWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       sheetAnimationStyle: AnimationStyle(
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 350),
         curve: Curves.easeOutCubic,
-        reverseDuration: const Duration(milliseconds: 350),
+        reverseDuration: const Duration(milliseconds: 250),
         reverseCurve: Curves.easeInCubic,
       ),
       builder: (ctx) => ProPurchaseModal(onUnlocked: onUnlocked),
@@ -92,258 +93,352 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return Container(
-      constraints: BoxConstraints(maxHeight: size.height * 0.88),
+      width: double.infinity,
+      height: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        border: Border(top: BorderSide(color: AppColors.primary, width: 2)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Drag handle pill
-          const SizedBox(height: 12),
-          Container(
-            width: 44,
-            height: 5,
-            decoration: BoxDecoration(
-              color: AppColors.border,
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Column(
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 14),
+          child: Column(
+            children: [
+              // 1. Top Bar with Close 'X' Button on Right
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Crown Hero Icon & Header
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary.withAlpha(50),
-                          const Color(0xFFFFD700).withAlpha(40),
-                        ],
-                      ),
-                      border: Border.all(color: const Color(0xFFFFD700), width: 2),
-                    ),
-                    child: const Icon(
-                      Icons.workspace_premium,
-                      color: Color(0xFFFFD700),
-                      size: 40,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  ShaderMask(
-                    shaderCallback: (bounds) => const LinearGradient(
-                      colors: [Color(0xFF00E5FF), Color(0xFFFFD700)],
-                    ).createShader(bounds),
-                    child: const Text(
-                      'ClickPad PRO',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
+                      color: const Color(
+                        0xFFFFD700,
+                      ).withAlpha(AppColors.palette.isLight ? 35 : 25),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: const Color(0xFFFFD700).withAlpha(120),
+                        width: 1,
                       ),
                     ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.workspace_premium,
+                          color: Color(0xFFFFD700),
+                          size: 14,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'PREMIUM PASS',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.palette.isLight
+                                ? const Color(0xFFB45309)
+                                : const Color(0xFFFFD700),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Unlock All Exclusive Remote PC Features',
-                    style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                    textAlign: TextAlign.center,
+                  IconButton(
+                    onPressed: () {
+                      HapticHelper.lightImpact();
+                      Navigator.of(context).pop();
+                    },
+                    icon: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceElevated,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.border, width: 1),
+                      ),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 18,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    tooltip: 'Close',
+                    splashRadius: 22,
                   ),
-                  const SizedBox(height: 24),
+                ],
+              ),
 
-                  // Feature Checklist Grid
-                  _buildFeatureTile(
-                    Icons.sports_esports,
-                    'Virtual Gamepad & Joystick',
-                    'Play PC games from your couch with 360° Analog Stick, D-Pad, & ABXY',
-                  ),
-                  _buildFeatureTile(
-                    Icons.speed,
-                    'Zero-Latency Responsiveness',
-                    'Hardware-level Bluetooth HID connection with zero input lag',
-                  ),
-                  _buildFeatureTile(
-                    Icons.dashboard_customize_rounded,
-                    'Custom Gamepad Layout Editor',
-                    'Freely reposition, resize, and personalize controls to fit your hands',
-                  ),
-                  _buildFeatureTile(
-                    Icons.block,
-                    '100% Ad-Free Experience',
-                    'Stay fully focused without any banners or popup ads',
-                  ),
-                  _buildFeatureTile(
-                    Icons.handyman_rounded,
-                    'Complete Desktop Tools',
-                    'Unlock Macro Deck, Mouse Jiggler, Media Remote, & Numpad',
-                  ),
-                  const SizedBox(height: 20),
+              const Spacer(flex: 1),
 
-                  // Pricing Options Cards
-                  Builder(
-                    builder: (context) {
-                      final proProduct = _iapService.products.cast<ProductDetails?>().firstWhere(
+              // 2. Crown Hero Icon & Title
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(
+                    0xFFFFD700,
+                  ).withAlpha(AppColors.palette.isLight ? 35 : 25),
+                  border: Border.all(color: const Color(0xFFFFD700), width: 2),
+                ),
+                child: const Icon(
+                  Icons.workspace_premium,
+                  color: Color(0xFFFFD700),
+                  size: 34,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'ClickPad PRO',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textPrimary,
+                  letterSpacing: 0.3,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                'Unlock all features with zero ads forever',
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+
+              const Spacer(flex: 1),
+
+              // 3. Rich Feature Checklist Card (With Icons & Subtitles)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceElevated,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  children: [
+                    _buildFeatureTile(
+                      Icons.sports_esports_rounded,
+                      'Virtual Gamepad & Joystick',
+                      '360° Analog Stick, D-Pad, and responsive ABXY buttons',
+                    ),
+                    const SizedBox(height: 6),
+                    _buildFeatureTile(
+                      Icons.handyman_rounded,
+                      'Complete Desktop Tools',
+                      'Macro Deck, Mouse Jiggler, Numpad, & Media Remote',
+                    ),
+                    const SizedBox(height: 6),
+                    _buildFeatureTile(
+                      Icons.dashboard_customize_rounded,
+                      'Custom Layout & Remapping',
+                      'Freely reposition, resize, and personalize controls',
+                    ),
+                    const SizedBox(height: 6),
+                    _buildFeatureTile(
+                      Icons.block_rounded,
+                      '100% Ad-Free Experience',
+                      'Zero banners or popup interruptions forever',
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(flex: 1),
+
+              // 4. Pricing Options Cards
+              Builder(
+                builder: (context) {
+                  final proProduct = _iapService.products
+                      .cast<ProductDetails?>()
+                      .firstWhere(
                         (p) => p?.id == IapService.proLifetimeId,
                         orElse: () => null,
                       );
-                      final joystickProduct = _iapService.products.cast<ProductDetails?>().firstWhere(
+                  final joystickProduct = _iapService.products
+                      .cast<ProductDetails?>()
+                      .firstWhere(
                         (p) => p?.id == IapService.joystickPassId,
                         orElse: () => null,
                       );
 
-                      final isStoreLoading = _iapService.isLoading;
-                      final proPrice = proProduct?.price ?? (isStoreLoading ? '...' : '-');
-                      final joystickPrice = joystickProduct?.price ?? (isStoreLoading ? '...' : '-');
-                      final isJoystickOwned = _iapService.isJoystickUnlocked && !_iapService.isPro;
+                  final isStoreLoading = _iapService.isLoading;
+                  final proPrice =
+                      proProduct?.price ?? (isStoreLoading ? '...' : '-');
+                  final joystickPrice =
+                      joystickProduct?.price ?? (isStoreLoading ? '...' : '-');
+                  final isJoystickOwned =
+                      _iapService.isJoystickUnlocked && !_iapService.isPro;
 
-                      return Column(
-                        children: [
-                          _buildPricingCard(
-                            title: isJoystickOwned ? 'Upgrade to Pro Lifetime' : 'Pro Lifetime Pass',
-                            badge: isJoystickOwned ? 'NO ADS' : 'BEST VALUE',
-                            price: proPrice,
-                            subtitle: isJoystickOwned
-                                ? 'Remove all ads forever & unlock complete desktop tools'
-                                : 'One-time purchase, unlock all features forever',
-                            isPrimary: true,
-                            onTap: () => _handleUnlock(isLifetime: true),
-                          ),
-                          const SizedBox(height: 10),
-                          _buildPricingCard(
-                            title: 'Joystick Game Pass Only',
-                            badge: isJoystickOwned ? 'OWNED' : null,
-                            price: isJoystickOwned ? 'Active' : joystickPrice,
-                            subtitle: isJoystickOwned
-                                ? 'Already unlocked on this device'
-                                : 'Dedicated to Virtual Gamepad & Controller features',
-                            isPrimary: false,
-                            isOwned: isJoystickOwned,
-                            onTap: isJoystickOwned ? null : () => _handleUnlock(isLifetime: false),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Free Demo / Trial Button (Watch Reward Ad)
-                  if (_iapService.canStartTrial) ...[
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        AdService.instance.showRewardedTrialFlow(
-                          context,
-                          onSuccess: () {
-                            if (mounted) {
-                              _safeClose(
-                                successMessage: _iapService.isTrialActive
-                                    ? '🎉 +3 Minutes added to your Free Trial!'
-                                    : '🎉 3-Minute Free Trial Active! Enjoy testing the Joystick.',
-                              );
-                            }
-                          },
-                        );
-                      },
-                      icon: const Icon(Icons.ondemand_video_rounded, color: Color(0xFF00E5FF), size: 18),
-                      label: Text(
-                        _iapService.isTrialActive
-                            ? 'Extend Free Trial (+3 Min Free)'
-                            : 'Watch Video for 3-Min Free Trial',
-                        style: const TextStyle(color: Color(0xFF00E5FF), fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis,
+                  return Column(
+                    children: [
+                      _buildPricingCard(
+                        title: isJoystickOwned
+                            ? 'Upgrade to Pro Lifetime'
+                            : 'Pro Lifetime Pass',
+                        badge: isJoystickOwned ? 'NO ADS' : 'BEST VALUE',
+                        price: proPrice,
+                        subtitle: isJoystickOwned
+                            ? 'Remove all ads forever & unlock complete tools'
+                            : 'One-time purchase, unlock all features forever',
+                        isPrimary: true,
+                        onTap: () => _handleUnlock(isLifetime: true),
                       ),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFF00E5FF)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        minimumSize: const Size(double.infinity, 44),
+                      const SizedBox(height: 8),
+                      _buildPricingCard(
+                        title: 'Joystick Game Pass Only',
+                        badge: isJoystickOwned ? 'OWNED' : null,
+                        price: isJoystickOwned ? 'Active' : joystickPrice,
+                        subtitle: isJoystickOwned
+                            ? 'Already unlocked on this device'
+                            : 'Dedicated Virtual Gamepad Controller access',
+                        isPrimary: false,
+                        isOwned: isJoystickOwned,
+                        onTap: isJoystickOwned
+                            ? null
+                            : () => _handleUnlock(isLifetime: false),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
+                    ],
+                  );
+                },
+              ),
 
-                  // Restore Purchases Button
-                  TextButton(
-                    onPressed: () async {
-                      HapticHelper.selectionClick();
-                      await _iapService.restorePurchases();
-                      if (context.mounted) {
-                        if (_iapService.isPro) {
+              const Spacer(flex: 1),
+
+              // 5. Free Demo / Trial Button (Watch Reward Ad)
+              if (_iapService.canStartTrial) ...[
+                OutlinedButton.icon(
+                  onPressed: () {
+                    AdService.instance.showRewardedTrialFlow(
+                      context,
+                      onSuccess: () {
+                        if (mounted) {
                           _safeClose(
-                            successMessage:
-                                '🎉 ClickPad PRO Lifetime successfully restored!',
-                          );
-                        } else if (_iapService.isJoystickUnlocked) {
-                          _safeClose(
-                            successMessage:
-                                '🎮 Joystick Game Pass successfully restored!',
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'No previous purchases found to restore.',
-                              ),
-                            ),
+                            successMessage: _iapService.isTrialActive
+                                ? '🎉 +3 Minutes added to your Free Trial!'
+                                : '🎉 3-Minute Free Trial Active! Enjoy testing the Joystick.',
                           );
                         }
-                      }
-                    },
-                    child: Text(
-                      'Restore Purchases',
-                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-                    ),
+                      },
+                    );
+                  },
+                  icon: Icon(
+                    Icons.ondemand_video_rounded,
+                    color: AppColors.primary,
+                    size: 18,
                   ),
-                  const SizedBox(height: 16),
-                ],
+                  label: Text(
+                    _iapService.isTrialActive
+                        ? 'Extend Free Trial (+3 Min Free)'
+                        : 'Watch Video for 3-Min Free Trial',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: AppColors.primary),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    minimumSize: const Size(double.infinity, 42),
+                  ),
+                ),
+                const SizedBox(height: 4),
+              ],
+
+              // 6. Restore Purchases Button
+              TextButton(
+                onPressed: () async {
+                  HapticHelper.selectionClick();
+                  await _iapService.restorePurchases();
+                  if (context.mounted) {
+                    if (_iapService.isPro) {
+                      _safeClose(
+                        successMessage:
+                            '🎉 ClickPad PRO Lifetime successfully restored!',
+                      );
+                    } else if (_iapService.isJoystickUnlocked) {
+                      _safeClose(
+                        successMessage:
+                            '🎮 Joystick Game Pass successfully restored!',
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'No previous purchases found to restore.',
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: Text(
+                  'Restore Purchases',
+                  style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildFeatureTile(IconData icon, String title, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: AppColors.primary.withAlpha(25),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary.withAlpha(60)),
+              color: AppColors.primary.withAlpha(
+                AppColors.palette.isLight ? 20 : 30,
+              ),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColors.primary.withAlpha(
+                  AppColors.palette.isLight ? 45 : 55,
+                ),
+                width: 1,
+              ),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
+            child: Icon(icon, color: AppColors.primary, size: 18),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   subtitle,
-                  style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    color: AppColors.textMuted,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -369,10 +464,12 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
       child: Opacity(
         opacity: isOwned ? 0.75 : 1.0,
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             color: isPrimary
-                ? AppColors.primary.withAlpha(AppColors.palette.isLight ? 25 : 30)
+                ? AppColors.primary.withAlpha(
+                    AppColors.palette.isLight ? 25 : 30,
+                  )
                 : AppColors.surfaceElevated,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
@@ -401,14 +498,20 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                         ),
                         if (badge != null)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: isOwned
                                   ? AppColors.success.withAlpha(35)
                                   : const Color(0xFFFFD700),
                               borderRadius: BorderRadius.circular(6),
                               border: isOwned
-                                  ? Border.all(color: AppColors.success, width: 1)
+                                  ? Border.all(
+                                      color: AppColors.success,
+                                      width: 1,
+                                    )
                                   : null,
                             ),
                             child: Text(
@@ -416,7 +519,9 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w900,
-                                color: isOwned ? AppColors.success : Colors.black,
+                                color: isOwned
+                                    ? AppColors.success
+                                    : Colors.black,
                               ),
                             ),
                           ),
@@ -425,7 +530,10 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textMuted,
+                      ),
                     ),
                   ],
                 ),
@@ -438,11 +546,7 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                   fontWeight: FontWeight.w900,
                   color: isOwned
                       ? AppColors.success
-                      : (isPrimary
-                          ? (AppColors.palette.isLight
-                              ? AppColors.primary
-                              : const Color(0xFF00E5FF))
-                          : AppColors.textPrimary),
+                      : (isPrimary ? AppColors.primary : AppColors.textPrimary),
                 ),
               ),
             ],
@@ -456,11 +560,12 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
     HapticHelper.mediumImpact();
     setState(() => _isProcessing = true);
 
-    final targetId = isLifetime ? IapService.proLifetimeId : IapService.joystickPassId;
-    final storeProduct = _iapService.products.cast<ProductDetails?>().firstWhere(
-      (p) => p?.id == targetId,
-      orElse: () => null,
-    );
+    final targetId = isLifetime
+        ? IapService.proLifetimeId
+        : IapService.joystickPassId;
+    final storeProduct = _iapService.products
+        .cast<ProductDetails?>()
+        .firstWhere((p) => p?.id == targetId, orElse: () => null);
 
     // If Google Play / App Store product is loaded and store is available, trigger real checkout
     if (storeProduct != null && _iapService.isAvailable) {
@@ -469,7 +574,9 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
       if (!started && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Could not start store checkout. Please check Google Play / App Store account.'),
+            content: Text(
+              'Could not start store checkout. Please check Google Play / App Store account.',
+            ),
           ),
         );
       }

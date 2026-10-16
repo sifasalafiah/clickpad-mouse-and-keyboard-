@@ -120,7 +120,10 @@ class _PresentationScreenState extends State<PresentationScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Presentation Clicker', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+        title: const Text(
+          'Presentation Clicker',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
@@ -136,13 +139,20 @@ class _PresentationScreenState extends State<PresentationScreen> {
             children: [
               // Presentation HUD (Timer & Slide Counter)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceElevated,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: AppColors.border),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 10, offset: const Offset(0, 3)),
+                    BoxShadow(
+                      color: Colors.black.withAlpha(20),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
                   ],
                 ),
                 child: Row(
@@ -154,8 +164,12 @@ class _PresentationScreenState extends State<PresentationScreen> {
                         IconButton(
                           onPressed: _toggleTimer,
                           icon: Icon(
-                            _isTimerRunning ? Icons.pause_circle_filled : Icons.play_circle_filled,
-                            color: _isTimerRunning ? Colors.amber : AppColors.primaryLight,
+                            _isTimerRunning
+                                ? Icons.pause_circle_filled
+                                : Icons.play_circle_filled,
+                            color: _isTimerRunning
+                                ? Colors.amber
+                                : AppColors.primaryLight,
                             size: 32,
                           ),
                         ),
@@ -172,7 +186,13 @@ class _PresentationScreenState extends State<PresentationScreen> {
                                 fontFamily: 'monospace',
                               ),
                             ),
-                            Text('Elapsed Time', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                            Text(
+                              'Elapsed Time',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppColors.textMuted,
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -180,22 +200,35 @@ class _PresentationScreenState extends State<PresentationScreen> {
 
                     // Slide Counter Badge
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withAlpha(25),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.primary.withAlpha(80)),
+                        border: Border.all(
+                          color: AppColors.primary.withAlpha(80),
+                        ),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             'SLIDE',
-                            style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.primaryLight),
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryLight,
+                            ),
                           ),
                           Text(
                             '#$_slideClickCount',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryLight),
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryLight,
+                            ),
                           ),
                         ],
                       ),
@@ -208,15 +241,36 @@ class _PresentationScreenState extends State<PresentationScreen> {
               // Secondary Quick Action Controls (F5, Shift+F5, Black, White, Esc)
               Row(
                 children: [
-                  _buildSubButton(label: 'Start (F5)', icon: Icons.slideshow_rounded, onTap: _startPresentation),
+                  _buildSubButton(
+                    label: 'Start (F5)',
+                    icon: Icons.slideshow_rounded,
+                    onTap: _startPresentation,
+                  ),
                   const SizedBox(width: 8),
-                  _buildSubButton(label: 'From Cur', icon: Icons.play_arrow_rounded, onTap: _startFromCurrent),
+                  _buildSubButton(
+                    label: 'From Cur',
+                    icon: Icons.play_arrow_rounded,
+                    onTap: _startFromCurrent,
+                  ),
                   const SizedBox(width: 8),
-                  _buildSubButton(label: 'Black (B)', icon: Icons.contrast_rounded, onTap: _blackScreen),
+                  _buildSubButton(
+                    label: 'Black (B)',
+                    icon: Icons.contrast_rounded,
+                    onTap: _blackScreen,
+                  ),
                   const SizedBox(width: 8),
-                  _buildSubButton(label: 'White (W)', icon: Icons.light_mode_outlined, onTap: _whiteScreen),
+                  _buildSubButton(
+                    label: 'White (W)',
+                    icon: Icons.light_mode_outlined,
+                    onTap: _whiteScreen,
+                  ),
                   const SizedBox(width: 8),
-                  _buildSubButton(label: 'Exit', icon: Icons.close_fullscreen_rounded, onTap: _exitPresentation, isDestructive: true),
+                  _buildSubButton(
+                    label: 'Exit',
+                    icon: Icons.close_fullscreen_rounded,
+                    onTap: _exitPresentation,
+                    isDestructive: true,
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -245,7 +299,11 @@ class _PresentationScreenState extends State<PresentationScreen> {
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.arrow_forward_rounded, size: 64, color: Colors.white),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 64,
+                            color: Colors.white,
+                          ),
                           SizedBox(height: 8),
                           Text(
                             'NEXT SLIDE',
@@ -259,7 +317,10 @@ class _PresentationScreenState extends State<PresentationScreen> {
                           SizedBox(height: 4),
                           Text(
                             'Right Arrow / Space',
-                            style: TextStyle(color: Colors.white70, fontSize: 12),
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
@@ -286,7 +347,11 @@ class _PresentationScreenState extends State<PresentationScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.arrow_back_rounded, size: 36, color: AppColors.textPrimary),
+                          Icon(
+                            Icons.arrow_back_rounded,
+                            size: 36,
+                            color: AppColors.textPrimary,
+                          ),
                           const SizedBox(width: 12),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -301,7 +366,13 @@ class _PresentationScreenState extends State<PresentationScreen> {
                                   letterSpacing: 0.8,
                                 ),
                               ),
-                              Text('Left Arrow', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                              Text(
+                                'Left Arrow',
+                                style: TextStyle(
+                                  color: AppColors.textMuted,
+                                  fontSize: 11,
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -333,23 +404,35 @@ class _PresentationScreenState extends State<PresentationScreen> {
           child: Ink(
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
-              color: isDestructive ? Colors.redAccent.withAlpha(20) : AppColors.surfaceElevated,
+              color: isDestructive
+                  ? AppColors.error.withAlpha(20)
+                  : AppColors.surfaceElevated,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: isDestructive ? Colors.redAccent.withAlpha(70) : AppColors.border,
+                color: isDestructive
+                    ? AppColors.error.withAlpha(70)
+                    : AppColors.border,
               ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 16, color: isDestructive ? Colors.redAccent : AppColors.textPrimary),
+                Icon(
+                  icon,
+                  size: 16,
+                  color: isDestructive
+                      ? AppColors.error
+                      : AppColors.textPrimary,
+                ),
                 const SizedBox(height: 2),
                 Text(
                   label,
                   style: TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
-                    color: isDestructive ? Colors.redAccent : AppColors.textSecondary,
+                    color: isDestructive
+                        ? AppColors.error
+                        : AppColors.textSecondary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

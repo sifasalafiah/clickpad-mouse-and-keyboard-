@@ -15,10 +15,10 @@ class SnippetItem {
 
   Map<String, dynamic> toJson() => {'id': id, 'title': title, 'text': text};
   factory SnippetItem.fromJson(Map<String, dynamic> json) => SnippetItem(
-        id: json['id'] ?? '',
-        title: json['title'] ?? '',
-        text: json['text'] ?? '',
-      );
+    id: json['id'] ?? '',
+    title: json['title'] ?? '',
+    text: json['text'] ?? '',
+  );
 }
 
 class SnippetsScreen extends StatefulWidget {
@@ -68,17 +68,20 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
         SnippetItem(
           id: '2',
           title: 'Status Follow-up',
-          text: 'Hi team, just following up on this matter. Looking forward to your update. Thank you!',
+          text:
+              'Hi team, just following up on this matter. Looking forward to your update. Thank you!',
         ),
         SnippetItem(
           id: '3',
           title: 'Receipt Confirmation',
-          text: 'Thank you for sharing. I have received the files and details in good order.',
+          text:
+              'Thank you for sharing. I have received the files and details in good order.',
         ),
         SnippetItem(
           id: '4',
           title: 'Shipping Address Template',
-          text: 'Full Name:\nPhone / WhatsApp:\nStreet Address:\nCity / State:\nZip / Postal Code:',
+          text:
+              'Full Name:\nPhone / WhatsApp:\nStreet Address:\nCity / State:\nZip / Postal Code:',
         ),
         SnippetItem(
           id: '5',
@@ -88,7 +91,8 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
         SnippetItem(
           id: '6',
           title: 'Away / Meeting Notice',
-          text: 'Currently away from my desk in a meeting. I will get back to you as soon as possible.',
+          text:
+              'Currently away from my desk in a meeting. I will get back to you as soon as possible.',
         ),
         SnippetItem(
           id: '7',
@@ -111,7 +115,11 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
     HapticHelper.mediumImpact();
     setState(() => _sendingId = item.id);
 
-    await HidHelper.instance.sendText(item.text, sendEnter: false, charDelayMs: 14);
+    await HidHelper.instance.sendText(
+      item.text,
+      sendEnter: false,
+      charDelayMs: 14,
+    );
 
     if (mounted) {
       setState(() => _sendingId = null);
@@ -151,14 +159,19 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
             children: [
               Text(
                 existing == null ? 'New Text Snippet' : 'Edit Text Snippet',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: titleCtrl,
                 decoration: InputDecoration(
                   labelText: 'Snippet Title',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -167,7 +180,9 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
                 maxLines: 4,
                 decoration: InputDecoration(
                   labelText: 'Text Content to Type to PC',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -176,11 +191,16 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx),
-                    child: Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: AppColors.textMuted),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                    ),
                     onPressed: () {
                       final title = titleCtrl.text.trim();
                       final text = textCtrl.text;
@@ -191,17 +211,23 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
                           existing.title = title;
                           existing.text = text;
                         } else {
-                          _snippets.add(SnippetItem(
-                            id: DateTime.now().millisecondsSinceEpoch.toString(),
-                            title: title,
-                            text: text,
-                          ));
+                          _snippets.add(
+                            SnippetItem(
+                              id: DateTime.now().millisecondsSinceEpoch
+                                  .toString(),
+                              title: title,
+                              text: text,
+                            ),
+                          );
                         }
                       });
                       _saveSnippets();
                       Navigator.pop(ctx);
                     },
-                    child: const Text('Save Snippet', style: TextStyle(color: Colors.white)),
+                    child: const Text(
+                      'Save Snippet',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
@@ -225,7 +251,10 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Quick Text Snippets', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+        title: const Text(
+          'Quick Text Snippets',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add_rounded),
@@ -237,91 +266,136 @@ class _SnippetsScreenState extends State<SnippetsScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _snippets.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.notes_rounded, size: 48, color: AppColors.textMuted),
-                      const SizedBox(height: 12),
-                      Text('No text snippets saved yet', style: TextStyle(color: AppColors.textMuted)),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.add),
-                        label: const Text('Create Snippet'),
-                        onPressed: () => _showAddEditModal(),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.notes_rounded,
+                    size: 48,
+                    color: AppColors.textMuted,
                   ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _snippets.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 10),
-                  itemBuilder: (context, idx) {
-                    final item = _snippets[idx];
-                    final isSending = _sendingId == item.id;
+                  const SizedBox(height: 12),
+                  Text(
+                    'No text snippets saved yet',
+                    style: TextStyle(color: AppColors.textMuted),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.add),
+                    label: const Text('Create Snippet'),
+                    onPressed: () => _showAddEditModal(),
+                  ),
+                ],
+              ),
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: _snippets.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
+              itemBuilder: (context, idx) {
+                final item = _snippets[idx];
+                final isSending = _sendingId == item.id;
 
-                    return Container(
+                return Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
+                    leading: Container(
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceElevated,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border),
+                        color: AppColors.primary.withAlpha(25),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                        leading: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withAlpha(25),
-                            borderRadius: BorderRadius.circular(12),
+                      child: Icon(
+                        Icons.text_snippet_rounded,
+                        color: AppColors.primaryLight,
+                        size: 20,
+                      ),
+                    ),
+                    title: Text(
+                      item.title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    subtitle: Text(
+                      item.text,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textMuted,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
                           ),
-                          child: Icon(Icons.text_snippet_rounded, color: AppColors.primaryLight, size: 20),
+                          icon: const Icon(Icons.edit_outlined, size: 18),
+                          onPressed: () => _showAddEditModal(existing: item),
                         ),
-                        title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                        subtitle: Text(
-                          item.text,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 12, color: AppColors.textMuted, fontFamily: 'monospace'),
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          icon: Icon(
+                            Icons.delete_outline_rounded,
+                            size: 18,
+                            color: AppColors.error,
+                          ),
+                          tooltip: 'Delete',
+                          onPressed: () => _deleteSnippet(idx),
                         ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              visualDensity: VisualDensity.compact,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                              icon: const Icon(Icons.edit_outlined, size: 18),
-                              onPressed: () => _showAddEditModal(existing: item),
-                            ),
-                            IconButton(
-                              visualDensity: VisualDensity.compact,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                              icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.redAccent),
-                              tooltip: 'Delete',
-                              onPressed: () => _deleteSnippet(idx),
-                            ),
-                            IconButton(
-                              visualDensity: VisualDensity.compact,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                              icon: isSending
-                                  ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
-                                    )
-                                  : const Icon(Icons.send_rounded, color: Colors.greenAccent, size: 18),
-                              tooltip: 'Send to PC',
-                              onPressed: isSending ? null : () => _sendSnippet(item),
-                            ),
-                          ],
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
+                          icon: isSending
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Icon(
+                                  Icons.send_rounded,
+                                  color: AppColors.primary,
+                                  size: 18,
+                                ),
+                          tooltip: 'Send to PC',
+                          onPressed: isSending
+                              ? null
+                              : () => _sendSnippet(item),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

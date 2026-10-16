@@ -34,12 +34,20 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     SettingsScreen(),
   ];
 
+  bool _wasConnected = false;
+
   @override
   void initState() {
     super.initState();
     _connService.addListener(_onStateChanged);
     _iapService.addListener(_onStateChanged);
     _settings.addListener(_onStateChanged);
+    _wasConnected = _connService.isConnected;
+    if (_wasConnected) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkFirstConnectPaywall();
+      });
+    }
   }
 
   @override
@@ -54,7 +62,25 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     try {
       WakelockPlus.enable();
     } catch (_) {}
+
+    final isConnected = _connService.isConnected;
+    if (isConnected && !_wasConnected) {
+      _checkFirstConnectPaywall();
+    }
+    _wasConnected = isConnected;
+
     if (mounted) setState(() {});
+  }
+
+  void _checkFirstConnectPaywall() {
+    if (!_settings.hasShownFirstConnectPaywall && !_iapService.isPro) {
+      _settings.markFirstConnectPaywallShown();
+      Future.delayed(const Duration(milliseconds: 700), () {
+        if (mounted && !_iapService.isPro) {
+          ProPurchaseModal.show(context);
+        }
+      });
+    }
   }
 
   @override

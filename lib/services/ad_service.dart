@@ -120,7 +120,7 @@ class AdService extends ChangeNotifier with WidgetsBindingObserver {
               content: Text(
                 'Failed to load privacy options: ${formError.message}',
               ),
-              backgroundColor: Colors.redAccent,
+              backgroundColor: AppColors.error,
             ),
           );
         }

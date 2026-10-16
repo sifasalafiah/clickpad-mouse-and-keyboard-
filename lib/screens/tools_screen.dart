@@ -52,7 +52,7 @@ class _ToolsScreenState extends State<ToolsScreen> {
       description:
           'Scan barcodes & QR codes directly into PC input fields as keystrokes',
       icon: Icons.qr_code_scanner_rounded,
-      accentColor: Color(0xFF00E5FF),
+      accentColor: Color(0xFF4F46E5),
       badge: 'POPULAR',
       screen: ScannerScreen(),
       isPro: false,
@@ -91,7 +91,7 @@ class _ToolsScreenState extends State<ToolsScreen> {
       description:
           'Keep PC awake and prevent screen lock during long downloads or renders',
       icon: Icons.mouse_rounded,
-      accentColor: Color(0xFF06B6D4),
+      accentColor: Color(0xFF0284C7),
       badge: 'PRO',
       screen: MouseJigglerScreen(),
       isPro: true,
@@ -101,7 +101,7 @@ class _ToolsScreenState extends State<ToolsScreen> {
       description:
           'Couch remote for YouTube, Netflix, Spotify with big volume & seek controls',
       icon: Icons.play_circle_fill_rounded,
-      accentColor: Color(0xFFEC4899),
+      accentColor: Color(0xFFE11D48),
       badge: 'PRO',
       screen: MediaRemoteScreen(),
       isPro: true,
@@ -158,7 +158,7 @@ class _ToolsScreenState extends State<ToolsScreen> {
                 if (isTrial)
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
                       child: InkWell(
                         onTap: () {
                           HapticHelper.mediumImpact();
@@ -185,27 +185,27 @@ class _ToolsScreenState extends State<ToolsScreen> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withAlpha(25),
+                            color: AppColors.primary.withAlpha(20),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: Colors.orange.withAlpha(120),
+                              color: AppColors.primary.withAlpha(80),
                             ),
                           ),
                           child: Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.timer_outlined,
-                                color: Colors.orange,
+                                color: AppColors.primary,
                                 size: 18,
                               ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   'Free Trial Active: ${(trialSeconds ~/ 60).toString().padLeft(2, '0')}:${(trialSeconds % 60).toString().padLeft(2, '0')} remaining (All Tools Unlocked)',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.orange,
+                                    color: AppColors.primary,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -218,7 +218,7 @@ class _ToolsScreenState extends State<ToolsScreen> {
                                   vertical: 3,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.orange,
+                                  color: AppColors.primary,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Text(
@@ -226,7 +226,7 @@ class _ToolsScreenState extends State<ToolsScreen> {
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w900,
-                                    color: Colors.black,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ),
@@ -239,10 +239,7 @@ class _ToolsScreenState extends State<ToolsScreen> {
 
                 // Responsive Tools Grid / List
                 SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
+                  padding: EdgeInsets.fromLTRB(16, isTrial ? 4 : 16, 16, 16),
                   sliver: isWide
                       ? SliverGrid(
                           gridDelegate:
@@ -299,7 +296,7 @@ class _ToolsScreenState extends State<ToolsScreen> {
         child: Ink(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: AppColors.surfaceElevated,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: isLocked
@@ -310,7 +307,9 @@ class _ToolsScreenState extends State<ToolsScreen> {
               BoxShadow(
                 color: isLocked
                     ? const Color(0xFFFFD700).withAlpha(18)
-                    : Colors.black.withAlpha(20),
+                    : (AppColors.palette.isLight
+                          ? Colors.black.withAlpha(8)
+                          : Colors.black.withAlpha(20)),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -565,17 +564,17 @@ class _ToolsScreenState extends State<ToolsScreen> {
                       },
                     );
                   },
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.ondemand_video_rounded,
-                    color: Color(0xFF00E5FF),
+                    color: AppColors.primary,
                     size: 16,
                   ),
                   label: Text(
                     _iapService.isTrialActive
                         ? 'Extend Free Trial (+3 Mins)'
                         : 'Watch Video for 3-Min Free Trial',
-                    style: const TextStyle(
-                      color: Color(0xFF00E5FF),
+                    style: TextStyle(
+                      color: AppColors.primary,
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                     ),

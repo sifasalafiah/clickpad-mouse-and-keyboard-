@@ -83,403 +83,421 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
 
-    Widget keyboardBody = Container(
-      color: AppColors.background, // Sleek dynamic theme background
-      padding: const EdgeInsets.all(8),
-      child: SafeArea(
-        child: Column(
-          children: [
-            // ClickPad Keyboard Header Branding
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.keyboard, color: AppColors.primary, size: 18),
-                      const SizedBox(width: 8),
-                      Text(
-                        'ClickPad Keyboard',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                          letterSpacing: 0.2,
-                        ),
+    Widget keyboardContent = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      child: Column(
+        children: [
+          // ClickPad Keyboard Header Branding
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.keyboard, color: AppColors.primary, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'ClickPad Keyboard',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                        letterSpacing: 0.2,
                       ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildIndicatorDot('1', true),
-                      const SizedBox(width: 6),
-                      _buildIndicatorDot('2', false),
-                      const SizedBox(width: 6),
-                      _buildIndicatorDot('3', false),
-                      const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () {
-                          HapticHelper.mediumImpact();
-                          _settings.toggleFullScreen();
-                        },
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                          decoration: BoxDecoration(
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildIndicatorDot('1', true),
+                    const SizedBox(width: 6),
+                    _buildIndicatorDot('2', false),
+                    const SizedBox(width: 6),
+                    _buildIndicatorDot('3', false),
+                    const SizedBox(width: 10),
+                    InkWell(
+                      onTap: () {
+                        HapticHelper.mediumImpact();
+                        _settings.toggleFullScreen();
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _settings.isFullScreen
+                              ? AppColors.primary.withAlpha(
+                                  AppColors.palette.isLight ? 40 : 30,
+                                )
+                              : AppColors.surfaceElevated,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
                             color: _settings.isFullScreen
-                                ? AppColors.primary.withAlpha(AppColors.palette.isLight ? 40 : 30)
-                                : AppColors.surfaceElevated,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: _settings.isFullScreen ? AppColors.primary : AppColors.border,
-                              width: 1.0,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                _settings.isFullScreen
-                                    ? Icons.fullscreen_exit_rounded
-                                    : Icons.fullscreen_rounded,
-                                size: 14,
-                                color: _settings.isFullScreen ? AppColors.primary : AppColors.textSecondary,
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                _settings.isFullScreen ? 'Exit' : 'Full',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: _settings.isFullScreen ? AppColors.primary : AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
+                                ? AppColors.primary
+                                : AppColors.border,
+                            width: 1.0,
                           ),
                         ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _settings.isFullScreen
+                                  ? Icons.fullscreen_exit_rounded
+                                  : Icons.fullscreen_rounded,
+                              size: 14,
+                              color: _settings.isFullScreen
+                                  ? AppColors.primary
+                                  : AppColors.textSecondary,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              _settings.isFullScreen ? 'Exit' : 'Full',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: _settings.isFullScreen
+                                    ? AppColors.primary
+                                    : AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 4),
+
+          // Pebble Keyboard Body Frame
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.border, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.palette.isLight
+                        ? Colors.black.withAlpha(20)
+                        : Colors.black.withAlpha(120),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Row 0: Function Keys Bar
+                  Expanded(
+                    child: _buildRow([
+                      _PebbleKey('esc', 0x29, flex: 1, isAction: true),
+                      _PebbleKey(
+                        'F1',
+                        0x3A,
+                        flex: 1,
+                        isEasySwitch: true,
+                        switchNum: '1',
+                      ),
+                      _PebbleKey(
+                        'F2',
+                        0x3B,
+                        flex: 1,
+                        isEasySwitch: true,
+                        switchNum: '2',
+                      ),
+                      _PebbleKey(
+                        'F3',
+                        0x3C,
+                        flex: 1,
+                        isEasySwitch: true,
+                        switchNum: '3',
+                      ),
+                      _PebbleKey(
+                        'F4',
+                        0x3D,
+                        flex: 1,
+                        icon: Icons.volume_off,
+                        onTapOverride: () {
+                          HapticHelper.mediumImpact();
+                          _bleService.sendConsumerKey(0x10); // Mute
+                        },
+                      ),
+                      _PebbleKey(
+                        'F5',
+                        0x3E,
+                        flex: 1,
+                        icon: Icons.volume_down,
+                        onTapOverride: () {
+                          HapticHelper.lightImpact();
+                          _bleService.sendConsumerKey(0x40); // Vol Down
+                        },
+                      ),
+                      _PebbleKey(
+                        'F6',
+                        0x3F,
+                        flex: 1,
+                        icon: Icons.volume_up,
+                        onTapOverride: () {
+                          HapticHelper.lightImpact();
+                          _bleService.sendConsumerKey(0x20); // Vol Up
+                        },
+                      ),
+                      _PebbleKey(
+                        'F7',
+                        0x40,
+                        flex: 1,
+                        icon: Icons.skip_previous,
+                        onTapOverride: () {
+                          HapticHelper.lightImpact();
+                          _bleService.sendConsumerKey(0x02); // Prev Track
+                        },
+                      ),
+                      _PebbleKey(
+                        'F8',
+                        0x41,
+                        flex: 1,
+                        icon: Icons.play_arrow,
+                        onTapOverride: () {
+                          HapticHelper.mediumImpact();
+                          _bleService.sendConsumerKey(0x08); // Play/Pause
+                        },
+                      ),
+                      _PebbleKey(
+                        'F9',
+                        0x42,
+                        flex: 1,
+                        icon: Icons.skip_next,
+                        onTapOverride: () {
+                          HapticHelper.lightImpact();
+                          _bleService.sendConsumerKey(0x01); // Next Track
+                        },
+                      ),
+                      _PebbleKey('F10', 0x43, flex: 1, icon: Icons.search),
+                      _PebbleKey('F11', 0x44, flex: 1, icon: Icons.mic),
+                      _PebbleKey('F12', 0x45, flex: 1, icon: Icons.lock),
+                      _PebbleKey('del', 0x4C, flex: 1, isAction: true),
+                    ]),
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Row 1: Number Row
+                  Expanded(
+                    child: _buildRow([
+                      _PebbleKey(isUppercase ? '~' : '`', 0x35, flex: 1),
+                      _PebbleKey(isUppercase ? '!' : '1', 0x1E, flex: 1),
+                      _PebbleKey(isUppercase ? '@' : '2', 0x1F, flex: 1),
+                      _PebbleKey(isUppercase ? '#' : '3', 0x20, flex: 1),
+                      _PebbleKey(isUppercase ? '\$' : '4', 0x21, flex: 1),
+                      _PebbleKey(isUppercase ? '%' : '5', 0x22, flex: 1),
+                      _PebbleKey(isUppercase ? '^' : '6', 0x23, flex: 1),
+                      _PebbleKey(isUppercase ? '&' : '7', 0x24, flex: 1),
+                      _PebbleKey(isUppercase ? '*' : '8', 0x25, flex: 1),
+                      _PebbleKey(isUppercase ? '(' : '9', 0x26, flex: 1),
+                      _PebbleKey(isUppercase ? ')' : '0', 0x27, flex: 1),
+                      _PebbleKey(isUppercase ? '_' : '-', 0x2D, flex: 1),
+                      _PebbleKey(isUppercase ? '+' : '=', 0x2E, flex: 1),
+                      _PebbleKey('⌫', 0x2A, flex: 2, isAction: true),
+                    ]),
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Row 2: QWERTY Row
+                  Expanded(
+                    child: _buildRow([
+                      _PebbleKey('tab', 0x2B, flex: 2, isAction: true),
+                      _PebbleKey(isUppercase ? 'Q' : 'q', 0x14, flex: 1),
+                      _PebbleKey(isUppercase ? 'W' : 'w', 0x1A, flex: 1),
+                      _PebbleKey(isUppercase ? 'E' : 'e', 0x08, flex: 1),
+                      _PebbleKey(isUppercase ? 'R' : 'r', 0x15, flex: 1),
+                      _PebbleKey(isUppercase ? 'T' : 't', 0x17, flex: 1),
+                      _PebbleKey(isUppercase ? 'Y' : 'y', 0x1C, flex: 1),
+                      _PebbleKey(isUppercase ? 'U' : 'u', 0x18, flex: 1),
+                      _PebbleKey(isUppercase ? 'I' : 'i', 0x0C, flex: 1),
+                      _PebbleKey(isUppercase ? 'O' : 'o', 0x12, flex: 1),
+                      _PebbleKey(isUppercase ? 'P' : 'p', 0x13, flex: 1),
+                      _PebbleKey(isUppercase ? '{' : '[', 0x2F, flex: 1),
+                      _PebbleKey(isUppercase ? '}' : ']', 0x30, flex: 1),
+                      _PebbleKey(isUppercase ? '|' : '\\', 0x31, flex: 1),
+                    ]),
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Row 3: Home Row
+                  Expanded(
+                    child: _buildRow([
+                      _PebbleKey(
+                        'caps',
+                        0x39,
+                        flex: 2,
+                        isActive: _isCapsLocked,
+                        onTapOverride: () {
+                          HapticHelper.mediumImpact();
+                          setState(() => _isCapsLocked = !_isCapsLocked);
+                        },
+                      ),
+                      _PebbleKey(isUppercase ? 'A' : 'a', 0x04, flex: 1),
+                      _PebbleKey(isUppercase ? 'S' : 's', 0x16, flex: 1),
+                      _PebbleKey(isUppercase ? 'D' : 'd', 0x07, flex: 1),
+                      _PebbleKey(isUppercase ? 'F' : 'f', 0x09, flex: 1),
+                      _PebbleKey(isUppercase ? 'G' : 'g', 0x0A, flex: 1),
+                      _PebbleKey(isUppercase ? 'H' : 'h', 0x0B, flex: 1),
+                      _PebbleKey(isUppercase ? 'J' : 'j', 0x0D, flex: 1),
+                      _PebbleKey(isUppercase ? 'K' : 'k', 0x0E, flex: 1),
+                      _PebbleKey(isUppercase ? 'L' : 'l', 0x0F, flex: 1),
+                      _PebbleKey(isUppercase ? ':' : ';', 0x33, flex: 1),
+                      _PebbleKey(isUppercase ? '"' : '\'', 0x34, flex: 1),
+                      _PebbleKey('return', 0x28, flex: 2, isPrimary: true),
+                    ]),
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Row 4: Bottom Alpha Row
+                  Expanded(
+                    child: _buildRow([
+                      _PebbleKey(
+                        'shift',
+                        0x00,
+                        flex: 3,
+                        isActive: _isShiftActive,
+                        onTapOverride: () {
+                          HapticHelper.mediumImpact();
+                          setState(() => _isShiftActive = !_isShiftActive);
+                        },
+                      ),
+                      _PebbleKey(isUppercase ? 'Z' : 'z', 0x1D, flex: 1),
+                      _PebbleKey(isUppercase ? 'X' : 'x', 0x1B, flex: 1),
+                      _PebbleKey(isUppercase ? 'C' : 'c', 0x06, flex: 1),
+                      _PebbleKey(isUppercase ? 'V' : 'v', 0x19, flex: 1),
+                      _PebbleKey(isUppercase ? 'B' : 'b', 0x05, flex: 1),
+                      _PebbleKey(isUppercase ? 'N' : 'n', 0x11, flex: 1),
+                      _PebbleKey(isUppercase ? 'M' : 'm', 0x10, flex: 1),
+                      _PebbleKey(isUppercase ? '<' : ',', 0x36, flex: 1),
+                      _PebbleKey(isUppercase ? '>' : '.', 0x37, flex: 1),
+                      _PebbleKey(isUppercase ? '?' : '/', 0x38, flex: 1),
+                      _PebbleKey(
+                        'shift',
+                        0x00,
+                        flex: 3,
+                        isActive: _isShiftActive,
+                        onTapOverride: () {
+                          HapticHelper.mediumImpact();
+                          setState(() => _isShiftActive = !_isShiftActive);
+                        },
+                      ),
+                    ]),
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Row 5: Modifier & Spacebar Row
+                  Expanded(
+                    child: _buildRow([
+                      _PebbleKey(
+                        'ctrl',
+                        0x00,
+                        flex: 1,
+                        isActive: _isCtrlActive,
+                        onTapOverride: () {
+                          HapticHelper.mediumImpact();
+                          setState(() => _isCtrlActive = !_isCtrlActive);
+                        },
+                      ),
+                      _PebbleKey(
+                        'fn',
+                        0x00,
+                        flex: 1,
+                        isActive: _isFnActive,
+                        onTapOverride: () {
+                          HapticHelper.selectionClick();
+                          setState(() => _isFnActive = !_isFnActive);
+                        },
+                      ),
+                      _PebbleKey(
+                        'cmd',
+                        0x00,
+                        flex: 1,
+                        isActive: _isCmdActive,
+                        onTapOverride: () {
+                          HapticHelper.mediumImpact();
+                          setState(() => _isCmdActive = !_isCmdActive);
+                        },
+                      ),
+                      _PebbleKey(
+                        'opt',
+                        0x00,
+                        flex: 1,
+                        isActive: _isAltActive,
+                        onTapOverride: () {
+                          HapticHelper.mediumImpact();
+                          setState(() => _isAltActive = !_isAltActive);
+                        },
+                      ),
+                      _PebbleKey('space', 0x2C, flex: 6),
+                      _PebbleKey(
+                        'opt',
+                        0x00,
+                        flex: 1,
+                        isActive: _isAltActive,
+                        onTapOverride: () {
+                          HapticHelper.mediumImpact();
+                          setState(() => _isAltActive = !_isAltActive);
+                        },
+                      ),
+                      _PebbleKey(
+                        'cmd',
+                        0x00,
+                        flex: 1,
+                        isActive: _isCmdActive,
+                        onTapOverride: () {
+                          HapticHelper.mediumImpact();
+                          setState(() => _isCmdActive = !_isCmdActive);
+                        },
+                      ),
+                      _PebbleKey('◄', 0x50, flex: 1),
+                      _PebbleKey('▲', 0x52, flex: 1),
+                      _PebbleKey('▼', 0x51, flex: 1),
+                      _PebbleKey('►', 0x4F, flex: 1),
+                    ]),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 4),
-
-            // Pebble Keyboard Body Frame
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.border, width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.palette.isLight
-                          ? Colors.black.withAlpha(20)
-                          : Colors.black.withAlpha(120),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // Row 0: Function Keys Bar
-                    Expanded(
-                      child: _buildRow([
-                        _PebbleKey('esc', 0x29, flex: 1, isAction: true),
-                        _PebbleKey(
-                          'F1',
-                          0x3A,
-                          flex: 1,
-                          isEasySwitch: true,
-                          switchNum: '1',
-                        ),
-                        _PebbleKey(
-                          'F2',
-                          0x3B,
-                          flex: 1,
-                          isEasySwitch: true,
-                          switchNum: '2',
-                        ),
-                        _PebbleKey(
-                          'F3',
-                          0x3C,
-                          flex: 1,
-                          isEasySwitch: true,
-                          switchNum: '3',
-                        ),
-                        _PebbleKey(
-                          'F4',
-                          0x3D,
-                          flex: 1,
-                          icon: Icons.volume_off,
-                          onTapOverride: () {
-                            HapticHelper.mediumImpact();
-                            _bleService.sendConsumerKey(0x10); // Mute
-                          },
-                        ),
-                        _PebbleKey(
-                          'F5',
-                          0x3E,
-                          flex: 1,
-                          icon: Icons.volume_down,
-                          onTapOverride: () {
-                            HapticHelper.lightImpact();
-                            _bleService.sendConsumerKey(0x40); // Vol Down
-                          },
-                        ),
-                        _PebbleKey(
-                          'F6',
-                          0x3F,
-                          flex: 1,
-                          icon: Icons.volume_up,
-                          onTapOverride: () {
-                            HapticHelper.lightImpact();
-                            _bleService.sendConsumerKey(0x20); // Vol Up
-                          },
-                        ),
-                        _PebbleKey(
-                          'F7',
-                          0x40,
-                          flex: 1,
-                          icon: Icons.skip_previous,
-                          onTapOverride: () {
-                            HapticHelper.lightImpact();
-                            _bleService.sendConsumerKey(0x02); // Prev Track
-                          },
-                        ),
-                        _PebbleKey(
-                          'F8',
-                          0x41,
-                          flex: 1,
-                          icon: Icons.play_arrow,
-                          onTapOverride: () {
-                            HapticHelper.mediumImpact();
-                            _bleService.sendConsumerKey(0x08); // Play/Pause
-                          },
-                        ),
-                        _PebbleKey(
-                          'F9',
-                          0x42,
-                          flex: 1,
-                          icon: Icons.skip_next,
-                          onTapOverride: () {
-                            HapticHelper.lightImpact();
-                            _bleService.sendConsumerKey(0x01); // Next Track
-                          },
-                        ),
-                        _PebbleKey('F10', 0x43, flex: 1, icon: Icons.search),
-                        _PebbleKey('F11', 0x44, flex: 1, icon: Icons.mic),
-                        _PebbleKey('F12', 0x45, flex: 1, icon: Icons.lock),
-                        _PebbleKey('del', 0x4C, flex: 1, isAction: true),
-                      ]),
-                    ),
-                    const SizedBox(height: 4),
-
-                    // Row 1: Number Row
-                    Expanded(
-                      child: _buildRow([
-                        _PebbleKey(isUppercase ? '~' : '`', 0x35, flex: 1),
-                        _PebbleKey(isUppercase ? '!' : '1', 0x1E, flex: 1),
-                        _PebbleKey(isUppercase ? '@' : '2', 0x1F, flex: 1),
-                        _PebbleKey(isUppercase ? '#' : '3', 0x20, flex: 1),
-                        _PebbleKey(isUppercase ? '\$' : '4', 0x21, flex: 1),
-                        _PebbleKey(isUppercase ? '%' : '5', 0x22, flex: 1),
-                        _PebbleKey(isUppercase ? '^' : '6', 0x23, flex: 1),
-                        _PebbleKey(isUppercase ? '&' : '7', 0x24, flex: 1),
-                        _PebbleKey(isUppercase ? '*' : '8', 0x25, flex: 1),
-                        _PebbleKey(isUppercase ? '(' : '9', 0x26, flex: 1),
-                        _PebbleKey(isUppercase ? ')' : '0', 0x27, flex: 1),
-                        _PebbleKey(isUppercase ? '_' : '-', 0x2D, flex: 1),
-                        _PebbleKey(isUppercase ? '+' : '=', 0x2E, flex: 1),
-                        _PebbleKey('⌫', 0x2A, flex: 2, isAction: true),
-                      ]),
-                    ),
-                    const SizedBox(height: 4),
-
-                    // Row 2: QWERTY Row
-                    Expanded(
-                      child: _buildRow([
-                        _PebbleKey('tab', 0x2B, flex: 2, isAction: true),
-                        _PebbleKey(isUppercase ? 'Q' : 'q', 0x14, flex: 1),
-                        _PebbleKey(isUppercase ? 'W' : 'w', 0x1A, flex: 1),
-                        _PebbleKey(isUppercase ? 'E' : 'e', 0x08, flex: 1),
-                        _PebbleKey(isUppercase ? 'R' : 'r', 0x15, flex: 1),
-                        _PebbleKey(isUppercase ? 'T' : 't', 0x17, flex: 1),
-                        _PebbleKey(isUppercase ? 'Y' : 'y', 0x1C, flex: 1),
-                        _PebbleKey(isUppercase ? 'U' : 'u', 0x18, flex: 1),
-                        _PebbleKey(isUppercase ? 'I' : 'i', 0x0C, flex: 1),
-                        _PebbleKey(isUppercase ? 'O' : 'o', 0x12, flex: 1),
-                        _PebbleKey(isUppercase ? 'P' : 'p', 0x13, flex: 1),
-                        _PebbleKey(isUppercase ? '{' : '[', 0x2F, flex: 1),
-                        _PebbleKey(isUppercase ? '}' : ']', 0x30, flex: 1),
-                        _PebbleKey(isUppercase ? '|' : '\\', 0x31, flex: 1),
-                      ]),
-                    ),
-                    const SizedBox(height: 4),
-
-                    // Row 3: Home Row
-                    Expanded(
-                      child: _buildRow([
-                        _PebbleKey(
-                          'caps',
-                          0x39,
-                          flex: 2,
-                          isActive: _isCapsLocked,
-                          onTapOverride: () {
-                            HapticHelper.mediumImpact();
-                            setState(() => _isCapsLocked = !_isCapsLocked);
-                          },
-                        ),
-                        _PebbleKey(isUppercase ? 'A' : 'a', 0x04, flex: 1),
-                        _PebbleKey(isUppercase ? 'S' : 's', 0x16, flex: 1),
-                        _PebbleKey(isUppercase ? 'D' : 'd', 0x07, flex: 1),
-                        _PebbleKey(isUppercase ? 'F' : 'f', 0x09, flex: 1),
-                        _PebbleKey(isUppercase ? 'G' : 'g', 0x0A, flex: 1),
-                        _PebbleKey(isUppercase ? 'H' : 'h', 0x0B, flex: 1),
-                        _PebbleKey(isUppercase ? 'J' : 'j', 0x0D, flex: 1),
-                        _PebbleKey(isUppercase ? 'K' : 'k', 0x0E, flex: 1),
-                        _PebbleKey(isUppercase ? 'L' : 'l', 0x0F, flex: 1),
-                        _PebbleKey(isUppercase ? ':' : ';', 0x33, flex: 1),
-                        _PebbleKey(isUppercase ? '"' : '\'', 0x34, flex: 1),
-                        _PebbleKey('return', 0x28, flex: 2, isPrimary: true),
-                      ]),
-                    ),
-                    const SizedBox(height: 4),
-
-                    // Row 4: Bottom Alpha Row
-                    Expanded(
-                      child: _buildRow([
-                        _PebbleKey(
-                          'shift',
-                          0x00,
-                          flex: 3,
-                          isActive: _isShiftActive,
-                          onTapOverride: () {
-                            HapticHelper.mediumImpact();
-                            setState(() => _isShiftActive = !_isShiftActive);
-                          },
-                        ),
-                        _PebbleKey(isUppercase ? 'Z' : 'z', 0x1D, flex: 1),
-                        _PebbleKey(isUppercase ? 'X' : 'x', 0x1B, flex: 1),
-                        _PebbleKey(isUppercase ? 'C' : 'c', 0x06, flex: 1),
-                        _PebbleKey(isUppercase ? 'V' : 'v', 0x19, flex: 1),
-                        _PebbleKey(isUppercase ? 'B' : 'b', 0x05, flex: 1),
-                        _PebbleKey(isUppercase ? 'N' : 'n', 0x11, flex: 1),
-                        _PebbleKey(isUppercase ? 'M' : 'm', 0x10, flex: 1),
-                        _PebbleKey(isUppercase ? '<' : ',', 0x36, flex: 1),
-                        _PebbleKey(isUppercase ? '>' : '.', 0x37, flex: 1),
-                        _PebbleKey(isUppercase ? '?' : '/', 0x38, flex: 1),
-                        _PebbleKey(
-                          'shift',
-                          0x00,
-                          flex: 3,
-                          isActive: _isShiftActive,
-                          onTapOverride: () {
-                            HapticHelper.mediumImpact();
-                            setState(() => _isShiftActive = !_isShiftActive);
-                          },
-                        ),
-                      ]),
-                    ),
-                    const SizedBox(height: 4),
-
-                    // Row 5: Modifier & Spacebar Row
-                    Expanded(
-                      child: _buildRow([
-                        _PebbleKey(
-                          'ctrl',
-                          0x00,
-                          flex: 1,
-                          isActive: _isCtrlActive,
-                          onTapOverride: () {
-                            HapticHelper.mediumImpact();
-                            setState(() => _isCtrlActive = !_isCtrlActive);
-                          },
-                        ),
-                        _PebbleKey(
-                          'fn',
-                          0x00,
-                          flex: 1,
-                          isActive: _isFnActive,
-                          onTapOverride: () {
-                            HapticHelper.selectionClick();
-                            setState(() => _isFnActive = !_isFnActive);
-                          },
-                        ),
-                        _PebbleKey(
-                          'cmd',
-                          0x00,
-                          flex: 1,
-                          isActive: _isCmdActive,
-                          onTapOverride: () {
-                            HapticHelper.mediumImpact();
-                            setState(() => _isCmdActive = !_isCmdActive);
-                          },
-                        ),
-                        _PebbleKey(
-                          'opt',
-                          0x00,
-                          flex: 1,
-                          isActive: _isAltActive,
-                          onTapOverride: () {
-                            HapticHelper.mediumImpact();
-                            setState(() => _isAltActive = !_isAltActive);
-                          },
-                        ),
-                        _PebbleKey('space', 0x2C, flex: 6),
-                        _PebbleKey(
-                          'opt',
-                          0x00,
-                          flex: 1,
-                          isActive: _isAltActive,
-                          onTapOverride: () {
-                            HapticHelper.mediumImpact();
-                            setState(() => _isAltActive = !_isAltActive);
-                          },
-                        ),
-                        _PebbleKey(
-                          'cmd',
-                          0x00,
-                          flex: 1,
-                          isActive: _isCmdActive,
-                          onTapOverride: () {
-                            HapticHelper.mediumImpact();
-                            setState(() => _isCmdActive = !_isCmdActive);
-                          },
-                        ),
-                        _PebbleKey('◄', 0x50, flex: 1),
-                        _PebbleKey('▲', 0x52, flex: 1),
-                        _PebbleKey('▼', 0x51, flex: 1),
-                        _PebbleKey('►', 0x4F, flex: 1),
-                      ]),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
-
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (isPortrait) {
-          return RotatedBox(
-            quarterTurns: 1,
-            child: SizedBox(
-              width: constraints.maxHeight,
-              height: constraints.maxWidth,
-              child: keyboardBody,
+        final availableWidth = isPortrait
+            ? constraints.maxHeight
+            : constraints.maxWidth;
+        final availableHeight = isPortrait
+            ? constraints.maxWidth
+            : constraints.maxHeight;
+
+        Widget keyboardView = Container(
+          color: AppColors.background,
+          width: availableWidth,
+          height: availableHeight,
+          child: SafeArea(
+            child: Center(
+              child: AspectRatio(aspectRatio: 2.25, child: keyboardContent),
             ),
-          );
+          ),
+        );
+
+        if (isPortrait) {
+          return RotatedBox(quarterTurns: 1, child: keyboardView);
         }
-        return keyboardBody;
+        return keyboardView;
       },
     );
   }
@@ -536,12 +554,14 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
 
         final bool isKeyLight =
             ThemeData.estimateBrightnessForColor(keyBgColor) ==
-                Brightness.light;
+            Brightness.light;
 
-        final Color textColor =
-            isKeyLight ? AppColors.textPrimary : Colors.white;
-        final Color iconColor =
-            isKeyLight ? AppColors.textPrimary : Colors.white70;
+        final Color textColor = isKeyLight
+            ? AppColors.textPrimary
+            : Colors.white;
+        final Color iconColor = isKeyLight
+            ? AppColors.textPrimary
+            : Colors.white70;
 
         return Expanded(
           flex: key.flex,
@@ -572,8 +592,8 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                           ? AppColors.primaryLight
                           : key.isEasySwitch
                           ? (AppColors.palette.isLight
-                              ? AppColors.primary.withAlpha(160)
-                              : AppColors.primary.withAlpha(100))
+                                ? AppColors.primary.withAlpha(160)
+                                : AppColors.primary.withAlpha(100))
                           : const Color(0xFF3F4652),
                       width: key.isPrimary || key.isEasySwitch ? 1.5 : 1,
                     ),
@@ -592,11 +612,7 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (key.icon != null)
-                        Icon(
-                          key.icon,
-                          size: 13,
-                          color: iconColor,
-                        )
+                        Icon(key.icon, size: 13, color: iconColor)
                       else
                         Text(
                           key.label,
@@ -605,8 +621,8 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
                             fontWeight: key.isPrimary
                                 ? FontWeight.bold
                                 : (key.isEasySwitch
-                                    ? FontWeight.bold
-                                    : FontWeight.w600),
+                                      ? FontWeight.bold
+                                      : FontWeight.w600),
                             color: textColor,
                           ),
                         ),

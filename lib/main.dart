@@ -10,7 +10,6 @@ import 'services/gamepad_mapping_service.dart';
 import 'services/iap_service.dart';
 import 'services/settings_service.dart';
 import 'theme/app_theme.dart';
-import 'widgets/pro_purchase_modal.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,21 +97,7 @@ class _AppRootWrapperState extends State<AppRootWrapper> with WidgetsBindingObse
     _adServiceInitialized = true;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await AdService.instance.init();
-
-      // Show PRO modal 3 seconds after onboarding / consent flow on first install
-      if (!_settings.hasShownFirstInstallProModal &&
-          !IapService.instance.isPro) {
-        Future.delayed(const Duration(seconds: 3), () {
-          if (mounted &&
-              !IapService.instance.isPro &&
-              !_settings.hasShownFirstInstallProModal) {
-            _settings.markFirstInstallProModalShown();
-            ProPurchaseModal.show(context);
-          }
-        });
-      } else {
-        AdService.instance.showAppOpenAdIfAvailable();
-      }
+      AdService.instance.showAppOpenAdIfAvailable();
     });
   }
 

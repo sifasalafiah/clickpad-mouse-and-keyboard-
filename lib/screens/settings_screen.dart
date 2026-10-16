@@ -145,8 +145,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Card(
             color: isPro
                 ? (AppColors.palette.isLight
-                      ? const Color(0xFFFEFCE8)
-                      : const Color(0xFF1E2215))
+                      ? AppColors.surface
+                      : const Color(0xFF151C2C))
                 : (AppColors.palette.isLight
                       ? AppColors.surface
                       : AppColors.surfaceElevated),

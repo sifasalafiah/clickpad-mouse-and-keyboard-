@@ -70,7 +70,10 @@ class _NumpadScreenState extends State<NumpadScreen> {
       if (scancode == 0x2A) {
         // Backspace
         if (_liveExpression.isNotEmpty) {
-          _liveExpression = _liveExpression.substring(0, _liveExpression.length - 1);
+          _liveExpression = _liveExpression.substring(
+            0,
+            _liveExpression.length - 1,
+          );
         }
       } else if (scancode == 0x29) {
         // Esc / Clear
@@ -81,7 +84,9 @@ class _NumpadScreenState extends State<NumpadScreen> {
       } else if (label.length == 1) {
         _liveExpression += label;
         if (_liveExpression.length > 30) {
-          _liveExpression = _liveExpression.substring(_liveExpression.length - 30);
+          _liveExpression = _liveExpression.substring(
+            _liveExpression.length - 30,
+          );
         }
       }
     });
@@ -94,7 +99,9 @@ class _NumpadScreenState extends State<NumpadScreen> {
     setState(() {
       _liveExpression += '00';
       if (_liveExpression.length > 30) {
-        _liveExpression = _liveExpression.substring(_liveExpression.length - 30);
+        _liveExpression = _liveExpression.substring(
+          _liveExpression.length - 30,
+        );
       }
     });
   }
@@ -106,14 +113,20 @@ class _NumpadScreenState extends State<NumpadScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Accounting Numpad', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+        title: const Text(
+          'Accounting Numpad',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+        ),
         actions: [
           if (_iapService.isTrialActive)
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.orange.withAlpha(35),
                     borderRadius: BorderRadius.circular(10),
@@ -143,16 +156,20 @@ class _NumpadScreenState extends State<NumpadScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isConnected ? AppColors.success.withAlpha(30) : Colors.redAccent.withAlpha(30),
+                  color: isConnected
+                      ? AppColors.success.withAlpha(30)
+                      : AppColors.error.withAlpha(30),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: isConnected ? AppColors.success : Colors.redAccent),
+                  border: Border.all(
+                    color: isConnected ? AppColors.success : AppColors.error,
+                  ),
                 ),
                 child: Text(
                   isConnected ? 'ONLINE' : 'DISCONNECTED',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: isConnected ? AppColors.success : Colors.redAccent,
+                    color: isConnected ? AppColors.success : AppColors.error,
                   ),
                 ),
               ),
@@ -172,7 +189,11 @@ class _NumpadScreenState extends State<NumpadScreen> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.border),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withAlpha(30), blurRadius: 8, offset: const Offset(0, 2)),
+                  BoxShadow(
+                    color: Colors.black.withAlpha(30),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
                 ],
               ),
               child: Row(
@@ -182,12 +203,19 @@ class _NumpadScreenState extends State<NumpadScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.calculate_outlined, color: AppColors.primary, size: 20),
+                        Icon(
+                          Icons.calculate_outlined,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Flexible(
                           child: Text(
                             'PC Stream',
-                            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textMuted,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -203,7 +231,9 @@ class _NumpadScreenState extends State<NumpadScreen> {
                         fontSize: 22,
                         fontFamily: 'monospace',
                         fontWeight: FontWeight.bold,
-                        color: _liveExpression.isEmpty ? AppColors.textMuted : AppColors.primaryLight,
+                        color: _liveExpression.isEmpty
+                            ? AppColors.textMuted
+                            : AppColors.primaryLight,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -216,7 +246,10 @@ class _NumpadScreenState extends State<NumpadScreen> {
             // Numpad Grid
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Column(
                   children: [
                     // Row 1: Esc, Tab, /, *

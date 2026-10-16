@@ -81,84 +81,85 @@ class _MacroDeckScreenState extends State<MacroDeckScreen> {
           title: 'Lock Screen',
           subtitle: 'Ctrl + Cmd + Q',
           icon: Icons.lock_outline_rounded,
-          color: Colors.redAccent,
+          color: AppColors.error,
           onExecute: () => _hid.sendShortcutChord(0x09, 0x14), // Ctrl+Cmd+Q
         ),
         _MacroItem(
           title: 'Screenshot Area',
           subtitle: 'Cmd + Shift + 4',
           icon: Icons.crop_free_rounded,
-          color: Colors.purpleAccent,
+          color: const Color(0xFF8B5CF6),
           onExecute: () => _hid.sendShortcutChord(0x0A, 0x21), // Cmd+Shift+4
         ),
         _MacroItem(
           title: 'Force Quit Apps',
           subtitle: 'Cmd + Opt + Esc',
           icon: Icons.dangerous_outlined,
-          color: Colors.tealAccent,
+          color: const Color(0xFF0D9488),
           onExecute: () => _hid.sendShortcutChord(0x0C, 0x29), // Cmd+Option+Esc
         ),
         _MacroItem(
           title: 'Mission Control',
           subtitle: 'Ctrl + ▲ Up',
           icon: Icons.dashboard_rounded,
-          color: Colors.blueAccent,
+          color: const Color(0xFF3B82F6),
           onExecute: () => _hid.sendShortcutChord(0x01, 0x52), // Ctrl+Up Arrow
         ),
         _MacroItem(
           title: 'Show Desktop',
           subtitle: 'F11 / Cmd + F3',
           icon: Icons.desktop_windows_outlined,
-          color: Colors.orangeAccent,
-          onExecute: () => _hid.sendShortcutChord(0x00, 0x44), // F11 macOS Show Desktop
+          color: const Color(0xFFF59E0B),
+          onExecute: () =>
+              _hid.sendShortcutChord(0x00, 0x44), // F11 macOS Show Desktop
         ),
         _MacroItem(
           title: 'Hide Active App',
           subtitle: 'Cmd + H',
           icon: Icons.visibility_off_outlined,
-          color: Colors.deepOrangeAccent,
+          color: const Color(0xFFEA580C),
           onExecute: () => _hid.sendShortcutChord(0x08, 0x0B), // Cmd+H
         ),
         _MacroItem(
           title: 'Spotlight Search',
           subtitle: 'Cmd + Space',
           icon: Icons.search_rounded,
-          color: Colors.indigoAccent,
+          color: AppColors.primary,
           onExecute: () => _hid.sendShortcutChord(0x08, 0x2C), // Cmd+Space
         ),
         _MacroItem(
           title: 'Open Finder',
           subtitle: 'Cmd + Opt + Space',
           icon: Icons.folder_open_rounded,
-          color: Colors.amber,
+          color: const Color(0xFFD97706),
           onExecute: () => _hid.sendShortcutChord(0x0C, 0x2C), // Cmd+Opt+Space
         ),
         _MacroItem(
           title: 'Quit Application',
           subtitle: 'Cmd + Q',
           icon: Icons.power_settings_new_rounded,
-          color: Colors.red,
+          color: AppColors.error,
           onExecute: () => _hid.sendShortcutChord(0x08, 0x14), // Cmd+Q
         ),
         _MacroItem(
           title: 'Preferences',
           subtitle: 'Cmd + ,',
           icon: Icons.settings_outlined,
-          color: Colors.blueGrey,
+          color: const Color(0xFF64748B),
           onExecute: () => _hid.sendShortcutChord(0x08, 0x36), // Cmd+,
         ),
         _MacroItem(
           title: 'App Switcher',
           subtitle: 'Cmd + Tab',
           icon: Icons.tab_rounded,
-          color: Colors.cyan,
+          color: const Color(0xFF0284C7),
           onExecute: () => _hid.sendShortcutChord(0x08, 0x2B), // Cmd+Tab
         ),
         _MacroItem(
           title: 'Launchpad',
           subtitle: 'F4 / Fn + F4',
           icon: Icons.rocket_launch_rounded,
-          color: Colors.pinkAccent,
+          color: const Color(0xFFE11D48),
           onExecute: () => _hid.sendShortcutChord(0x00, 0x3D), // F4
         ),
       ];
@@ -168,84 +169,84 @@ class _MacroDeckScreenState extends State<MacroDeckScreen> {
           title: 'Lock PC',
           subtitle: 'Win + L',
           icon: Icons.lock_outline_rounded,
-          color: Colors.redAccent,
+          color: AppColors.error,
           onExecute: () => _hid.sendShortcutChord(0x08, 0x0F), // Win+L
         ),
         _MacroItem(
           title: 'Screenshot Snipping',
           subtitle: 'Win + Shift + S',
           icon: Icons.crop_free_rounded,
-          color: Colors.purpleAccent,
+          color: const Color(0xFF8B5CF6),
           onExecute: () => _hid.sendShortcutChord(0x0A, 0x16), // Win+Shift+S
         ),
         _MacroItem(
           title: 'Task Manager',
           subtitle: 'Ctrl + Shift + Esc',
           icon: Icons.monitor_heart_outlined,
-          color: Colors.tealAccent,
+          color: const Color(0xFF0D9488),
           onExecute: () => _hid.sendShortcutChord(0x03, 0x29), // Ctrl+Shift+Esc
         ),
         _MacroItem(
           title: 'Task View',
           subtitle: 'Win + Tab',
           icon: Icons.dashboard_rounded,
-          color: Colors.blueAccent,
+          color: const Color(0xFF3B82F6),
           onExecute: () => _hid.sendShortcutChord(0x08, 0x2B), // Win+Tab
         ),
         _MacroItem(
           title: 'Show Desktop',
           subtitle: 'Win + D',
           icon: Icons.desktop_windows_outlined,
-          color: Colors.orangeAccent,
+          color: const Color(0xFFF59E0B),
           onExecute: () => _hid.sendShortcutChord(0x08, 0x07), // Win+D
         ),
         _MacroItem(
           title: 'Minimize All',
           subtitle: 'Win + M',
           icon: Icons.minimize_rounded,
-          color: Colors.deepOrangeAccent,
+          color: const Color(0xFFEA580C),
           onExecute: () => _hid.sendShortcutChord(0x08, 0x10), // Win+M
         ),
         _MacroItem(
           title: 'Windows Search',
           subtitle: 'Win + S',
           icon: Icons.search_rounded,
-          color: Colors.indigoAccent,
+          color: AppColors.primary,
           onExecute: () => _hid.sendShortcutChord(0x08, 0x16), // Win+S
         ),
         _MacroItem(
           title: 'File Explorer',
           subtitle: 'Win + E',
           icon: Icons.folder_open_rounded,
-          color: Colors.amber,
+          color: const Color(0xFFD97706),
           onExecute: () => _hid.sendShortcutChord(0x08, 0x08), // Win+E
         ),
         _MacroItem(
           title: 'Close Window',
           subtitle: 'Alt + F4',
           icon: Icons.power_settings_new_rounded,
-          color: Colors.red,
+          color: AppColors.error,
           onExecute: () => _hid.sendShortcutChord(0x04, 0x3D), // Alt+F4
         ),
         _MacroItem(
           title: 'Windows Settings',
           subtitle: 'Win + I',
           icon: Icons.settings_outlined,
-          color: Colors.blueGrey,
+          color: const Color(0xFF64748B),
           onExecute: () => _hid.sendShortcutChord(0x08, 0x0C), // Win+I
         ),
         _MacroItem(
           title: 'App Switcher',
           subtitle: 'Alt + Tab',
           icon: Icons.tab_rounded,
-          color: Colors.cyan,
+          color: const Color(0xFF0284C7),
           onExecute: () => _hid.sendShortcutChord(0x04, 0x2B), // Alt+Tab
         ),
         _MacroItem(
           title: 'Run Dialog',
           subtitle: 'Win + R',
           icon: Icons.terminal_rounded,
-          color: Colors.pinkAccent,
+          color: const Color(0xFFE11D48),
           onExecute: () => _hid.sendShortcutChord(0x08, 0x15), // Win+R
         ),
       ];
@@ -254,7 +255,9 @@ class _MacroDeckScreenState extends State<MacroDeckScreen> {
 
   List<_MacroItem> get _browserMacros {
     final mod = _isMac ? 0x08 : 0x01; // Cmd (0x08) vs Ctrl (0x01)
-    final shiftMod = _isMac ? 0x0A : 0x03; // Cmd+Shift (0x0A) vs Ctrl+Shift (0x03)
+    final shiftMod = _isMac
+        ? 0x0A
+        : 0x03; // Cmd+Shift (0x0A) vs Ctrl+Shift (0x03)
     final prefix = _isMac ? 'Cmd' : 'Ctrl';
 
     return [
@@ -262,70 +265,70 @@ class _MacroDeckScreenState extends State<MacroDeckScreen> {
         title: 'New Tab',
         subtitle: '$prefix + T',
         icon: Icons.add_circle_outline_rounded,
-        color: Colors.cyan,
+        color: const Color(0xFF0284C7),
         onExecute: () => _hid.sendShortcutChord(mod, 0x17), // T
       ),
       _MacroItem(
         title: 'Close Tab',
         subtitle: '$prefix + W',
         icon: Icons.highlight_off_rounded,
-        color: Colors.pinkAccent,
+        color: AppColors.error,
         onExecute: () => _hid.sendShortcutChord(mod, 0x1A), // W
       ),
       _MacroItem(
         title: 'Reopen Tab',
         subtitle: '$prefix + Shift + T',
         icon: Icons.history_rounded,
-        color: Colors.lightGreenAccent,
+        color: const Color(0xFF10B981),
         onExecute: () => _hid.sendShortcutChord(shiftMod, 0x17), // Shift+T
       ),
       _MacroItem(
         title: 'Refresh Page',
         subtitle: '$prefix + R',
         icon: Icons.refresh_rounded,
-        color: Colors.lightBlue,
+        color: const Color(0xFF3B82F6),
         onExecute: () => _hid.sendShortcutChord(mod, 0x15), // R
       ),
       _MacroItem(
         title: 'Copy Text',
         subtitle: '$prefix + C',
         icon: Icons.copy_rounded,
-        color: Colors.indigoAccent,
+        color: AppColors.primary,
         onExecute: () => _hid.sendShortcutChord(mod, 0x06), // C
       ),
       _MacroItem(
         title: 'Paste Text',
         subtitle: '$prefix + V',
         icon: Icons.paste_rounded,
-        color: Colors.tealAccent,
+        color: const Color(0xFF0D9488),
         onExecute: () => _hid.sendShortcutChord(mod, 0x19), // V
       ),
       _MacroItem(
         title: 'Select All',
         subtitle: '$prefix + A',
         icon: Icons.select_all_rounded,
-        color: Colors.deepPurpleAccent,
+        color: const Color(0xFF8B5CF6),
         onExecute: () => _hid.sendShortcutChord(mod, 0x04), // A
       ),
       _MacroItem(
         title: 'Find on Page',
         subtitle: '$prefix + F',
         icon: Icons.search_rounded,
-        color: Colors.purpleAccent,
+        color: const Color(0xFF8B5CF6),
         onExecute: () => _hid.sendShortcutChord(mod, 0x09), // F
       ),
       _MacroItem(
         title: 'Undo Action',
         subtitle: '$prefix + Z',
         icon: Icons.undo_rounded,
-        color: Colors.amberAccent,
+        color: const Color(0xFFF59E0B),
         onExecute: () => _hid.sendShortcutChord(mod, 0x1D), // Z
       ),
       _MacroItem(
         title: 'Redo Action',
         subtitle: _isMac ? 'Cmd + Shift + Z' : 'Ctrl + Y',
         icon: Icons.redo_rounded,
-        color: Colors.teal,
+        color: const Color(0xFF0D9488),
         onExecute: () => _isMac
             ? _hid.sendShortcutChord(0x0A, 0x1D) // Cmd+Shift+Z
             : _hid.sendShortcutChord(0x01, 0x1C), // Ctrl+Y
@@ -334,14 +337,14 @@ class _MacroDeckScreenState extends State<MacroDeckScreen> {
         title: 'Save File',
         subtitle: '$prefix + S',
         icon: Icons.save_outlined,
-        color: Colors.greenAccent,
+        color: const Color(0xFF10B981),
         onExecute: () => _hid.sendShortcutChord(mod, 0x16), // S
       ),
       _MacroItem(
         title: 'Cut Text',
         subtitle: '$prefix + X',
         icon: Icons.content_cut_rounded,
-        color: Colors.redAccent,
+        color: AppColors.error,
         onExecute: () => _hid.sendShortcutChord(mod, 0x1B), // X
       ),
     ];
@@ -362,7 +365,10 @@ class _MacroDeckScreenState extends State<MacroDeckScreen> {
               padding: const EdgeInsets.only(right: 12),
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.orange.withAlpha(35),
                     borderRadius: BorderRadius.circular(10),
