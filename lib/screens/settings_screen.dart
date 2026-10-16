@@ -143,113 +143,162 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           // 1. ClickPad PRO Membership Card
           Card(
-            color: isPro
-                ? (AppColors.palette.isLight
-                      ? AppColors.surface
-                      : const Color(0xFF151C2C))
-                : (AppColors.palette.isLight
-                      ? AppColors.surface
-                      : AppColors.surfaceElevated),
+            color: AppColors.surfaceElevated,
             elevation: 0,
             margin: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
               side: BorderSide(
                 color: (isPro || isJoystickOnly)
-                    ? const Color(0xFFFFD700)
-                    : AppColors.primary,
-                width: 1.5,
+                    ? const Color(0xFFFFD700).withAlpha(90)
+                    : AppColors.primary.withAlpha(60),
+                width: 1,
               ),
             ),
             clipBehavior: Clip.antiAlias,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: (isPro || isJoystickOnly)
-                          ? const Color(
-                              0xFFFFD700,
-                            ).withAlpha(AppColors.palette.isLight ? 45 : 30)
-                          : AppColors.primary.withAlpha(30),
+            child: InkWell(
+              onTap: isPro
+                  ? null
+                  : () {
+                      HapticHelper.mediumImpact();
+                      ProPurchaseModal.show(context);
+                    },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: (isPro || isJoystickOnly)
+                            ? const Color(0xFFFFD700).withAlpha(
+                                AppColors.palette.isLight ? 40 : 25,
+                              )
+                            : AppColors.primary.withAlpha(25),
+                      ),
+                      child: Icon(
+                        Icons.workspace_premium_rounded,
+                        color: (isPro || isJoystickOnly)
+                            ? (AppColors.palette.isLight
+                                  ? const Color(0xFFB45309)
+                                  : const Color(0xFFFFD700))
+                            : AppColors.primary,
+                        size: 20,
+                      ),
                     ),
-                    child: Icon(
-                      Icons.workspace_premium,
-                      color: (isPro || isJoystickOnly)
-                          ? (AppColors.palette.isLight
-                                ? const Color(0xFFB45309)
-                                : const Color(0xFFFFD700))
-                          : AppColors.primary,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isPro
-                              ? 'ClickPad PRO Active'
-                              : (isJoystickOnly
-                                    ? 'Joystick Pass Active'
-                                    : 'Upgrade to ClickPad PRO'),
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: (isPro || isJoystickOnly)
-                                ? (AppColors.palette.isLight
-                                      ? const Color(0xFFB45309)
-                                      : const Color(0xFFFFD700))
-                                : AppColors.textPrimary,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isPro
+                                ? 'ClickPad PRO Active'
+                                : (isJoystickOnly
+                                      ? 'Joystick Pass Active'
+                                      : 'ClickPad PRO'),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: (isPro || isJoystickOnly)
+                                  ? (AppColors.palette.isLight
+                                        ? const Color(0xFFB45309)
+                                        : const Color(0xFFFFD700))
+                                  : AppColors.textPrimary,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          isPro
-                              ? '100% Ad-Free, Virtual Gamepad, & Full Tools Unlocked'
-                              : (isJoystickOnly
-                                    ? 'Virtual Gamepad Unlocked • Upgrade to PRO for 100% Ad-Free & Tools'
-                                    : 'Unlock Virtual Gamepad, 100% Ad-Free, & Full Tools'),
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textMuted,
+                          const SizedBox(height: 2),
+                          Text(
+                            isPro
+                                ? '100% Ad-Free • Gamepad 360° • Full Tools'
+                                : (isJoystickOnly
+                                      ? 'Upgrade for 100% Ad-Free & Remote Tools'
+                                      : 'Unlock Gamepad, Tools & Remove Ads'),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textMuted,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  if (!isPro) ...[
                     const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        HapticHelper.mediumImpact();
-                        ProPurchaseModal.show(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
+                    if (isPro)
+                      Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                        decoration: BoxDecoration(
+                          color: (AppColors.palette.isLight
+                                  ? const Color(0xFFB45309)
+                                  : const Color(0xFFFFD700))
+                              .withAlpha(25),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 11,
+                              color: AppColors.palette.isLight
+                                  ? const Color(0xFFB45309)
+                                  : const Color(0xFFFFD700),
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              'ACTIVE',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                                color: AppColors.palette.isLight
+                                    ? const Color(0xFFB45309)
+                                    : const Color(0xFFFFD700),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              isJoystickOnly ? 'Upgrade' : 'Get PRO',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            const Icon(
+                              Icons.chevron_right_rounded,
+                              size: 13,
+                              color: Colors.white,
+                            ),
+                          ],
                         ),
                       ),
-                      child: Text(
-                        isJoystickOnly ? 'Upgrade PRO' : 'Upgrade',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
                   ],
-                ],
+                ),
               ),
             ),
           ),
