@@ -11,7 +11,6 @@ import '../utils/haptic_helper.dart';
 import '../widgets/gamepad_layout_editor.dart';
 import '../widgets/gamepad_remapping_modal.dart';
 import '../widgets/pro_purchase_modal.dart';
-import 'onboarding_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -674,65 +673,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionHeader('Help & About'),
           _buildSectionCard(
             children: [
-              InkWell(
-                onTap: () {
-                  HapticHelper.selectionClick();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const OnboardingScreen(isRevisit: true),
-                    ),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withAlpha(30),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          Icons.auto_stories_rounded,
-                          color: AppColors.primaryLight,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Feature Guide & Onboarding',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Review walkthrough for touchpad, keyboard, & PC connection',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textMuted,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 14,
-                        color: AppColors.textMuted,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              _buildDivider(indent: 62),
               InkWell(
                 onTap: _handleRateApp,
                 child: Padding(
