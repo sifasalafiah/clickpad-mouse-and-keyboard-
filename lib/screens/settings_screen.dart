@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:in_app_review/in_app_review.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/ad_service.dart';
-import '../services/bluetooth_service.dart';
 import '../services/iap_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_colors.dart';
@@ -21,7 +22,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final SettingsService _settings = SettingsService.instance;
-  final BluetoothBleService _bleService = BluetoothBleService.instance;
   final IapService _iapService = IapService.instance;
   String _appVersion = '0.1.0(1)';
 
@@ -86,6 +86,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _onSettingsChanged() {
     if (mounted) setState(() {});
+  }
+
+  Future<void> _handleRateApp() async {
+    HapticHelper.mediumImpact();
+    final inAppReview = InAppReview.instance;
+
+    try {
+      if (await inAppReview.isAvailable()) {
+        await inAppReview.requestReview();
+        return;
+      }
+    } catch (e) {
+      debugPrint('In-app review request error: $e');
+    }
+
+    // Fallback if native in-app dialog is unavailable (e.g. testing in debug build)
+    try {
+      await inAppReview.openStoreListing();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.star_rounded, color: Color(0xFFFFD700), size: 20),
+                SizedBox(width: 8),
+                Text('Thank you for supporting ClickPad!'),
+              ],
+            ),
+            backgroundColor: AppColors.surfaceElevated,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _openFeedbackForm() async {
+    HapticHelper.selectionClick();
+    final Uri url = Uri.parse('https://forms.gle/BGtw3GBiGpy8wGYc8');
+    try {
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        await launchUrl(url);
+      }
+    } catch (e) {
+      debugPrint('Could not launch feedback url: $e');
+    }
   }
 
   Widget _buildSectionHeader(String title, {Widget? trailing}) {
@@ -304,87 +354,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 20),
 
-          // 2. Bluetooth HID Status Card (1 Card with Sekat)
-          _buildSectionHeader('Bluetooth Connection Profile'),
-          _buildSectionCard(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(25),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.bluetooth_connected,
-                        color: AppColors.primary,
-                        size: 22,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Native Bluetooth HID Hardware Emulation',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Your smartphone acts as a physical Bluetooth Mouse & Keyboard hardware device. Zero software or scripts required on your PC or Mac.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textMuted,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              _buildDivider(),
-              InkWell(
-                onTap: () => _bleService.openSystemBluetoothSettings(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.settings_bluetooth,
-                        size: 18,
-                        color: AppColors.primaryLight,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Open Phone Bluetooth Settings',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primaryLight,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // 3. Appearance (1 Card with Dark / Light Mode Switch)
+          // 2. Appearance (Dark / Light Mode Switch)
           _buildThemeSection(),
           const SizedBox(height: 20),
 
@@ -756,6 +726,112 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Icon(
                         Icons.arrow_forward_ios_rounded,
                         size: 14,
+                        color: AppColors.textMuted,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              _buildDivider(indent: 62),
+              InkWell(
+                onTap: _handleRateApp,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFD700).withAlpha(
+                            AppColors.palette.isLight ? 40 : 25,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.star_rounded,
+                          color: AppColors.palette.isLight
+                              ? const Color(0xFFB45309)
+                              : const Color(0xFFFFD700),
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Rate ClickPad',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Love using the app? Leave us a quick rating',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14,
+                        color: AppColors.textMuted,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              _buildDivider(indent: 62),
+              InkWell(
+                onTap: _openFeedbackForm,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withAlpha(25),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.chat_bubble_outline_rounded,
+                          color: AppColors.primaryLight,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Feature Request & Bug Feedback',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Suggest new features or report issues',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.open_in_new_rounded,
+                        size: 16,
                         color: AppColors.textMuted,
                       ),
                     ],

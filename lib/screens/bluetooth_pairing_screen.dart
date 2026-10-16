@@ -361,8 +361,8 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
           Expanded(
             child: _buildModeTab(
               index: 0,
-              title: 'Auto-Scan PC',
-              subtitle: 'ClickPad finds PC',
+              title: 'Auto-Scan',
+              subtitle: 'Find nearby devices',
               icon: Icons.radar_rounded,
             ),
           ),
@@ -371,7 +371,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
             child: _buildModeTab(
               index: 1,
               title: 'Broadcast Mode',
-              subtitle: 'PC finds ClickPad',
+              subtitle: 'Devices find ClickPad',
               icon: Icons.cell_tower_rounded,
             ),
           ),
@@ -829,13 +829,13 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
           ),
           const SizedBox(height: 16),
           const Text(
-            'Searching for nearby computers...',
+            'Searching for nearby devices...',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
           Text(
-            'Make sure Bluetooth is turned ON and discoverable on your PC or Mac.',
+            'Make sure Bluetooth is discoverable on your device (PC, Laptop, Phone, Tablet, etc).',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 12, color: AppColors.textMuted),
           ),
@@ -869,7 +869,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.history_rounded,
+              _getDeviceIcon(_settings.lastDeviceName),
               color: AppColors.primaryLight,
               size: 22,
             ),
@@ -880,7 +880,7 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'LAST CONNECTED PC',
+                  'LAST CONNECTED DEVICE',
                   style: TextStyle(
                     fontSize: 10,
                     color: AppColors.primaryLight,
@@ -949,12 +949,12 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Can\'t find your computer here?',
+                  'Can\'t find your device here?',
                   style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Switch to "Broadcast Mode" above to search for this phone directly from your computer\'s Bluetooth menu.',
+                  'Switch to "Broadcast Mode" above to search for this phone directly from your other device\'s Bluetooth menu.',
                   style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                 ),
               ],
@@ -1447,23 +1447,184 @@ class _BluetoothPairingScreenState extends State<BluetoothPairingScreen>
   }
 
   IconData _getDeviceIcon(String name) {
-    final lower = name.toLowerCase();
-    if (lower.contains('mac') ||
-        lower.contains('apple') ||
-        lower.contains('imac') ||
-        lower.contains('book')) {
-      return Icons.laptop_mac_rounded;
+    final lower = name.toLowerCase().trim();
+    if (lower.isEmpty) return Icons.bluetooth_rounded;
+
+    // 1. Apple-specific mobile & tablet devices
+    if (lower.contains('iphone')) {
+      return Icons.phone_iphone_rounded;
     }
-    if (lower.contains('pc') ||
-        lower.contains('desktop') ||
-        lower.contains('win') ||
-        lower.contains('tower')) {
-      return Icons.desktop_windows_rounded;
-    }
-    if (lower.contains('pad') || lower.contains('tab')) {
+    if (lower.contains('ipad')) {
       return Icons.tablet_mac_rounded;
     }
-    return Icons.devices_rounded;
+
+    // 2. Audio devices (Headphones, Earbuds, Speakers)
+    if (lower.contains('airpods') ||
+        lower.contains('buds') ||
+        lower.contains('headphone') ||
+        lower.contains('earphone') ||
+        lower.contains('headset') ||
+        lower.contains('earbuds') ||
+        lower.contains('soundbar') ||
+        lower.contains('speaker') ||
+        lower.contains('jbl') ||
+        lower.contains('soundcore') ||
+        lower.contains('bose') ||
+        lower.contains('sony wh-') ||
+        lower.contains('sony wf-')) {
+      return Icons.headphones_rounded;
+    }
+
+    // 3. Smart TVs, Streaming boxes, and Displays
+    if (lower.contains('smart tv') ||
+        lower.contains('androidtv') ||
+        lower.contains('firetv') ||
+        lower.contains('appletv') ||
+        lower.contains('chromecast') ||
+        lower.contains('roku') ||
+        lower.contains('bravia') ||
+        lower.contains('webos') ||
+        lower.contains('tizen') ||
+        lower.contains('shield') ||
+        lower.contains('mi box') ||
+        lower.contains('projector') ||
+        lower.contains('oled tv') ||
+        (lower.contains('tv') && !lower.contains('tvd'))) {
+      return Icons.tv_rounded;
+    }
+
+    // 4. Gaming Consoles & Controllers
+    if (lower.contains('playstation') ||
+        lower.contains('ps4') ||
+        lower.contains('ps5') ||
+        lower.contains('xbox') ||
+        lower.contains('nintendo') ||
+        lower.contains('switch') ||
+        lower.contains('steam deck') ||
+        lower.contains('controller') ||
+        lower.contains('gamepad') ||
+        lower.contains('joy-con')) {
+      return Icons.sports_esports_rounded;
+    }
+
+    // 5. Wearables (Smartwatches & Fitness Bands)
+    if (lower.contains('watch') ||
+        lower.contains('band') ||
+        lower.contains('fitbit') ||
+        lower.contains('garmin') ||
+        lower.contains('wear os') ||
+        lower.contains('gear s')) {
+      return Icons.watch_rounded;
+    }
+
+    // 6. Cars & Automotive Systems
+    if (lower.contains('carplay') ||
+        lower.contains('android auto') ||
+        lower.contains('infotainment') ||
+        lower.startsWith('car ') ||
+        lower.endsWith(' car')) {
+      return Icons.directions_car_rounded;
+    }
+
+    // 7. Laptops & Notebooks
+    if (lower.contains('macbook') ||
+        lower.contains('laptop') ||
+        lower.contains('notebook') ||
+        lower.contains('thinkpad') ||
+        lower.contains('zenbook') ||
+        lower.contains('vivobook') ||
+        lower.contains('yoga') ||
+        lower.contains('ideapad') ||
+        lower.contains('legion') ||
+        lower.contains('chromebook') ||
+        lower.contains('surface laptop') ||
+        lower.contains('surface book') ||
+        lower.contains('latitude') ||
+        lower.contains('xps') ||
+        lower.contains('inspiron') ||
+        lower.contains('pavilion') ||
+        lower.contains('envy') ||
+        lower.contains('spectre') ||
+        lower.contains('omen') ||
+        lower.contains('predator') ||
+        lower.contains('nitro') ||
+        lower.contains('tuf') ||
+        lower.contains('blade') ||
+        lower.contains('book')) {
+      return (lower.contains('mac') || lower.contains('apple'))
+          ? Icons.laptop_mac_rounded
+          : Icons.laptop_windows_rounded;
+    }
+
+    // 8. Tablets
+    if (lower.contains('tablet') ||
+        lower.contains('tab') ||
+        lower.contains('pad') ||
+        lower.contains('matepad') ||
+        lower.contains('mediapad') ||
+        lower.contains('surface pro') ||
+        lower.contains('surface go')) {
+      return Icons.tablet_android_rounded;
+    }
+
+    // 9. Desktop PCs & Macs
+    if (lower.contains('desktop') ||
+        lower.contains('pc') ||
+        lower.contains('windows') ||
+        lower.contains('win') ||
+        lower.contains('tower') ||
+        lower.contains('workstation') ||
+        lower.contains('rig') ||
+        lower.contains('nuc') ||
+        lower.contains('optiplex') ||
+        lower.contains('thinkcentre') ||
+        lower.contains('imac') ||
+        lower.contains('mac mini') ||
+        lower.contains('mac studio') ||
+        lower.contains('mac pro')) {
+      return (lower.contains('mac') || lower.contains('imac'))
+          ? Icons.desktop_mac_rounded
+          : Icons.desktop_windows_rounded;
+    }
+
+    // 10. Smartphones (Android & Popular Brands)
+    if (lower.contains('phone') ||
+        lower.contains('handphone') ||
+        lower.contains('smartphone') ||
+        lower.contains('mobile') ||
+        lower.contains('cellular') ||
+        lower.contains('galaxy') ||
+        lower.contains('samsung') ||
+        lower.contains('sm-') ||
+        lower.contains('pixel') ||
+        lower.contains('nexus') ||
+        lower.contains('redmi') ||
+        lower.contains('xiaomi') ||
+        lower.contains('poco') ||
+        lower.contains('oppo') ||
+        lower.contains('vivo') ||
+        lower.contains('realme') ||
+        lower.contains('oneplus') ||
+        lower.contains('huawei') ||
+        lower.contains('honor') ||
+        lower.contains('infinix') ||
+        lower.contains('tecno') ||
+        lower.contains('itel') ||
+        lower.contains('motorola') ||
+        lower.contains('moto') ||
+        lower.contains('xperia') ||
+        lower.contains('zenfone') ||
+        lower.contains('rog phone') ||
+        lower.contains('nothing') ||
+        lower.contains('android') ||
+        lower.startsWith('hp ') ||
+        lower.endsWith(' hp') ||
+        lower == 'hp') {
+      return Icons.phone_android_rounded;
+    }
+
+    // 11. Generic fallback (Neutral Bluetooth device icon instead of computer)
+    return Icons.bluetooth_rounded;
   }
 }
 
