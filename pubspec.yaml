@@ -1,7 +1,7 @@
 name: clickpad
 description: "PC Mouse, Keyboard & Joystick"
 publish_to: "none"
-version: 0.1.1+2
+version: 0.1.1+3
 
 environment:
   sdk: ^3.11.5

@@ -289,7 +289,6 @@ class _ProPurchaseModalState extends State<ProPurchaseModal> {
                                 '🎮 Joystick Game Pass successfully restored!',
                           );
                         } else {
-                          _safeClose();
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
